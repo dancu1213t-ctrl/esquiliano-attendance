@@ -1,0 +1,3 @@
+[functions.attendance-admin]
+verify_jwt = false
+# JWTs are verified using auth.getUser in the function before every operation.
