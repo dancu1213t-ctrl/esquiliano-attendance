@@ -37,3 +37,12 @@ The former Google Sheet remains the legacy archive. Accounts, photos and histori
 The root address opens the original Clock dashboard. The supplied image is used as the favicon; the original layout, colors and app mark are retained. Explicit view links and office QR scans enter the requested app screen directly. All six job roles are stored in att_profiles.job_role and appear in profiles and the People list. They do not affect administrator access; the existing role field continues to control permissions. Apply migration 202610230003_job_roles.sql and deploy the accompanying admin function when updating an independent installation.
 
 Push delivery works when the app is closed on supported, opted-in devices; a powered-off phone cannot display notifications. The current push-service TTL is five minutes. Messages remain in the database inbox even if a push expires. iPhone users need the Home Screen installation and notification permission. No claim of guaranteed delivery is made.
+
+
+## Integrated workspace
+
+The Work tab reuses the existing employee/admin Supabase sessions. There is no Firebase login, Apps Script endpoint, spreadsheet dependency or approval workflow. Active workers see only their own client records; administrators can read and edit all client records. Client fields include contact details, service, BZD quote and BTS IRIS/SSB/ERP/CRM login URLs, usernames and password-manager references. Actual passwords belong in a password manager. Edits keep a revision snapshot and use optimistic version checks.
+
+Team chat includes General, Operations, admin-only Announcements and direct conversations. Direct messages are readable by participants and administrators; the UI discloses administrator access. Directory uses existing profile names/photos. Direct messages and announcements create inbox notifications and use the existing push dispatcher. Chat refreshes through Supabase Realtime with a 20-second foreground fallback.
+
+Apply `supabase/migrations/202610240004_workspace.sql` after migrations 001–003. The migration was applied to the existing Esquiliano project. Run `supabase/tests/workspace.sql` to verify isolation, validation, revisions, idempotency, direct-message access, rate limiting and inactive/anonymous denial; all fixtures are rolled back. SwiftShop is not involved.
