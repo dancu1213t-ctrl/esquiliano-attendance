@@ -31,3 +31,9 @@ Install from the browser menu. The service worker caches only the app shell, nev
 JavaScript syntax checks, desktop and 320/390/430 px layout review, and transactional database checks cover profile/event/notification isolation, admin-only QR access, distance, accuracy, device reuse/revocation, current profile names, action sequencing and request deduplication. Database test fixtures are rolled back. Actual iOS/Android camera, GPS and push delivery still need an on-device test after HTTPS is ready.
 
 The former Google Sheet remains the legacy archive. Accounts, photos and historical records have not been imported automatically; the owner can add accounts using the new People screen. The Apps Script deployment remains available during transition.
+
+## Welcome and job roles
+
+The root address opens the branded welcome page. Explicit view links and office QR scans enter the requested app screen directly. All six job roles are stored in att_profiles.job_role and appear in profiles and the People list. They do not affect administrator access; the existing role field continues to control permissions. Apply migration 202610230003_job_roles.sql and deploy the accompanying admin function when updating an independent installation.
+
+Push delivery works when the app is closed on supported, opted-in devices; a powered-off phone cannot display notifications. The current push-service TTL is five minutes. Messages remain in the database inbox even if a push expires. iPhone users need the Home Screen installation and notification permission. No claim of guaranteed delivery is made.

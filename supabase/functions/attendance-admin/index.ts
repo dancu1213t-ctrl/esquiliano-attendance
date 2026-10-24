@@ -1,6 +1,7 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import webpush from 'npm:web-push@3.6.7';
 const URL=Deno.env.get('SUPABASE_URL')!,SERVICE=Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,ANON=Deno.env.get('SUPABASE_ANON_KEY')!;
+const jobRoles=['','Agent','Marketing Department','Assistant','Manager','Director','Accounting Department'];
 const origins=(Deno.env.get('ATTENDANCE_ORIGINS')||'https://attendance.swiftshopow.com').split(',');
 const db=createClient(URL,SERVICE,{auth:{persistSession:false,autoRefreshToken:false}});
 function result(body:unknown,status=200,origin=''){return new Response(JSON.stringify(body),{status,headers:{'Content-Type':'application/json','Access-Control-Allow-Origin':origins.includes(origin)?origin:origins[0],'Access-Control-Allow-Headers':'authorization,apikey,content-type,x-client-info','Access-Control-Allow-Methods':'POST,OPTIONS','Vary':'Origin'}})}
@@ -29,7 +30,7 @@ Deno.serve(async req=>{
   const client=createClient(URL,ANON,{global:{headers:{Authorization:'Bearer '+jwt}},auth:{persistSession:false}});
   const {data:{user},error:authError}=await client.auth.getUser(jwt);if(authError||!user)return result({error:'Session expired'},401,origin);
   const {data:actor}=await db.from('att_profiles').select('id,role,active').eq('id',user.id).single();if(!actor?.active)return result({error:'Account inactive'},403,origin);
-  const input=await req.json();if(input.action==='dispatch')return result(await dispatch(user.id),200,origin);
+  const input=await req.json();if(['create','update'].includes(input.action)&&input.jobRole!==undefined&&!jobRoles.includes(input.jobRole))throw Error('Choose a valid job role');if(input.action==='dispatch')return result(await dispatch(user.id),200,origin);
   if(actor.role!=='admin')return result({error:'Administrator required'},403,origin);
   let target=String(input.id||'');
   if(input.action==='create'){
@@ -37,13 +38,13 @@ Deno.serve(async req=>{
    if(!/^[A-Z0-9_-]{2,30}$/.test(employeeId)||!name||name.length>100||code.length<8||code.length>32||!['employee','admin'].includes(input.role))throw Error('Check employee ID, name, role and access code');
    const {data,error}=await db.auth.admin.createUser({email:employeeId.toLowerCase()+'@attendance.esquiliano.invalid',password:code,email_confirm:true});if(error)throw error;
    target=data.user.id;
-   const {error:profileError}=await db.from('att_profiles').insert({id:target,employee_id:employeeId,name,role:input.role,active:true});
+   const {error:profileError}=await db.from('att_profiles').insert({id:target,employee_id:employeeId,name,role:input.role,job_role:input.jobRole||'',active:true});
    if(profileError){await db.auth.admin.deleteUser(target);throw profileError;}
   }else if(input.action==='update'){
    const {data:current}=await db.from('att_profiles').select('*').eq('id',target).single();if(!current)throw Error('Person not found');
    const name=String(input.name||'').trim();if(!name||name.length>100||!['employee','admin'].includes(input.role)||typeof input.active!=='boolean')throw Error('Check person details');
    if(target===user.id&&(!input.active||input.role!=='admin'))throw Error('Keep your own administrator account active');
-   const {error}=await db.from('att_profiles').update({name,role:input.role,active:input.active}).eq('id',target);if(error)throw error;
+   const {error}=await db.from('att_profiles').update({name,role:input.role,active:input.active,...(input.jobRole!==undefined?{job_role:input.jobRole}:{})}).eq('id',target);if(error)throw error;
   }else if(input.action==='reset-code'){
    const code=String(input.code||'');if(code.length<8||code.length>32)throw Error('Use 8–32 characters');
    const {error}=await db.auth.admin.updateUserById(target,{password:code});if(error)throw error;
