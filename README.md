@@ -10,7 +10,7 @@ The browser config contains only the publishable key, project URL and public VAP
 
 ## Database
 
-Apply the two ordered files in supabase/migrations once to the Esquiliano project only. They create att_* tables and authenticated RPCs, with RLS on every table. The existing office coordinates, 100 m radius, 50 m maximum GPS uncertainty, Belize time, 8 AM–4 PM shift and 10-minute grace are defaults. The clock RPC computes time and location on the server, serializes employee submissions, rejects repeated actions and supports idempotent request IDs. Phone GPS reports can be spoofed; this is a proximity check, not a certified anti-fraud device.
+Apply all numbered files in supabase/migrations once to the Esquiliano project only. They create att_* tables and authenticated RPCs, with RLS on every table. The existing office coordinates, 100 m radius, 50 m maximum GPS uncertainty, Belize time, 8 AM–4 PM shift and 10-minute grace are defaults. The clock RPC computes time and location on the server, serializes employee submissions, rejects repeated actions and supports idempotent request IDs. Phone GPS reports can be spoofed; this is a proximity check, not a certified anti-fraud device.
 
 Deploy supabase/functions/attendance-admin. Its handler verifies the user token with Auth and checks the active admin profile before privileged actions. Legacy gateway JWT verification is off because the handler accepts the project's current Auth JWTs. CORS is restricted to the app domain. ATTENDANCE_ORIGINS can contain a comma-separated temporary test origin. VAPID_PUBLIC_KEY and VAPID_PRIVATE_KEY enable push; VAPID_SUBJECT defaults to the company contact. Default Supabase server secrets are supplied by the platform.
 
