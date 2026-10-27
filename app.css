@@ -17,3 +17,5 @@ body.clock-screen{background:#f4f5f2;background-image:radial-gradient(ellipse at
 
 
 .clock-today{display:grid;grid-template-columns:1fr 1fr;gap:16px;text-align:left;padding:16px 0;border-top:1px solid var(--line)}.clock-today>div{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:10px;color:var(--muted)}.clock-today>div+div{border-left:1px solid var(--line);padding-left:16px}.clock-today strong{font-size:11px;font-weight:600;color:var(--ink);white-space:nowrap}.slide-control:has(input:disabled){opacity:.5}.slide-control input:disabled{cursor:default}@media(max-width:360px){.clock-today{gap:10px}.clock-today>div{display:grid;gap:6px}.clock-today>div+div{padding-left:10px}}
+
+.clock-feedback.error{color:var(--red)}

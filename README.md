@@ -51,3 +51,8 @@ Apply `supabase/migrations/202610240004_workspace.sql` after migrations 001–00
 ## Attendance state repair — 27 October 2026
 
 Apply migration `202610270005_attendance_status.sql` after 004. Active administrators and workers can record their own attendance using their selected saved session; office QR, precise GPS and registered-device checks remain mandatory. The RPC returns the authoritative event and the UI immediately applies it before refreshing History and the admin register. The current status comes from the latest event for that selected user, including an open shift from an earlier date. Clock-in is unavailable during an open shift; clock-out is unavailable without an open shift. Successful retries reuse one request ID and do not produce duplicate records. Tests in `supabase/tests/attendance-status.sql` use rolled-back fixtures and do not create real attendance.
+
+
+## Scan completion — 27 October 2026
+
+A clock slider creates a short-lived, account-specific scan intent. A valid camera/photo scan resumes that action and saves it after the normal location/device checks, without requiring another slide. Cancelled, expired, direct-link or different-account scans do not submit an unintended attendance event. Progress and error messages remain visible on the Clock card. Clock-out remains available at any time while a shift is open; an early exit is recorded as Early departure rather than blocked. `tests/scan-completion.cjs` verifies the scan continuation and cancellation cases. `supabase/tests/clockout-anytime.sql` verifies saving before/after closing inside a rollback-only transaction.

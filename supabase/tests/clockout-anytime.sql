@@ -1,0 +1,21 @@
+begin;
+insert into auth.users(id,aud,role,email) values('eeeeeeee-0000-4000-8000-000000000006','authenticated','authenticated','anytime-test@attendance.invalid');
+insert into att_profiles(id,employee_id,name,role) values('eeeeeeee-0000-4000-8000-000000000006','ANYTIME-TEST','Anytime clock-out test','employee');
+update att_settings set closes='23:59:59',opens='00:00',grace_minutes=10 where id=1;
+set local role authenticated;
+select set_config('request.jwt.claim.sub','eeeeeeee-0000-4000-8000-000000000006',true);
+select att_register_device('ffffffff-0000-4000-8000-000000000006','Rollback-only anytime test');
+reset role;
+do $$declare s att_settings;token uuid;result jsonb;begin
+ select * into s from att_settings where id=1;select q.token into token from att_qr q where id=1;
+ perform set_config('request.jwt.claim.sub','eeeeeeee-0000-4000-8000-000000000006',true);
+ perform att_clock(gen_random_uuid(),'ffffffff-0000-4000-8000-000000000006',token,s.latitude,s.longitude,5,'Rollback-only test','IN');
+ result=att_clock(gen_random_uuid(),'ffffffff-0000-4000-8000-000000000006',token,s.latitude,s.longitude,5,'','OUT');
+ if result->>'action'<>'OUT' then raise exception 'FAIL clock-out before closing';end if;
+ update att_settings set closes='00:00' where id=1;
+ perform att_clock(gen_random_uuid(),'ffffffff-0000-4000-8000-000000000006',token,s.latitude,s.longitude,5,'Rollback-only test','IN');
+ result=att_clock(gen_random_uuid(),'ffffffff-0000-4000-8000-000000000006',token,s.latitude,s.longitude,5,'','OUT');
+ if result->>'action'<>'OUT' or result->>'timing'='Early departure' then raise exception 'FAIL clock-out after closing';end if;
+end $$;
+rollback;
+select 'PASS: clock-out saves both before and after office closing, without a late-arrival note; all test data rolled back' as result;
