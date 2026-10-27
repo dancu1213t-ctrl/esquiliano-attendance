@@ -46,3 +46,8 @@ The Work tab reuses the existing employee/admin Supabase sessions. There is no F
 Team chat includes General, Operations, admin-only Announcements and direct conversations. Direct messages are readable by participants and administrators; the UI discloses administrator access. Directory uses existing profile names/photos. Direct messages and announcements create inbox notifications and use the existing push dispatcher. Chat refreshes through Supabase Realtime with a 20-second foreground fallback.
 
 Apply `supabase/migrations/202610240004_workspace.sql` after migrations 001–003. The migration was applied to the existing Esquiliano project. Run `supabase/tests/workspace.sql` to verify isolation, validation, revisions, idempotency, direct-message access, rate limiting and inactive/anonymous denial; all fixtures are rolled back. SwiftShop is not involved.
+
+
+## Attendance state repair — 27 October 2026
+
+Apply migration `202610270005_attendance_status.sql` after 004. Active administrators and workers can record their own attendance using their selected saved session; office QR, precise GPS and registered-device checks remain mandatory. The RPC returns the authoritative event and the UI immediately applies it before refreshing History and the admin register. The current status comes from the latest event for that selected user, including an open shift from an earlier date. Clock-in is unavailable during an open shift; clock-out is unavailable without an open shift. Successful retries reuse one request ID and do not produce duplicate records. Tests in `supabase/tests/attendance-status.sql` use rolled-back fixtures and do not create real attendance.

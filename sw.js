@@ -1,5 +1,5 @@
-const CACHE='esquiliano-shell-v14';
-const SHELL=['./','./index.html','./app.css?v=14','./app.js?v=14','./workspace.js?v=14','./workspace.css?v=14','./config.js','./assets/favicon.png?v=10','./assets/favicon.png?v=10','./manifest.webmanifest','./vendor/supabase.js','./vendor/jsqr.js','./vendor/qrcode.js','./assets/icon-192.png?v=10','./assets/icon-512.png?v=10'];
+const CACHE='esquiliano-shell-v15';
+const SHELL=['./','./index.html','./app.css?v=15','./app.js?v=15','./workspace.js?v=14','./workspace.css?v=14','./attendance-state.js?v=15','./config.js','./assets/favicon.png?v=10','./assets/favicon.png?v=10','./manifest.webmanifest','./vendor/supabase.js','./vendor/jsqr.js','./vendor/qrcode.js','./assets/icon-192.png?v=10','./assets/icon-512.png?v=10'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(SHELL)));self.skipWaiting()});
 self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith('esquiliano-shell-')&&k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
 self.addEventListener('fetch',e=>{if(e.request.method!=='GET'||new URL(e.request.url).origin!==self.location.origin)return;e.respondWith(fetch(e.request).then(r=>{if(r.ok&&SHELL.some(p=>new URL(p,self.location).href===e.request.url)){const copy=r.clone();caches.open(CACHE).then(c=>c.put(e.request,copy))}return r}).catch(()=>caches.match(e.request).then(r=>r||new Response('Offline',{status:503}))));});
