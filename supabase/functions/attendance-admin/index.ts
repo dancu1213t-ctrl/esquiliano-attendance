@@ -5,7 +5,7 @@ const jobRoles=['','Agent','Marketing Department','Assistant','Manager','Directo
 const origins=(Deno.env.get('ATTENDANCE_ORIGINS')||'https://attendance.swiftshopow.com').split(',');
 const db=createClient(PROJECT_URL,SERVICE,{auth:{persistSession:false,autoRefreshToken:false}});
 function result(body:unknown,status=200,origin=''){return new Response(JSON.stringify(body),{status,headers:{'Content-Type':'application/json','Access-Control-Allow-Origin':origins.includes(origin)?origin:origins[0],'Access-Control-Allow-Headers':'authorization,apikey,content-type,x-client-info','Access-Control-Allow-Methods':'POST,OPTIONS','Vary':'Origin'}})}
-async function dispatch(actor:string,onlyId?:string){
+async function dispatch(actor:string,onlyId?:string,onlyEndpoint?:string){
  const priv=Deno.env.get('VAPID_PRIVATE_KEY'),pub=Deno.env.get('VAPID_PUBLIC_KEY');
  if(!priv||!pub)return {pushConfigured:false,delivered:0,failed:0};
  webpush.setVapidDetails(Deno.env.get('VAPID_SUBJECT')||'mailto:admin@esquilianoconsulting.com',pub,priv);
@@ -14,7 +14,7 @@ async function dispatch(actor:string,onlyId?:string){
  const {data:notes,error}=await query;if(error)throw error;
  let delivered=0,failed=0;
  for(const n of notes||[]){
-  const {data:subs,error:subError}=await db.from('att_push').select('id,subscription').eq('user_id',n.user_id);
+  let subscriptions=db.from('att_push').select('id,subscription').eq('user_id',n.user_id);if(onlyEndpoint)subscriptions=subscriptions.eq('endpoint',onlyEndpoint);const {data:subs,error:subError}=await subscriptions;
   if(subError)throw subError;let retry=false;
   for(const s of subs||[]){
    try{const host=new URL(s.subscription.endpoint).hostname;if(!(/(^|\.)(push\.apple\.com|fcm\.googleapis\.com|updates\.push\.services\.mozilla\.com|notify\.windows\.com)$/.test(host)))throw Error('Unsupported push endpoint');await webpush.sendNotification(s.subscription,JSON.stringify({id:n.id,title:n.title,body:n.body}),{TTL:86400});delivered++;}
@@ -34,11 +34,12 @@ Deno.serve(async req=>{
   const {data:{user},error:authError}=await client.auth.getUser(jwt);if(authError||!user)return result({error:'Session expired'},401,origin);
   const {data:actor}=await db.from('att_profiles').select('id,role,active').eq('id',user.id).single();if(!actor?.active)return result({error:'Account inactive'},403,origin);
   const input=await req.json();if(['create','update'].includes(input.action)&&input.jobRole!==undefined&&!jobRoles.includes(input.jobRole))throw Error('Choose a valid job role');if(input.action==='dispatch')return result(await dispatch(user.id),200,origin);
-  if(input.action==='push-status'){const {count,error}=await db.from('att_push').select('id',{count:'exact',head:true}).eq('user_id',user.id);if(error)throw error;return result({pushConfigured:!!Deno.env.get('VAPID_PRIVATE_KEY')&&!!Deno.env.get('VAPID_PUBLIC_KEY'),registered:!!count},200,origin);}
+  if(input.action==='push-status'){let subscriptionQuery=db.from('att_push').select('id',{count:'exact',head:true}).eq('user_id',user.id);if(typeof input.endpoint==='string')subscriptionQuery=subscriptionQuery.eq('endpoint',input.endpoint);const {count,error}=await subscriptionQuery;if(error)throw error;return result({pushConfigured:!!Deno.env.get('VAPID_PRIVATE_KEY')&&!!Deno.env.get('VAPID_PUBLIC_KEY'),registered:!!count},200,origin);}
   if(input.action==='test-push'){
+   const endpoint=typeof input.endpoint==='string'?input.endpoint:undefined;if(endpoint){const {data:registered,error}=await db.from('att_push').select('id').eq('user_id',user.id).eq('endpoint',endpoint).maybeSingle();if(error)throw error;if(!registered)throw Error('Enable notifications on this device first');}
    const {data:recent}=await db.from('att_notifications').select('id').eq('user_id',user.id).eq('actor_id',user.id).eq('title','Notification test').gte('created_at',new Date(Date.now()-30000).toISOString()).limit(1);if(recent?.length)throw Error('Wait 30 seconds before testing again');
    const {data:note,error}=await db.from('att_notifications').insert({user_id:user.id,actor_id:user.id,title:'Notification test',body:'Esquiliano notifications are working on this device.'}).select('id').single();if(error)throw error;
-   return result(await dispatch(user.id,note.id),200,origin);
+   return result(await dispatch(user.id,note.id,endpoint),200,origin);
   }
 
   if(actor.role!=='admin')return result({error:'Administrator required'},403,origin);
