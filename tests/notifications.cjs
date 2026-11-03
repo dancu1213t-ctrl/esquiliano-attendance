@@ -1,0 +1,11 @@
+const fs=require('fs'),vm=require('vm'),assert=require('assert');
+const source=fs.readFileSync(require('path').join(__dirname,'../app.js'),'utf8');
+const code=source.slice(source.indexOf('let pushBusy=false;'),source.indexOf('async function logout('));
+let user={id:'worker',name:'Worker'},calls=[],permission='default',sub=null;
+const storage=new Map(),els=new Map();
+const get=id=>{if(!els.has(id))els.set(id,{textContent:'',classList:{toggle(){}}});return els.get(id)};
+const reg={pushManager:{getSubscription:async()=>sub,subscribe:async()=>sub={endpoint:'https://push.test',toJSON(){return {endpoint:this.endpoint,keys:{}}}}},showNotification:async(...args)=>calls.push(['test',...args])};
+const context={console,Uint8Array,atob:s=>Buffer.from(s,'base64').toString('binary'),currentProfile:()=>user,clientForProfile:()=>({rpc:async(...x)=>{calls.push(x);return {data:null}}}),employee:user,admin:{id:'admin'},preview:false,cfg:{vapidPublicKey:'YWJj'},$:get,toast(){},check:r=>{if(r.error)throw r.error;return r.data},localStorage:{getItem:k=>storage.get(k),setItem:(k,v)=>storage.set(k,v),removeItem:k=>storage.delete(k)},window:{Notification:{},PushManager:{}},Notification:{get permission(){return permission},requestPermission:async()=>permission='granted'},navigator:{serviceWorker:{getRegistration:async()=>reg,ready:Promise.resolve(reg)}}};
+vm.createContext(context);vm.runInContext(code,context);
+(async()=>{await context.syncPush();assert.equal(get('pushStatus').textContent,'Enable →');await context.enablePush();assert.equal(calls[0][0],'att_subscribe');assert.equal(get('pushStatus').textContent,'Enabled');await context.syncPush();assert.equal(get('inboxPushStatus').textContent,'Enabled');await context.testPush();assert.equal(calls[1][0],'test');await context.disablePush();assert.equal(calls[2][0],'att_unsubscribe');assert.equal(get('pushStatus').textContent,'Enable →');permission='denied';await context.syncPush();assert.equal(get('pushStatus').textContent,'Blocked in device settings');await assert.rejects(context.enablePush(),/device or browser settings/);console.log('PASS enable, reopen status, test notification, disable and blocked permission');})().catch(e=>{console.error(e);process.exitCode=1});
+
