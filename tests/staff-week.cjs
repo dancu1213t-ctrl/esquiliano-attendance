@@ -7,3 +7,10 @@ const day=Date.parse('2026-11-02T06:00:00Z');assert.equal(shifts.reduce((sum,s)=
 const night=shifts[2],tuesday=Date.parse('2026-11-03T06:00:00Z');assert.equal(W.minutes(night,tuesday,tuesday+864e5),120);assert.equal(W.minutes(night,tuesday+864e5,tuesday+2*864e5),120);assert.equal(W.minutes(shifts[3],0,Date.now()),0);assert.equal(W.duration(480),'8h');assert.equal(W.duration(90),'1h 30m');
 console.log('PASS weekly dates, split shifts, breaks, overnight allocation and exclusion of open shifts from confirmed hours');
 
+const fs=require('fs'),vm=require('vm'),path=require('path');
+const code=fs.readFileSync(path.join(__dirname,'../staff.js'),'utf8');
+const fn=code.slice(code.indexOf('function durationToTime()'),code.indexOf('async function save('));
+const inputs={staffStart:{value:'2026-11-03T08:00:00'},staffDuration:{value:'7.51'},staffEnd:{value:''}};
+const ctx={el:id=>inputs[id],Date,Number,Math};vm.createContext(ctx);vm.runInContext(fn,ctx);ctx.durationToTime();assert.equal(inputs.staffEnd.value,'2026-11-03T15:30:36');
+console.log('PASS decimal hours preserve exact shift duration');
+
