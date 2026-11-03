@@ -17,7 +17,7 @@ async function dispatch(actor:string,onlyId?:string,onlyEndpoint?:string){
   let subscriptions=db.from('att_push').select('id,subscription').eq('user_id',n.user_id);if(onlyEndpoint)subscriptions=subscriptions.eq('endpoint',onlyEndpoint);const {data:subs,error:subError}=await subscriptions;
   if(subError)throw subError;let retry=false;
   for(const s of subs||[]){
-   try{const host=new URL(s.subscription.endpoint).hostname;if(!(/(^|\.)(push\.apple\.com|fcm\.googleapis\.com|updates\.push\.services\.mozilla\.com|notify\.windows\.com)$/.test(host)))throw Error('Unsupported push endpoint');await webpush.sendNotification(s.subscription,JSON.stringify({id:n.id,title:n.title,body:n.body}),{TTL:86400});delivered++;}
+   try{const host=new URL(s.subscription.endpoint).hostname;if(!(/(^|\.)(push\.apple\.com|fcm\.googleapis\.com|jmt17\.google\.com|updates\.push\.services\.mozilla\.com|notify\.windows\.com)$/.test(host)))throw Error('Unsupported push endpoint');await webpush.sendNotification(s.subscription,JSON.stringify({id:n.id,title:n.title,body:n.body}),{TTL:86400});delivered++;}
    catch(e){const status=(e as {statusCode?:number}).statusCode;if(status===404||status===410)await db.from('att_push').delete().eq('id',s.id);else{retry=true;failed++;console.error('Push delivery failed',status||'transport');}}
   }
   if(!retry){const {error}=await db.from('att_notifications').update({push_sent_at:new Date().toISOString()}).eq('id',n.id);if(error)throw error;}
