@@ -1,25 +1,28 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import webpush from 'npm:web-push@3.6.7';
-const URL=Deno.env.get('SUPABASE_URL')!,SERVICE=Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,ANON=Deno.env.get('SUPABASE_ANON_KEY')!;
+const PROJECT_URL=Deno.env.get('SUPABASE_URL')!,SERVICE=Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,ANON=Deno.env.get('SUPABASE_ANON_KEY')!;
 const jobRoles=['','Agent','Marketing Department','Assistant','Manager','Director','Accounting Department'];
 const origins=(Deno.env.get('ATTENDANCE_ORIGINS')||'https://attendance.swiftshopow.com').split(',');
-const db=createClient(URL,SERVICE,{auth:{persistSession:false,autoRefreshToken:false}});
+const db=createClient(PROJECT_URL,SERVICE,{auth:{persistSession:false,autoRefreshToken:false}});
 function result(body:unknown,status=200,origin=''){return new Response(JSON.stringify(body),{status,headers:{'Content-Type':'application/json','Access-Control-Allow-Origin':origins.includes(origin)?origin:origins[0],'Access-Control-Allow-Headers':'authorization,apikey,content-type,x-client-info','Access-Control-Allow-Methods':'POST,OPTIONS','Vary':'Origin'}})}
-async function dispatch(actor:string){
+async function dispatch(actor:string,onlyId?:string){
  const priv=Deno.env.get('VAPID_PRIVATE_KEY'),pub=Deno.env.get('VAPID_PUBLIC_KEY');
- if(!priv||!pub)return {pushConfigured:false};
+ if(!priv||!pub)return {pushConfigured:false,delivered:0,failed:0};
  webpush.setVapidDetails(Deno.env.get('VAPID_SUBJECT')||'mailto:admin@esquilianoconsulting.com',pub,priv);
- const {data:notes,error}=await db.from('att_notifications').select('*').eq('actor_id',actor).is('push_sent_at',null).gte('created_at',new Date(Date.now()-300000).toISOString()).limit(100);
- if(error)throw error;
+ let query=db.from('att_notifications').select('*').eq('actor_id',actor).is('push_sent_at',null).gte('created_at',new Date(Date.now()-86400000).toISOString()).order('created_at').limit(100);
+ if(onlyId)query=query.eq('id',onlyId);
+ const {data:notes,error}=await query;if(error)throw error;
+ let delivered=0,failed=0;
  for(const n of notes||[]){
-  const {data:subs}=await db.from('att_push').select('id,subscription').eq('user_id',n.user_id);
+  const {data:subs,error:subError}=await db.from('att_push').select('id,subscription').eq('user_id',n.user_id);
+  if(subError)throw subError;let retry=false;
   for(const s of subs||[]){
-   try{const host=new URL(s.subscription.endpoint).hostname;if(!(/(^|\.)(push\.apple\.com|fcm\.googleapis\.com|updates\.push\.services\.mozilla\.com|notify\.windows\.com)$/.test(host)))continue;await webpush.sendNotification(s.subscription,JSON.stringify({id:n.id,title:n.title,body:n.body}),{TTL:300});}
-   catch(e){if([404,410].includes(e.statusCode))await db.from('att_push').delete().eq('id',s.id);else console.error('Push delivery failed',n.id);}
+   try{const host=new URL(s.subscription.endpoint).hostname;if(!(/(^|\.)(push\.apple\.com|fcm\.googleapis\.com|updates\.push\.services\.mozilla\.com|notify\.windows\.com)$/.test(host)))throw Error('Unsupported push endpoint');await webpush.sendNotification(s.subscription,JSON.stringify({id:n.id,title:n.title,body:n.body}),{TTL:86400});delivered++;}
+   catch(e){const status=(e as {statusCode?:number}).statusCode;if(status===404||status===410)await db.from('att_push').delete().eq('id',s.id);else{retry=true;failed++;console.error('Push delivery failed',status||'transport');}}
   }
-  await db.from('att_notifications').update({push_sent_at:new Date().toISOString()}).eq('id',n.id);
+  if(!retry){const {error}=await db.from('att_notifications').update({push_sent_at:new Date().toISOString()}).eq('id',n.id);if(error)throw error;}
  }
- return {pushConfigured:true};
+ return {pushConfigured:true,delivered,failed};
 }
 Deno.serve(async req=>{
  const origin=req.headers.get('origin')||'';
@@ -27,10 +30,17 @@ Deno.serve(async req=>{
  if(req.method!=='POST'||(origin&&!origins.includes(origin)))return result({error:'Request not allowed'},403,origin);
  try{
   const jwt=req.headers.get('authorization')?.replace(/^Bearer /i,'');if(!jwt)return result({error:'Sign in required'},401,origin);
-  const client=createClient(URL,ANON,{global:{headers:{Authorization:'Bearer '+jwt}},auth:{persistSession:false}});
+  const client=createClient(PROJECT_URL,ANON,{global:{headers:{Authorization:'Bearer '+jwt}},auth:{persistSession:false}});
   const {data:{user},error:authError}=await client.auth.getUser(jwt);if(authError||!user)return result({error:'Session expired'},401,origin);
   const {data:actor}=await db.from('att_profiles').select('id,role,active').eq('id',user.id).single();if(!actor?.active)return result({error:'Account inactive'},403,origin);
   const input=await req.json();if(['create','update'].includes(input.action)&&input.jobRole!==undefined&&!jobRoles.includes(input.jobRole))throw Error('Choose a valid job role');if(input.action==='dispatch')return result(await dispatch(user.id),200,origin);
+  if(input.action==='push-status'){const {count,error}=await db.from('att_push').select('id',{count:'exact',head:true}).eq('user_id',user.id);if(error)throw error;return result({pushConfigured:!!Deno.env.get('VAPID_PRIVATE_KEY')&&!!Deno.env.get('VAPID_PUBLIC_KEY'),registered:!!count},200,origin);}
+  if(input.action==='test-push'){
+   const {data:recent}=await db.from('att_notifications').select('id').eq('user_id',user.id).eq('actor_id',user.id).eq('title','Notification test').gte('created_at',new Date(Date.now()-30000).toISOString()).limit(1);if(recent?.length)throw Error('Wait 30 seconds before testing again');
+   const {data:note,error}=await db.from('att_notifications').insert({user_id:user.id,actor_id:user.id,title:'Notification test',body:'Esquiliano notifications are working on this device.'}).select('id').single();if(error)throw error;
+   return result(await dispatch(user.id,note.id),200,origin);
+  }
+
   if(actor.role!=='admin')return result({error:'Administrator required'},403,origin);
   let target=String(input.id||'');
   if(input.action==='create'){

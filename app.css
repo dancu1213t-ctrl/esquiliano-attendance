@@ -21,3 +21,5 @@ body.clock-screen{background:#f4f5f2;background-image:radial-gradient(ellipse at
 .clock-feedback.error{color:var(--red)}
 
 .notification-controls{display:flex;align-items:center;flex-wrap:wrap;gap:12px;margin:16px 0 24px}.notification-controls button{max-width:100%;white-space:normal;overflow-wrap:anywhere}.notification-controls span{font-size:.8em;margin-left:8px}
+
+.notification-feedback{font-size:.9rem;line-height:1.5;overflow-wrap:anywhere;margin:8px 0 16px;color:var(--muted)}.notification-feedback:empty{display:none}.notification-feedback.error{color:var(--red)}.admin-attendance-tools{border-top:1px solid var(--line);margin-top:24px;padding-top:20px}.admin-attendance-tools h3{margin:0 0 12px}#correctionPerson{overflow-wrap:anywhere}#correctionTime{min-width:0;max-width:100%;width:100%}

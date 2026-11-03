@@ -56,3 +56,10 @@ Apply migration `202610270005_attendance_status.sql` after 004. Active administr
 ## Scan completion — 27 October 2026
 
 A clock slider creates a short-lived, account-specific scan intent. A valid camera/photo scan resumes that action and saves it after the normal location/device checks, without requiring another slide. Cancelled, expired, direct-link or different-account scans do not submit an unintended attendance event. Progress and error messages remain visible on the Clock card. Clock-out remains available at any time while a shift is open; an early exit is recorded as Early departure rather than blocked. `tests/scan-completion.cjs` verifies the scan continuation and cancellation cases. `supabase/tests/clockout-anytime.sql` verifies saving before/after closing inside a rollback-only transaction.
+
+## November 3 update
+Notification delivery fixes the URL constructor shadowing bug. Inbox always shows Test delivery; this now sends a server push, rather than creating a local-only notification. Permission, registration and delivery errors remain visible. Failed transport attempts remain pending for retry on a later dispatch; expired subscriptions are removed. Push TTL is 24 hours. Each browser subscription belongs to the account that most recently enabled it on that browser.
+
+Administrators can select Office or Work from home under People → Edit. Work-from-home users retain device registration and attendance sequencing, but do not need the office QR or GPS. Office staff retain QR and GPS checks. Under the same editor, Add clock in / Add clock out opens an office-time correction form. Reasons are required; each added record stores the admin, work location and reason, plus an audit entry. Existing records are preserved. Corrections must fit the existing sequence and cannot be future-dated.
+
+Validation: notification controls and server dispatch regression tests, scan continuation and WFH flow tests, and rollback-only SQL permission/sequence/audit tests. Phone notification permissions and actual OS display must still be checked on the receiving device.
