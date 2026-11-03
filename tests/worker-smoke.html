@@ -1,0 +1,3 @@
+<!doctype html><meta charset="utf-8"><title>Notification worker check</title><p id="result">Checking background activation…</p><script>
+(async()=>{let timer;try{const registration=await navigator.serviceWorker.register('../sw.js',{updateViaCache:'none'});const active=await Promise.race([navigator.serviceWorker.ready,new Promise((_,reject)=>timer=setTimeout(()=>reject(Error('Activation timed out')),15000))]);document.getElementById('result').textContent=active.active?'PASS: background worker is active.':'FAIL: worker has not activated.'}catch(e){document.getElementById('result').textContent='FAIL: '+e.message}finally{clearTimeout(timer)}})();
+</script>
