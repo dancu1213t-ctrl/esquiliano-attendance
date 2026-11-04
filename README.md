@@ -105,3 +105,10 @@ The cron runner works with the app closed, rechecks the creator is still an acti
 From 2026-11-04 office time, Bobby presents the Mr. Cu introduction on an eligible admin visit. The introduction has its own × and dismissal persists across devices.
 
 Validation: rollback SQL bobby-commands.sql covers worker denial, duplicate retries, correct clock sequence, no invented OUT without IN, introduction persistence, cancellation, and a one-time cron run. No fixture messages or hours were committed. Local isolated UI checks verified editable message review and clock time/reason review with a mock backend. Parser tests cover recipient resolution, reminders, explicit times, chosen dates, and unknown people.
+
+## Bobby design, counts and 5 p.m. checks
+Migration014 moves one-time checkout checks to 17:00 office time and updates the cron window. Pending tasks now use 17:00; completed tasks keep their original 16:00 metadata. This changes the scheduled task cutoff, not the separate office opening/closing settings. The command parser and task review display 5 p.m.; an explicit unsupported bulk-check time asks for clarification rather than silently substituting it.
+
+Bobby uses a detailed flat lion badge with a visible name and a matching messenger-style panel, warm neutral incoming messages, teal outgoing messages and a paper-plane send button. Admin-only visibility and dragging remain. Factual answers now include direct active worker/admin/staff counts, department/work-location counts, recorded attendance counts and highest/lowest confirmed weekly hours. Workers exclude administrator accounts. Unsupported facts still prompt clarification; no AI service is used.
+
+Validation: Bobby parser/fact regression tests; rollback-only bobby-5pm.sql verifies exactly one OUT at17:00 while preserving command permissions, cancellation and idempotency. No real staff records or messages were changed by tests.
