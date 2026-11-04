@@ -3,3 +3,5 @@ assert.match(F.answer('How many hours has Test Worker done this week so far?',s)
 s.days=[];s.events=[{user_id:'w',action:'IN',work_date:'2026-11-03',happened_at:'2026-11-03T14:15:00Z',late_minutes:15}];s.latest=s.events;assert.match(F.answer('Who forgot to clock out?',s),/Test Worker: open/);assert.match(F.answer('How many hours has Test Worker worked?',s),/provisional/);assert.match(F.answer('Who was late this week?',s),/15 min/);s.as_of='2026-11-03T20:00:00Z';assert.match(F.answer('Who has missing clock outs?',s),/No overdue/);console.log('PASS fresh factual totals, named days, manual/status distinction, missing punches, lateness and unsupported questions');
 
 assert.match(F.answer('How many workers do I have?',s),/1 active worker/);assert.match(F.answer('How many staff do we have?',s),/2 active staff/);assert.match(F.answer('How many administrators are there?',s),/1 active administrator/);
+
+for(const q of ['Who built Bobby?','Who made you?','Who is your creator?'])assert.equal(F.identity(q),'Bobby was built by Mr. Cu.');assert.equal(F.identity('Who built the office?'),null);assert.equal(F.answer('Who created Bobby?',null),'Bobby was built by Mr. Cu.');

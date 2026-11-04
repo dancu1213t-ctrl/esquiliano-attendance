@@ -8,3 +8,5 @@
 
 #bobbyForm .primary svg{stroke:#fff;stroke-width:1.7;fill:none;width:20px;height:20px}
 .bobby-name{white-space:nowrap!important;display:block;min-width:56px;width:auto;text-align:center;padding:2px 8px;line-height:15px}
+
+.bobby-credit{margin:0;padding:9px 16px 12px;border-top:1px solid #edf0eb;color:#7b8177;font-size:10px;line-height:1.5;text-align:center;flex-shrink:0;overflow-wrap:anywhere}
