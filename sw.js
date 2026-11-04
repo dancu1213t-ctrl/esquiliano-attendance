@@ -1,5 +1,5 @@
-const CACHE='esquiliano-shell-v25';
-const SHELL=[...new Set(['./','./index.html','./app.css?v=18','./app.js?v=22','./workspace.js?v=17','./workspace.css?v=14','./attendance-state.js?v=15','./config.js','./work-hours.js?v=22','./timesheet-export.js?v=24','./vendor/exceljs.min.js','./assets/report-header.png','./staff.js?v=25','./staff-week.js?v=22','./staff.css?v=25','./assets/favicon.png?v=10','./manifest.webmanifest','./vendor/supabase.js','./vendor/jsqr.js','./vendor/qrcode.js','./assets/icon-192.png?v=10','./assets/icon-512.png?v=10'])];
+const CACHE='esquiliano-shell-v26';
+const SHELL=[...new Set(['./','./index.html','./app.css?v=18','./app.js?v=26','./workspace.js?v=17','./workspace.css?v=14','./attendance-state.js?v=15','./config.js','./work-hours.js?v=22','./timesheet-export.js?v=26','./vendor/exceljs.min.js','./assets/report-header.png','./staff.js?v=26','./staff-week.js?v=22','./staff.css?v=25','./assets/favicon.png?v=10','./manifest.webmanifest','./vendor/supabase.js','./vendor/jsqr.js','./vendor/qrcode.js','./assets/icon-192.png?v=10','./assets/icon-512.png?v=10'])];
 self.addEventListener('install',e=>{
  const precache=caches.open(CACHE).then(c=>Promise.allSettled(SHELL.map(path=>c.add(path)))).catch(()=>{});
  let timer;e.waitUntil(Promise.race([precache,new Promise(resolve=>timer=setTimeout(resolve,8000))]).finally(()=>clearTimeout(timer)).then(()=>self.skipWaiting()));
