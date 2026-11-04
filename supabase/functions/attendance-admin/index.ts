@@ -30,12 +30,12 @@ Deno.serve(async req=>{
  if(req.method!=='POST'||(origin&&!origins.includes(origin)))return result({error:'Request not allowed'},403,origin);
  try{
   const input=await req.json();
-  if(input.action==='lunch-dispatch'){
+  if(['lunch-dispatch','bobby-dispatch'].includes(input.action)){
    if(typeof input.token!=='string'||!/^[0-9a-f-]{36}$/i.test(input.token))return result({error:'Request not allowed'},403,origin);
    const {data:secret,error:secretError}=await db.from('att_schedule_secret').select('token').eq('id',1).single();
    if(secretError||secret?.token!==input.token)return result({error:'Request not allowed'},403,origin);
    const day=new Date(Date.now()-21600000).toISOString().slice(0,10);
-   const {data:pending,error}=await db.from('att_notifications').select('id,actor_id').eq('lunch_date',day).is('push_sent_at',null).limit(100);if(error)throw error;
+   let queue=db.from('att_notifications').select('id,actor_id').is('push_sent_at',null).not('actor_id','is',null);queue=input.action==='lunch-dispatch'?queue.eq('lunch_date',day):queue.gte('created_at',new Date(Date.now()-86400000).toISOString());const {data:pending,error}=await queue.limit(100);if(error)throw error;
    let delivered=0,failed=0;for(const n of pending||[]){const sent=await dispatch(n.actor_id,n.id);delivered+=sent.delivered;failed+=sent.failed;}
    return result({ok:true,delivered,failed},200,origin);
   }
