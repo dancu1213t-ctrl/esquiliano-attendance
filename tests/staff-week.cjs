@@ -11,6 +11,6 @@ const fs=require('fs'),vm=require('vm'),path=require('path');
 const code=fs.readFileSync(path.join(__dirname,'../staff.js'),'utf8');
 const fn=code.slice(code.indexOf('function durationToTime()'),code.indexOf('async function save('));
 const inputs={staffStart:{value:'2026-11-03T08:00:00'},staffDuration:{value:'7.51'},staffEnd:{value:''}};
-const ctx={el:id=>inputs[id],Date,Number,Math};vm.createContext(ctx);vm.runInContext(fn,ctx);ctx.durationToTime();assert.equal(inputs.staffEnd.value,'2026-11-03T15:30:36');
+const ctx={el:id=>inputs[id],Date,Number,Math,WorkHours:require('../work-hours.js'),settings:{}};vm.createContext(ctx);vm.runInContext(fn,ctx);ctx.durationToTime();assert.equal(inputs.staffEnd.value,'2026-11-03T15:30:36');
 console.log('PASS decimal hours preserve exact shift duration');
 

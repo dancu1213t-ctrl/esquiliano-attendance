@@ -29,11 +29,21 @@ Deno.serve(async req=>{
  if(req.method==='OPTIONS')return result({},200,origin);
  if(req.method!=='POST'||(origin&&!origins.includes(origin)))return result({error:'Request not allowed'},403,origin);
  try{
+  const input=await req.json();
+  if(input.action==='lunch-dispatch'){
+   if(typeof input.token!=='string'||!/^[0-9a-f-]{36}$/i.test(input.token))return result({error:'Request not allowed'},403,origin);
+   const {data:secret,error:secretError}=await db.from('att_schedule_secret').select('token').eq('id',1).single();
+   if(secretError||secret?.token!==input.token)return result({error:'Request not allowed'},403,origin);
+   const day=new Date(Date.now()-21600000).toISOString().slice(0,10);
+   const {data:pending,error}=await db.from('att_notifications').select('id,actor_id').eq('lunch_date',day).is('push_sent_at',null).limit(100);if(error)throw error;
+   let delivered=0,failed=0;for(const n of pending||[]){const sent=await dispatch(n.actor_id,n.id);delivered+=sent.delivered;failed+=sent.failed;}
+   return result({ok:true,delivered,failed},200,origin);
+  }
   const jwt=req.headers.get('authorization')?.replace(/^Bearer /i,'');if(!jwt)return result({error:'Sign in required'},401,origin);
   const client=createClient(PROJECT_URL,ANON,{global:{headers:{Authorization:'Bearer '+jwt}},auth:{persistSession:false}});
   const {data:{user},error:authError}=await client.auth.getUser(jwt);if(authError||!user)return result({error:'Session expired'},401,origin);
   const {data:actor}=await db.from('att_profiles').select('id,role,active').eq('id',user.id).single();if(!actor?.active)return result({error:'Account inactive'},403,origin);
-  const input=await req.json();if(['create','update'].includes(input.action)&&input.jobRole!==undefined&&!jobRoles.includes(input.jobRole))throw Error('Choose a valid job role');if(input.action==='dispatch')return result(await dispatch(user.id),200,origin);
+  if(['create','update'].includes(input.action)&&input.jobRole!==undefined&&!jobRoles.includes(input.jobRole))throw Error('Choose a valid job role');if(input.action==='dispatch')return result(await dispatch(user.id),200,origin);
   if(input.action==='push-status'){let subscriptionQuery=db.from('att_push').select('id',{count:'exact',head:true}).eq('user_id',user.id);if(typeof input.endpoint==='string')subscriptionQuery=subscriptionQuery.eq('endpoint',input.endpoint);const {count,error}=await subscriptionQuery;if(error)throw error;return result({pushConfigured:!!Deno.env.get('VAPID_PRIVATE_KEY')&&!!Deno.env.get('VAPID_PUBLIC_KEY'),registered:!!count},200,origin);}
   if(input.action==='test-push'){
    const endpoint=typeof input.endpoint==='string'?input.endpoint:undefined;if(endpoint){const {data:registered,error}=await db.from('att_push').select('id').eq('user_id',user.id).eq('endpoint',endpoint).maybeSingle();if(error)throw error;if(!registered)throw Error('Enable notifications on this device first');}
