@@ -1,0 +1,33 @@
+rollback;begin;
+insert into auth.users(id,aud,role,email) values ('dbdbdbdb-0000-4000-8000-000000000001','authenticated','authenticated','delete-admin@test.invalid'),('dbdbdbdb-0000-4000-8000-000000000002','authenticated','authenticated','delete-worker@test.invalid');
+insert into att_profiles(id,employee_id,name,role,active) values ('dbdbdbdb-0000-4000-8000-000000000001','DELETE-TEST-ADMIN','Test admin','admin',true),('dbdbdbdb-0000-4000-8000-000000000002','DELETE-TEST-WORKER','Test worker','employee',true);
+set local role authenticated;
+select set_config('request.jwt.claim.sub','dbdbdbdb-0000-4000-8000-000000000002',true);
+do $$ begin
+ begin perform att_delete_shift(gen_random_uuid(),auth.uid(),gen_random_uuid(),null,1,null,'Worker deletion');raise exception 'FAIL worker deletion';exception when raise_exception then if SQLERRM like 'FAIL%' then raise;end if;end;
+ begin perform att_restore_shift(gen_random_uuid());raise exception 'FAIL worker restoration';exception when raise_exception then if SQLERRM like 'FAIL%' then raise;end if;end;
+end $$;
+select set_config('request.jwt.claim.sub','dbdbdbdb-0000-4000-8000-000000000001',true);
+do $$ declare a jsonb;b jsonb;c jsonb;archive uuid;request uuid:=gen_random_uuid();second_archive uuid;begin
+ a=att_admin_shift(gen_random_uuid(),'dbdbdbdb-0000-4000-8000-000000000002','2026-01-05 08:00','2026-01-06 16:00','office','Incorrect overnight shift');
+ b=att_admin_shift(gen_random_uuid(),'dbdbdbdb-0000-4000-8000-000000000002','2026-01-07 08:00',null,'office','Missed clock out');
+ begin perform att_delete_shift(gen_random_uuid(),'dbdbdbdb-0000-4000-8000-000000000002',(a->'clock_in'->>'id')::uuid,null,1,null,'Wrong partial deletion');raise exception 'FAIL partial deletion';exception when raise_exception then if SQLERRM like 'FAIL%' then raise;end if;end;
+ archive=att_delete_shift(request,'dbdbdbdb-0000-4000-8000-000000000002',(a->'clock_in'->>'id')::uuid,(a->'clock_out'->>'id')::uuid,1,1,'Incorrect overnight shift');
+ if (select count(*) from att_events where user_id='dbdbdbdb-0000-4000-8000-000000000002')<>1 then raise exception 'FAIL pair deletion';end if;
+ if att_delete_shift(request,'dbdbdbdb-0000-4000-8000-000000000002',(a->'clock_in'->>'id')::uuid,(a->'clock_out'->>'id')::uuid,1,1,'Incorrect overnight shift')<>archive then raise exception 'FAIL deletion retry';end if;
+ perform att_restore_shift(archive);perform att_restore_shift(archive);
+ if (select count(*) from att_events where user_id='dbdbdbdb-0000-4000-8000-000000000002')<>3 then raise exception 'FAIL restoration';end if;
+ begin perform att_delete_shift(gen_random_uuid(),'dbdbdbdb-0000-4000-8000-000000000002',(a->'clock_in'->>'id')::uuid,(a->'clock_out'->>'id')::uuid,1,1,'Stale deletion attempt');raise exception 'FAIL stale deletion';exception when raise_exception then if SQLERRM like 'FAIL%' then raise;end if;end;
+ archive=att_delete_shift(gen_random_uuid(),'dbdbdbdb-0000-4000-8000-000000000002',(a->'clock_in'->>'id')::uuid,(a->'clock_out'->>'id')::uuid,2,2,'Incorrect overnight shift');
+ c=att_admin_shift(gen_random_uuid(),'dbdbdbdb-0000-4000-8000-000000000002','2026-01-05 09:00','2026-01-05 17:00','office','Corrected replacement shift');
+ begin perform att_restore_shift(archive);raise exception 'FAIL overlapping restoration';exception when raise_exception then if SQLERRM like 'FAIL%' then raise;end if;end;
+ second_archive=att_delete_shift(gen_random_uuid(),'dbdbdbdb-0000-4000-8000-000000000002',(c->'clock_in'->>'id')::uuid,(c->'clock_out'->>'id')::uuid,1,1,'Remove replacement test');perform att_restore_shift(archive);
+ archive=att_delete_shift(gen_random_uuid(),'dbdbdbdb-0000-4000-8000-000000000002',(b->'clock_in'->>'id')::uuid,null,1,null,'Incorrect open shift');
+ if exists(select 1 from att_events where id=(b->'clock_in'->>'id')::uuid) then raise exception 'FAIL open deletion';end if;
+ perform att_restore_shift(archive);
+ if not exists(select 1 from att_audit where actor=auth.uid() and action='SHIFT_DELETED') or not exists(select 1 from att_audit where actor=auth.uid() and action='SHIFT_RESTORED') then raise exception 'FAIL audit';end if;
+end $$;
+select set_config('request.jwt.claim.sub','dbdbdbdb-0000-4000-8000-000000000002',true);
+do $$ begin if exists(select 1 from att_deleted_shifts) then raise exception 'FAIL archive visible to worker';end if;end $$;
+select 'PASS admin-only deletion, paired and open shifts, retries, stale versions, restoration, conflict protection and audit; all fixture changes rolled back' as result;
+rollback;

@@ -4,3 +4,5 @@
 
 
 .person-photo-editor{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:20px}.person-photo-editor label{cursor:pointer;margin:0}.person-photo-editor .avatar{width:56px;height:56px;flex-shrink:0}.person-photo-editor img{width:100%;height:100%;object-fit:cover}
+
+.staff-delete{color:#943d32!important}#staffDeleted{margin:16px 0}#staffDeleted summary{cursor:pointer;font-weight:600;padding:12px 0}#staffDeleteHint{overflow-wrap:anywhere}
