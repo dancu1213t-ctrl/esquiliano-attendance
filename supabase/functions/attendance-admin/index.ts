@@ -2,7 +2,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import webpush from 'npm:web-push@3.6.7';
 const PROJECT_URL=Deno.env.get('SUPABASE_URL')!,SERVICE=Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,ANON=Deno.env.get('SUPABASE_ANON_KEY')!;
 const jobRoles=['','Agent','Marketing Department','Assistant','Manager','Director','Accounting Department'];
-const origins=(Deno.env.get('ATTENDANCE_ORIGINS')||'https://attendance.swiftshopow.com').split(',');
+const origins=[...new Set(['https://attendance.esquilianoconsulting.com','https://attendance.swiftshopow.com',...(Deno.env.get('ATTENDANCE_ORIGINS')||'').split(',').map(s=>s.trim()).filter(Boolean)])];
 const db=createClient(PROJECT_URL,SERVICE,{auth:{persistSession:false,autoRefreshToken:false}});
 function result(body:unknown,status=200,origin=''){return new Response(JSON.stringify(body),{status,headers:{'Content-Type':'application/json','Access-Control-Allow-Origin':origins.includes(origin)?origin:origins[0],'Access-Control-Allow-Headers':'authorization,apikey,content-type,x-client-info','Access-Control-Allow-Methods':'POST,OPTIONS','Vary':'Origin'}})}
 async function dispatch(actor:string,onlyId?:string,onlyEndpoint?:string){
