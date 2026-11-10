@@ -48,7 +48,11 @@ function tick(){
   updateChristmasCountdown(new Date());
   const progress = $('officeProgress');
   const elapsed = Math.floor(Math.min(540, Math.max(0, localMinutes() - 480)));
-  if (progress.value !== elapsed) progress.value = elapsed;
+  if (progress.value !== elapsed) {
+    progress.value = elapsed;
+    progress.parentElement.style.setProperty('--office-fill', (elapsed / progress.max * 100) + '%');
+    progress.parentElement.classList.toggle('is-filling', elapsed > 0 && elapsed < progress.max);
+  }
   $('clockTime').textContent=fmtTime(new Date());$('clockDate').textContent=new Date().toLocaleDateString('en-US',{timeZone:settings.timezone,weekday:'long',month:'long',day:'numeric',year:'numeric'});$('dayLabel').textContent=new Date().toLocaleDateString('en-US',{timeZone:settings.timezone,weekday:'long',month:'short',day:'numeric'}).toUpperCase();renderClock()}
 function deviceLabel(){const ua=navigator.userAgent,os=/iPhone|iPad/.test(ua)?'iPhone / iPad':/Android/.test(ua)?'Android':/Windows/.test(ua)?'Windows':/Macintosh|Mac OS/.test(ua)?'Mac':'Computer',browser=/Edg\//.test(ua)?'Edge':/Firefox\//.test(ua)?'Firefox':/Chrome\//.test(ua)?'Chrome':/Safari\//.test(ua)?'Safari':'Browser';return browser+' · '+os}
 function unsupportedPush(){return /iPhone|iPad/.test(navigator.userAgent)?'Add this app to your Home Screen, open it there, then enable notifications':'Open this app in Chrome, Edge, Firefox or Safari to enable desktop notifications'}
