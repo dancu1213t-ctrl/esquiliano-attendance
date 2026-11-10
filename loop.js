@@ -1,5 +1,6 @@
 window.Loop=(()=>{
  const el=id=>document.getElementById(id),make=(tag,text,cls)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n};
+ const presenceTimeout=32000;
  const messageActivity=new Map();
  let presence=new Map(), presenceUpdated=0, presenceRequest, peopleKey="", threadLoad=0;
  let owner='',epoch=0,team=[],messages=[],receipts=[],hearts=[],heartBusy=new Set(),listReceipts=[],unreadByRoom=new Map(),room='',channel,channelClient,files=[],sending=false,request=null,loading=false,limit=100,renderKey='',drafts=new Map(),urls=new Map();
@@ -47,9 +48,9 @@ const summaries=check(recent);messages=summaries.map(x=>x.last_message).filter(m
  function presenceLabel(person){
   const entry=presence.get(person.id);
   const activity=messageActivity.get(person.id)||0;
-  const recentlyActive=Date.now()-activity<=75000;
+  const recentlyActive=Date.now()-activity<=presenceTimeout;
   if(!preview&&!presenceUpdated&&!recentlyActive)return make('small','Status unavailable');
-  const online=entry?.online||recentlyActive;
+  const online=(entry?.online && Date.now()-Date.parse(entry.last_seen)<=presenceTimeout)||recentlyActive;
   const label=make('small',online?'Online':'Offline','loop-presence'+(online?' online':''));
   const lastSeen=Math.max(Date.parse(entry?.last_seen)||0,activity);
   if(!online&&lastSeen){
