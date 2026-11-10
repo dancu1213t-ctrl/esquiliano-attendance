@@ -3,6 +3,8 @@
   const form = $('scheduleForm');
   const person = $('schedulePerson');
   const date = $('scheduleDate');
+  const extraDates = [$('scheduleDate2'), $('scheduleDate3')];
+  const dateFields = [date, ...extraDates];
   const start = $('scheduleStart');
   const end = $('scheduleEnd');
   const off = $('scheduleOff');
@@ -46,6 +48,7 @@
     dialog.showModal();
     person.replaceChildren();
     date.value = dayKey();
+    extraDates.forEach(field => { field.value = ''; });
     save.disabled = remove.disabled = true;
     status.textContent = 'Loading staff…';
     try {
@@ -65,24 +68,35 @@
   async function changeShift(deleting) {
     if (!admin || !person.value || !date.value) return;
     const employee_id = person.value;
-    const work_date = date.value;
+    const dates = deleting ? [date.value] : dateFields.map(field => field.value).filter(Boolean);
+    if (!deleting && dates.length > 1) {
+      const mondayOf = value => {
+        const day = new Date(value+'T00:00:00Z');
+        return day.getTime() - ((day.getUTCDay()+6)%7)*86400000;
+      };
+      if (new Set(dates).size !== dates.length || dates.some(day => day < dayKey() || mondayOf(day) !== mondayOf(dates[0]))) {
+        status.textContent = 'Choose distinct dates from today onward in the same Monday–Sunday week.';
+        return;
+      }
+    }
     const request = ++revision;
     save.disabled = remove.disabled = true;
-    person.disabled = date.disabled = true;
+    for (const field of [person,...dateFields]) field.disabled = true;
     try {
       const table = adminClient.from('att_planned_shifts');
       if (deleting) {
-        check(await table.delete().eq('employee_id',employee_id).eq('work_date',work_date));
+        check(await table.delete().eq('employee_id',employee_id).eq('work_date',dates[0]));
       } else {
-        check(await table.upsert({
+        check(await table.upsert(dates.map(work_date => ({
           employee_id, work_date, updated_by:admin.id,
           starts_at:off.checked ? null : start.value,
           ends_at:off.checked ? null : end.value
-        }, {onConflict:'employee_id,work_date'}));
+        })), {onConflict:'employee_id,work_date'}));
       }
       if (request !== revision) return;
+      extraDates.forEach(field => { field.value = ''; });
       await loadShift();
-      if (dialog.open) status.textContent = deleting ? 'Schedule removed.' : 'Schedule saved.';
+      if (dialog.open) status.textContent = deleting ? 'Schedule removed.' : dates.length+' date'+(dates.length===1?'':'s')+' saved.';
     } catch (error) {
       if (request === revision) {
         status.textContent = error.message;
@@ -90,7 +104,7 @@
         remove.disabled = deleting;
       }
     } finally {
-      person.disabled = date.disabled = false;
+      for (const field of [person,...dateFields]) field.disabled = false;
     }
   }
   form.addEventListener('submit', event => {
