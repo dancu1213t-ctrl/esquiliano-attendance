@@ -80,3 +80,27 @@ body.clock-screen{background:#f4f5f2;background-image:radial-gradient(ellipse at
   box-shadow:0 2px 6px #f3bd5970;
 }
 @media(max-width:480px){.clock-holiday-lights i:nth-child(even){display:none}}
+
+body.clock-screen:has(.clock-season:not(.hidden)){
+  background:#8d1825;
+  background-image:linear-gradient(180deg,#fff8ee 0,rgba(255,248,238,.95) 76px,rgba(255,248,238,.10) 240px),url("assets/christmas-background.jpg");
+  background-position:center,center top;
+  background-repeat:no-repeat;
+  background-size:100% 100%,cover;
+}
+body.clock-screen:has(.clock-season:not(.hidden)) .home-intro{
+  background:#fff8ee;border-radius:14px;padding:10px 14px;
+}
+.simple-clock:has(.clock-season:not(.hidden)){
+  background:#fffdf9;border-color:#e9d9bb;box-shadow:0 14px 38px #4d111c42;
+}
+.clock-season:not(.hidden){
+  width:fit-content;max-width:100%;box-sizing:border-box;
+  gap:clamp(8px,2vw,14px);margin:13px auto 0;padding:3px 12px 3px 6px;
+  border-radius:16px;color:#752535;font-size:clamp(.9rem,2.6vw,1.15rem);font-weight:600;
+  text-align:left;
+}
+.clock-season img{
+  flex:none;width:clamp(54px,13vw,80px);height:auto;
+  border-radius:0;object-fit:contain;opacity:1;
+}
