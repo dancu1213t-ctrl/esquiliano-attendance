@@ -1,5 +1,6 @@
 window.Loop=(()=>{
  const el=id=>document.getElementById(id),make=(tag,text,cls)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n};
+ const messageActivity=new Map();
  let presence=new Map(), presenceUpdated=0, presenceRequest, peopleKey="", threadLoad=0;
  let owner='',epoch=0,team=[],messages=[],receipts=[],hearts=[],heartBusy=new Set(),listReceipts=[],unreadByRoom=new Map(),room='',channel,channelClient,files=[],sending=false,request=null,loading=false,limit=100,renderKey='',drafts=new Map(),urls=new Map();
  const groups=[['general','General'],['operations','Operations'],['announcements','Announcements']];
@@ -9,12 +10,12 @@ window.Loop=(()=>{
  const dm=id=>'dm:'+ [owner,id].sort().join(':');
  const participant=r=>!r.startsWith('dm:')||r.split(':').includes(owner);
  function avatar(p){const a=make('span',undefined,'avatar loop-avatar');initAvatar(a,p);return a}
- function sessionChanged(){const id=currentProfile()?.id||'';if(id===owner)return;owner=id;epoch++;presenceRequest?.abort();presenceRequest=null;presence.clear();presenceUpdated=0;peopleKey="";room='';team=[];messages=[];receipts=[];hearts=[];heartBusy.clear();listReceipts=[];unreadByRoom.clear();files=[];request=null;drafts.clear();urls.clear();renderKey='';el('loopPeople').replaceChildren();el('loopLog').replaceChildren();el('loopText').value='';el('loopForm').classList.add('hidden');el('loopMedia').classList.add('hidden');if(el('loopForwardDialog').open)el('loopForwardDialog').close();el('loopThreadHeader').replaceChildren(make('p','Select a conversation'));el('loopView').classList.remove('thread-open');window.LoopViewport?.sync();if(channel)channelClient.removeChannel(channel);channel=null;if(id){refreshPresence();load().catch(error)}}
+ function sessionChanged(){const id=currentProfile()?.id||'';if(id===owner)return;owner=id;epoch++;presenceRequest?.abort();presenceRequest=null;presence.clear();messageActivity.clear();presenceUpdated=0;peopleKey="";room='';team=[];messages=[];receipts=[];hearts=[];heartBusy.clear();listReceipts=[];unreadByRoom.clear();files=[];request=null;drafts.clear();urls.clear();renderKey='';el('loopPeople').replaceChildren();el('loopLog').replaceChildren();el('loopText').value='';el('loopForm').classList.add('hidden');el('loopMedia').classList.add('hidden');if(el('loopForwardDialog').open)el('loopForwardDialog').close();el('loopThreadHeader').replaceChildren(make('p','Select a conversation'));el('loopView').classList.remove('thread-open');window.LoopViewport?.sync();if(channel)channelClient.removeChannel(channel);channel=null;if(id){refreshPresence();load().catch(error)}}
  function error(e){el('loopError').textContent=e.message||'Loop could not load'}
  async function show(){sessionChanged();if(!owner)return;await load().catch(error);subscribe();}
  function subscribe(){if(channel||preview||!owner)return;channelClient=clientForProfile();channel=channelClient.channel('loop-'+crypto.randomUUID()).on('postgres_changes',{event:'INSERT',schema:'public',table:'ws_messages'},()=>load().catch(error)).on('postgres_changes',{event:'*',schema:'public',table:'loop_receipts'},()=>load().catch(error)).on('postgres_changes',{event:'*',schema:'public',table:'loop_hearts'},()=>{if(room&&activeView==='loop')loadThread().catch(error)}).subscribe()}
  async function load(){if(loading||!owner)return;loading=true;const c=context();try{const [directory,recent]=preview?[{data:[demoPerson,{id:'00000000-0000-4000-8000-000000000002',name:'Sample colleague',employee_id:'EMP-002',department:'Accounting Department'}]},{data:[]}]:await Promise.all([c.client.rpc('loop_directory'),c.client.rpc('loop_conversations')]);if(!valid(c))return;team=check(directory);
-const summaries=check(recent);messages=summaries.map(x=>x.last_message).filter(m=>participant(m.room));listReceipts=summaries.flatMap(x=>x.receipt_rows||[]);unreadByRoom=new Map(summaries.map(x=>[x.room,Number(x.unread_count)]));if(!preview){const pending=messages.filter(m=>m.sender_id!==owner).map(m=>m.id);if(pending.length)check(await c.client.rpc('loop_ack',{ids:pending,seen:false}));if(!valid(c))return;}renderPeople();updateThreadPresence();if(room&&activeView==='loop')await loadThread();subscribe();}finally{loading=false}}
+const summaries=check(recent);messages=summaries.map(x=>x.last_message).filter(m=>participant(m.room));listReceipts=summaries.flatMap(x=>x.receipt_rows||[]);recordActivity(messages,listReceipts);unreadByRoom=new Map(summaries.map(x=>[x.room,Number(x.unread_count)]));if(!preview){const pending=messages.filter(m=>m.sender_id!==owner).map(m=>m.id);if(pending.length)check(await c.client.rpc('loop_ack',{ids:pending,seen:false}));if(!valid(c))return;}renderPeople();updateThreadPresence();if(room&&activeView==='loop')await loadThread();subscribe();}finally{loading=false}}
  async function refreshPresence(){
   if(preview||!owner||document.hidden||!navigator.onLine||presenceRequest)return;
   const c=context(),request=new AbortController();
@@ -34,13 +35,25 @@ const summaries=check(recent);messages=summaries.map(x=>x.last_message).filter(m
   if(valid(c)){renderPeople();updateThreadPresence()}
  }
  function readingRoom(){return activeView==='loop'&&!document.hidden&&document.hasFocus()&&(matchMedia('(min-width:701px)').matches||el('loopView').classList.contains('thread-open'))}
+ function recordActivity(rows,receiptRows){
+  const remember=(id,value)=>{
+   if(!id||id===owner||!value)return;
+   const time=Date.parse(value);
+   if(Number.isFinite(time)&&time>(messageActivity.get(id)||0))messageActivity.set(id,time);
+  };
+  for(const row of rows)remember(row.sender_id,row.created_at);
+  for(const receipt of receiptRows)remember(receipt.user_id,receipt.read_at);
+ }
  function presenceLabel(person){
-  if(!preview&&!presenceUpdated)return make('small','Status unavailable');
   const entry=presence.get(person.id);
-  const label=make('small',entry?.online?'Online':'Offline','loop-presence'+(entry?.online?' online':''));
-  if(entry&&!entry.online){
-   const seen=new Date(entry.last_seen);
-   label.textContent+=' · Last seen '+seen.toLocaleString('en-US',{timeZone:settings.timezone,month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});
+  const activity=messageActivity.get(person.id)||0;
+  const recentlyActive=Date.now()-activity<=75000;
+  if(!preview&&!presenceUpdated&&!recentlyActive)return make('small','Status unavailable');
+  const online=entry?.online||recentlyActive;
+  const label=make('small',online?'Online':'Offline','loop-presence'+(online?' online':''));
+  const lastSeen=Math.max(Date.parse(entry?.last_seen)||0,activity);
+  if(!online&&lastSeen){
+   label.textContent+=' · Last seen '+new Date(lastSeen).toLocaleString('en-US',{timeZone:settings.timezone,month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});
   }
   return label;
  }
@@ -73,6 +86,8 @@ const summaries=check(recent);messages=summaries.map(x=>x.last_message).filter(m
  ]):[{data:[]},{data:[]}];
  if(!valid(c)||room!==selectedRoom||loadId!==threadLoad)return;
  receipts=check(nextReceipts);
+ recordActivity(rows,receipts);
+ updateThreadPresence();
  hearts=check(nextHearts);
  if(readingRoom())unreadByRoom.set(selectedRoom,0);
  const loadedIds=new Set(ids);
