@@ -28,21 +28,22 @@ function renderHome(){const p=currentProfile(),hour=Math.floor(localMinutes()/60
 function dailyAsHistory(rows){return rows.map(r=>({...r,action:'DAILY',happened_at:r.work_date+'T12:00:00-06:00',name:people.find(p=>p.id===r.user_id)?.name||currentProfile()?.name,employee_id:people.find(p=>p.id===r.user_id)?.employee_id||currentProfile()?.employee_id}))}
 function recordList(id,list,adminView=false){list=[...list].sort((a,b)=>Date.parse(b.happened_at)-Date.parse(a.happened_at));const root=$(id);root.replaceChildren();if(!list.length){const p=document.createElement('p');p.className='empty';p.textContent='No records';root.append(p);return}for(const e of list){if(e.action==='DAILY'){const row=document.createElement('div');row.className='record';const main=document.createElement('div');main.className='record-content';const h=document.createElement('h3');h.textContent=adminView?e.name:e.status;const note=document.createElement('p');note.textContent=[adminView?e.employee_id:null,e.work_date,adminView?e.status:null,'Manual daily total'].filter(Boolean).join(' · ');main.append(h,note);const value=document.createElement('strong');value.textContent=e.hours+'h';row.append(main,value);root.append(row);continue}const row=document.createElement('div');row.className='record';const mark=document.createElement('div');mark.className='record-mark'+(e.action==='OUT'?' out':'');mark.textContent=e.action==='IN'?'↘':'↗';const content=document.createElement('div');content.className='record-content';const title=document.createElement('h3');title.textContent=adminView?e.name:(e.action==='IN'?'Clocked in':'Clocked out');const meta=document.createElement('p');meta.textContent=adminView?e.employee_id+' · '+(e.action==='IN'?'Clocked in':'Clocked out')+' · '+new Date(e.happened_at).toLocaleDateString('en-US',{timeZone:settings.timezone,month:'short',day:'numeric',year:'numeric'}):new Date(e.happened_at).toLocaleDateString('en-US',{timeZone:settings.timezone,month:'short',day:'numeric'});content.append(title,meta);if(e.work_mode==='home'||e.entry_source==='admin'){const detail=document.createElement('p');detail.textContent=[e.work_mode==='home'?'Work from home':null,e.entry_source==='admin'?'Added by administrator':null,e.entry_source==='admin'?e.correction_reason:null].filter(Boolean).join(' · ');content.append(detail)}if(adminView&&e.late_note&&e.entry_source!=='admin'){const n=document.createElement('p');n.textContent=e.late_note;content.append(n)}const right=document.createElement('div');right.className='record-meta';const t=document.createElement('time');t.textContent=fmtTime(e.happened_at);const timing=document.createElement('span');timing.textContent=e.timing;timing.className=e.timing==='Late'?'late':'';right.append(t,timing);row.append(mark,content,right);root.append(row)}}
 const officeCalendar=new Intl.DateTimeFormat('en-US',{year:'numeric',month:'numeric',day:'numeric',timeZone:'America/Belize'});
-let christmasDateKey='';
 function updateChristmasCountdown(now){
   const parts=officeCalendar.formatToParts(now);
-  const key=parts.map(part=>part.value).join('');
-  if(key===christmasDateKey)return;
-  christmasDateKey=key;
   const {year,month,day}=Object.fromEntries(parts.map(part=>[part.type,Number(part.value)]));
   const today=Date.UTC(year,month-1,day);
-  const christmas=Date.UTC(year,11,25);
-  const visible=today>=Date.UTC(year,10,10)&&today<=christmas;
+  const visible=today>=Date.UTC(year,10,10)&&today<=Date.UTC(year,11,25);
   $('christmasCountdown').classList.toggle('hidden',!visible);
-  if(visible){
-    const days=(christmas-today)/86400000;
-    $('christmasLabel').textContent=days===0?'Merry Christmas':days+' '+(days===1?'day':'days')+' until Christmas';
-  }
+  if(!visible)return;
+  const remaining=Math.max(0,Math.ceil((Date.parse(year+'-12-25T00:00:00-06:00')-now.getTime())/1000));
+  $('christmasTimer').classList.toggle('hidden',remaining===0);
+  $('christmasCaption').textContent=remaining?'Till Christmas':'Merry Christmas';
+  for(const [unit,value] of Object.entries({
+    Days:Math.floor(remaining/86400),
+    Hours:Math.floor(remaining/3600)%24,
+    Mins:Math.floor(remaining/60)%60,
+    Secs:remaining%60
+  })) $('christmas'+unit).textContent=String(value).padStart(2,'0');
 }
 function tick(){
   updateChristmasCountdown(new Date());

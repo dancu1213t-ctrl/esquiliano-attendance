@@ -135,3 +135,12 @@ body.clock-screen:has(.clock-season:not(.hidden)) .clock-snow{
 @media(prefers-reduced-motion:reduce){
   body.clock-screen:has(.clock-season:not(.hidden)) .clock-snow{display:none}
 }
+
+.clock-season img{width:clamp(88px,20vw,126px)}
+.christmas-readout{width:clamp(136px,32vw,188px);min-width:0;text-align:center}
+.christmas-units{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 12px}
+.christmas-units strong,.christmas-units span{display:block}
+.christmas-units strong{font-size:clamp(1.55rem,5vw,2.25rem);line-height:1;font-variant-numeric:tabular-nums}
+.christmas-units span{color:#ffdc9b;font-size:.68rem;text-transform:uppercase;letter-spacing:.07em}
+.christmas-caption{display:block;width:100%;height:auto;overflow:visible}
+.christmas-caption text{fill:#fff8e7;font:italic 700 19px Georgia,serif}
