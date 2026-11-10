@@ -105,3 +105,9 @@ body.clock-screen{background:#f4f5f2;background-image:radial-gradient(ellipse at
 .simple-clock:has(.clock-season:not(.hidden)) .slide-thumb{font-weight:800}
 .simple-clock:has(.clock-season:not(.hidden)) .clock-holiday-lights::before{border-color:#ffdb92}
 .simple-clock:has(.clock-season:not(.hidden)) .clock-holiday-lights i{box-shadow:0 0 8px #ffd080}
+
+.simple-clock:has(.clock-season:not(.hidden)) :is(.clock-today,.home-shift) :is(span,strong){
+  color:#fff8e7;
+  font-weight:700;
+  text-shadow:0 1px 3px #38050b;
+}
