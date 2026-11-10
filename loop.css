@@ -41,3 +41,19 @@ body.loop-screen{height:100dvh;overflow:hidden}body.loop-screen .app{height:100d
 .loop-presence::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;background:#98a39e;margin-right:5px;vertical-align:1px}
 
 .loop-presence.online::before{background:#459b69}
+
+.loop-profile-button,.loop-photo-button{border:0;background:transparent;color:inherit;padding:0;text-align:left}
+.loop-profile-button{display:flex;align-items:center;gap:12px;min-width:0;flex:1}
+.loop-profile-button>div{min-width:0;overflow-wrap:anywhere}
+.loop-profile-arrow{margin-inline-start:auto;font-size:1.35rem}
+.loop-photo-button{display:block;max-width:100%;cursor:zoom-in}
+.loop-photo-button img{display:block;width:auto;max-width:100%;max-height:min(55vh,440px);object-fit:contain}
+.loop-detail-dialog{width:min(420px,calc(100vw - 32px));max-height:85dvh;overflow:auto;border:1px solid #dbe4e2;border-radius:20px;padding:18px;background:#fff;color:inherit}
+.loop-detail-dialog::backdrop{background:#142d31aa}
+.loop-detail-dialog form{display:flex;justify-content:flex-end;align-items:center;gap:12px;overflow-wrap:anywhere}
+.loop-profile-details{display:grid;justify-items:center;gap:9px;padding:4px 12px 24px;text-align:center;overflow-wrap:anywhere}
+.loop-profile-details .avatar{width:84px;height:84px;font-size:1.5rem}
+.loop-profile-details h2,.loop-profile-details p{margin:0}
+.loop-photo-dialog{width:min(880px,calc(100vw - 24px))}
+.loop-photo-dialog form{justify-content:space-between;margin-bottom:10px}
+.loop-photo-dialog img{display:block;width:100%;max-height:68dvh;object-fit:contain}
