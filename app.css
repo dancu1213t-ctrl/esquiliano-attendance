@@ -45,3 +45,8 @@ body.clock-screen{background:#f4f5f2;background-image:radial-gradient(ellipse at
 .office-progress progress::-webkit-progress-value { background: #4f986e; border-radius: 999px; }
 .office-progress progress::-moz-progress-bar { background: #4f986e; border-radius: 999px; }
 .office-progress-times { display: flex; justify-content: space-between; margin-top: 6px; font-size: 10px; color: var(--muted); }
+
+.office-progress progress::-webkit-progress-value{background:linear-gradient(to right,#4f986e calc(100% - 15px),#8ec1a1 calc(100% - 5px),#fff)}
+.office-progress progress::-moz-progress-bar{background:linear-gradient(to right,#4f986e calc(100% - 15px),#8ec1a1 calc(100% - 5px),#fff)}
+.clock-season:not(.hidden){display:flex;justify-content:center;align-items:center;gap:7px;margin:8px auto 0;color:#607570;font-size:.78rem}
+.clock-season img{border-radius:50%;object-fit:cover;opacity:.82}
