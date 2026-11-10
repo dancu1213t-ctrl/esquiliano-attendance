@@ -155,3 +155,14 @@ body:has(.clock-season:not(.hidden)) #pageTitle::after{
 #scheduleDialog label select,#scheduleDialog label input:not([type=checkbox]){display:block;width:100%}
 #scheduleDialog .schedule-off{display:flex;align-items:center;gap:8px}
 #scheduleDialog .schedule-off input{width:auto}
+
+.clocked-in-metric{text-align:left;color:inherit;cursor:pointer}
+.clocked-in-metric:hover{border-color:#68a184}
+.clocked-in-metric strong+span{margin-top:6px;color:#356a50}
+#clockedInDialog{width:min(480px,calc(100% - 24px));box-sizing:border-box}
+#clockedInDialog form{justify-content:flex-end}
+.clocked-in-list{list-style:none;margin:0;padding:0}
+.clocked-in-list li{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;padding:12px 0;border-bottom:1px solid #e5ece7}
+.clocked-in-indicator{display:inline-flex;align-items:center;gap:7px;color:#256344;font-size:.85rem}
+.clocked-in-indicator i{width:29px;height:16px;background:#38845a;border-radius:999px;display:grid;justify-content:end;align-items:center;padding-inline:3px;box-sizing:border-box}
+.clocked-in-indicator i::after{content:"";width:10px;height:10px;border-radius:50%;background:#fff}
