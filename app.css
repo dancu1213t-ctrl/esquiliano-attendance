@@ -111,3 +111,27 @@ body.clock-screen{background:#f4f5f2;background-image:radial-gradient(ellipse at
   font-weight:700;
   text-shadow:0 1px 3px #38050b;
 }
+
+@media(min-width:761px){
+  .simple-clock:has(.clock-season:not(.hidden)){
+    background-image:linear-gradient(180deg,#38050bba,#42070d58 40%,#38050bd9),url("assets/christmas-ornaments-4k.jpg");
+  }
+}
+.clock-snow{display:none}
+body.clock-screen:has(.clock-season:not(.hidden)){isolation:isolate}
+body.clock-screen:has(.clock-season:not(.hidden)) .clock-snow{
+  display:block;position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none;
+}
+.clock-snow i{
+  position:absolute;top:-28px;left:var(--x);font-style:normal;font-size:var(--size);
+  color:#fff;text-shadow:0 0 3px #51737d;opacity:.85;
+  animation:clock-snowfall var(--duration) linear var(--delay) infinite;
+}
+.clock-snow i::before{content:"❄"}
+@keyframes clock-snowfall{
+  to{transform:translate(var(--drift),calc(100dvh + 56px)) rotate(150deg)}
+}
+@media(max-width:760px){.clock-snow i:nth-child(even){display:none}}
+@media(prefers-reduced-motion:reduce){
+  body.clock-screen:has(.clock-season:not(.hidden)) .clock-snow{display:none}
+}
