@@ -13,6 +13,64 @@
   const status = $('scheduleStatus');
   let revision = 0;
 
+  const saved = $('savedScheduleDetails');
+  const list = $('savedScheduleList');
+  const listStatus = $('savedScheduleStatus');
+  const previous = $('savedSchedulePrevious');
+  const next = $('savedScheduleNext');
+  const pageSize = 20;
+  let page = 0;
+  let listRevision = 0;
+
+  async function loadSaved() {
+    const request = ++listRevision;
+    previous.disabled = next.disabled = true;
+    list.replaceChildren();
+    listStatus.textContent = 'Loading schedules…';
+    try {
+      const rows = check(await adminClient.from('att_planned_shifts')
+        .select('employee_id,work_date,starts_at,ends_at,employee:att_profiles!att_planned_shifts_employee_id_fkey(name)')
+        .order('work_date',{ascending:false}).order('employee_id')
+        .range(page*pageSize,(page+1)*pageSize));
+      if(request !== listRevision || !dialog.open)return;
+      if(!rows.length && page>0){page--;return loadSaved();}
+      const dateFormat = new Intl.DateTimeFormat('en',{dateStyle:'medium',timeZone:'UTC'});
+      const timeFormat = new Intl.DateTimeFormat('en',{timeStyle:'short',timeZone:'UTC'});
+      const formatTime = value => timeFormat.format(new Date('2000-01-01T'+value+'Z'));
+      for(const shift of rows.slice(0,pageSize)){
+        const row = document.createElement('li');
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'text-button';
+        const hours = shift.starts_at ? formatTime(shift.starts_at)+'–'+formatTime(shift.ends_at) : 'Day off';
+        button.textContent = (shift.employee?.name || 'Employee')+' · '+dateFormat.format(new Date(shift.work_date+'T00:00:00Z'))+' · '+hours+' ›';
+        button.addEventListener('click',()=>{
+          if(person.disabled)return;
+          if(!Array.from(person.options).some(option=>option.value===shift.employee_id)){
+            person.add(new Option(shift.employee?.name || 'Employee',shift.employee_id));
+          }
+          person.value = shift.employee_id;
+          date.value = shift.work_date;
+          extraDates.forEach(field=>{field.value='';});
+          saved.open = false;
+          date.focus();
+          loadShift();
+        });
+        row.append(button);
+        list.append(row);
+      }
+      listStatus.textContent = rows.length?'':'No saved schedules.';
+      previous.disabled = page===0;
+      next.disabled = rows.length<=pageSize;
+    } catch(error) {
+      if(request===listRevision && dialog.open)listStatus.textContent=error.message;
+    }
+  }
+
+  saved.addEventListener('toggle',()=>{if(saved.open && dialog.open)loadSaved();});
+  previous.addEventListener('click',()=>{page--;loadSaved();});
+  next.addEventListener('click',()=>{page++;loadSaved();});
+
   function syncTimes() {
     for (const field of [start, end]) {
       field.disabled = off.checked;
@@ -45,6 +103,8 @@
 
   $('openSchedule').addEventListener('click', async () => {
     if (!admin) return;
+    saved.open = false;
+    page = 0;
     dialog.showModal();
     person.replaceChildren();
     date.value = dayKey();
@@ -60,7 +120,7 @@
       status.textContent = error.message;
     }
   });
-  dialog.addEventListener('close', () => { revision++; });
+  dialog.addEventListener('close', () => { revision++; listRevision++; });
   person.addEventListener('change', loadShift);
   date.addEventListener('change', loadShift);
   off.addEventListener('change', syncTimes);
@@ -96,6 +156,7 @@
       if (request !== revision) return;
       extraDates.forEach(field => { field.value = ''; });
       await loadShift();
+      if (saved.open && dialog.open) loadSaved();
       if (dialog.open) status.textContent = deleting ? 'Schedule removed.' : dates.length+' date'+(dates.length===1?'':'s')+' saved.';
     } catch (error) {
       if (request === revision) {
