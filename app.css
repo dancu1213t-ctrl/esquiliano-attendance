@@ -118,8 +118,8 @@ body.clock-screen{background:#f4f5f2;background-image:radial-gradient(ellipse at
   }
 }
 .clock-snow{display:none}
-body.clock-screen:has(.clock-season:not(.hidden)){isolation:isolate}
-body.clock-screen:has(.clock-season:not(.hidden)) .clock-snow{
+body:has(.clock-season:not(.hidden)){isolation:isolate}
+body:has(.clock-season:not(.hidden)) .clock-snow{
   display:block;position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none;
 }
 .clock-snow i{
@@ -133,7 +133,7 @@ body.clock-screen:has(.clock-season:not(.hidden)) .clock-snow{
 }
 @media(max-width:760px){.clock-snow i:nth-child(even){display:none}}
 @media(prefers-reduced-motion:reduce){
-  body.clock-screen:has(.clock-season:not(.hidden)) .clock-snow{display:none}
+  body:has(.clock-season:not(.hidden)) .clock-snow{display:none}
 }
 
 .clock-season img{width:clamp(88px,20vw,126px)}
