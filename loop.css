@@ -38,4 +38,6 @@ body.loop-screen{height:100dvh;overflow:hidden}body.loop-screen .app{height:100d
 .loop-person-info .loop-department{white-space:normal;overflow-wrap:anywhere}
 .loop-presence{display:block;font-size:10px;color:var(--muted);overflow-wrap:anywhere}
 .loop-presence.online{color:#2f7951}
-.loop-presence.online::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;background:currentColor;margin-right:5px;vertical-align:1px}
+.loop-presence::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;background:#98a39e;margin-right:5px;vertical-align:1px}
+
+.loop-presence.online::before{background:#459b69}

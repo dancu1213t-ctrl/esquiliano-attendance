@@ -23,3 +23,25 @@ body.clock-screen{background:#f4f5f2;background-image:radial-gradient(ellipse at
 .notification-controls{display:flex;align-items:center;flex-wrap:wrap;gap:12px;margin:16px 0 24px}.notification-controls button{max-width:100%;white-space:normal;overflow-wrap:anywhere}.notification-controls span{font-size:.8em;margin-left:8px}
 
 .notification-feedback{font-size:.9rem;line-height:1.5;overflow-wrap:anywhere;margin:8px 0 16px;color:var(--muted)}.notification-feedback:empty{display:none}.notification-feedback.error{color:var(--red)}.admin-attendance-tools{border-top:1px solid var(--line);margin-top:24px;padding-top:20px}.admin-attendance-tools h3{margin:0 0 12px}#correctionPerson{overflow-wrap:anywhere}#correctionTime{min-width:0;max-width:100%;width:100%}
+
+.clock-face #clockTime {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-variant-numeric: lining-nums tabular-nums;
+  letter-spacing: -.035em;
+}
+.office-progress { width: min(100%, 250px); margin: 20px auto 0; }
+.office-progress progress {
+  display: block;
+  width: 100%;
+  height: 5px;
+  border: 0;
+  border-radius: 999px;
+  overflow: hidden;
+  appearance: none;
+  background: #e4ece6;
+  color: #4f986e;
+}
+.office-progress progress::-webkit-progress-bar { background: #e4ece6; }
+.office-progress progress::-webkit-progress-value { background: #4f986e; border-radius: 999px; }
+.office-progress progress::-moz-progress-bar { background: #4f986e; border-radius: 999px; }
+.office-progress-times { display: flex; justify-content: space-between; margin-top: 6px; font-size: 10px; color: var(--muted); }
