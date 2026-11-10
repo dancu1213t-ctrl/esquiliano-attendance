@@ -82,9 +82,9 @@ body.clock-screen{background:#f4f5f2;background-image:radial-gradient(ellipse at
 @media(max-width:480px){.clock-holiday-lights i:nth-child(even){display:none}}
 
 .simple-clock:has(.clock-season:not(.hidden)){
-  background:#fffdf9;
-  background-image:linear-gradient(90deg,#fffdf9c9,#fffdf9f7 38%,#fffdf9f7 70%,#fffdf9e8),url("assets/christmas-background.jpg");
-  background-position:center,left top;
+  background:#780f1c;
+  background-image:linear-gradient(180deg,#38050bba,#42070d58 40%,#38050bd9),url("assets/christmas-ornaments.jpg");
+  background-position:center;
   background-size:cover;
   border-color:#e9d9bb;box-shadow:0 14px 38px #4d111c42;
 }
@@ -98,3 +98,10 @@ body.clock-screen{background:#f4f5f2;background-image:radial-gradient(ellipse at
   flex:none;width:clamp(54px,13vw,80px);height:auto;
   border-radius:0;object-fit:contain;opacity:1;
 }
+
+.simple-clock:has(.clock-season:not(.hidden)) :is(.clock-card-heading,.office-time-label,.clock-face time,.clock-face p,.office-progress-times,.clock-season){
+  color:#fff8e7;font-weight:700;text-shadow:0 1px 4px #38050b;
+}
+.simple-clock:has(.clock-season:not(.hidden)) .slide-thumb{font-weight:800}
+.simple-clock:has(.clock-season:not(.hidden)) .clock-holiday-lights::before{border-color:#ffdb92}
+.simple-clock:has(.clock-season:not(.hidden)) .clock-holiday-lights i{box-shadow:0 0 8px #ffd080}
