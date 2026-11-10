@@ -34,3 +34,8 @@ body.loop-screen{height:100dvh;overflow:hidden}body.loop-screen .app{height:100d
 
 /* One stable reaction control; likes fill the existing heart in place. */
 .loop-message-tools{align-items:center;flex:0 0 auto}.loop-like{position:static;display:inline-flex;align-items:center;justify-content:center;width:36px;min-width:36px;height:24px;min-height:24px;margin:0;padding:0;border:0;background:transparent;font-variant-numeric:tabular-nums;white-space:nowrap;line-height:1;font-size:16px}.loop-like.liked,.loop-like.mine{color:#b95656;background:transparent}.loop-like.liked{font-size:14px}.loop-like:disabled{opacity:.7}
+
+.loop-person-info .loop-department{white-space:normal;overflow-wrap:anywhere}
+.loop-presence{display:block;font-size:10px;color:var(--muted);overflow-wrap:anywhere}
+.loop-presence.online{color:#2f7951}
+.loop-presence.online::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;background:currentColor;margin-right:5px;vertical-align:1px}
