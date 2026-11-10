@@ -1,6 +1,6 @@
 window.Loop=(()=>{
  const el=id=>document.getElementById(id),make=(tag,text,cls)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n};
- let presence=new Map(), peopleKey="", threadLoad=0;
+ let presence=new Map(), presenceUpdated=0, presenceRequest, peopleKey="", threadLoad=0;
  let owner='',epoch=0,team=[],messages=[],receipts=[],hearts=[],heartBusy=new Set(),listReceipts=[],unreadByRoom=new Map(),room='',channel,channelClient,files=[],sending=false,request=null,loading=false,limit=100,renderKey='',drafts=new Map(),urls=new Map();
  const groups=[['general','General'],['operations','Operations'],['announcements','Announcements']];
  const context=()=>({id:currentProfile()?.id,client:clientForProfile(),epoch}),valid=c=>c.id===currentProfile()?.id&&c.epoch===epoch;
@@ -9,19 +9,33 @@ window.Loop=(()=>{
  const dm=id=>'dm:'+ [owner,id].sort().join(':');
  const participant=r=>!r.startsWith('dm:')||r.split(':').includes(owner);
  function avatar(p){const a=make('span',undefined,'avatar loop-avatar');initAvatar(a,p);return a}
- function sessionChanged(){const id=currentProfile()?.id||'';if(id===owner)return;owner=id;epoch++;presence.clear();peopleKey="";room='';team=[];messages=[];receipts=[];hearts=[];heartBusy.clear();listReceipts=[];unreadByRoom.clear();files=[];request=null;drafts.clear();urls.clear();renderKey='';el('loopPeople').replaceChildren();el('loopLog').replaceChildren();el('loopText').value='';el('loopForm').classList.add('hidden');el('loopMedia').classList.add('hidden');if(el('loopForwardDialog').open)el('loopForwardDialog').close();el('loopThreadHeader').replaceChildren(make('p','Select a conversation'));el('loopView').classList.remove('thread-open');window.LoopViewport?.sync();if(channel)channelClient.removeChannel(channel);channel=null;if(id)load().catch(error)}
+ function sessionChanged(){const id=currentProfile()?.id||'';if(id===owner)return;owner=id;epoch++;presenceRequest?.abort();presenceRequest=null;presence.clear();presenceUpdated=0;peopleKey="";room='';team=[];messages=[];receipts=[];hearts=[];heartBusy.clear();listReceipts=[];unreadByRoom.clear();files=[];request=null;drafts.clear();urls.clear();renderKey='';el('loopPeople').replaceChildren();el('loopLog').replaceChildren();el('loopText').value='';el('loopForm').classList.add('hidden');el('loopMedia').classList.add('hidden');if(el('loopForwardDialog').open)el('loopForwardDialog').close();el('loopThreadHeader').replaceChildren(make('p','Select a conversation'));el('loopView').classList.remove('thread-open');window.LoopViewport?.sync();if(channel)channelClient.removeChannel(channel);channel=null;if(id){refreshPresence();load().catch(error)}}
  function error(e){el('loopError').textContent=e.message||'Loop could not load'}
  async function show(){sessionChanged();if(!owner)return;await load().catch(error);subscribe();}
  function subscribe(){if(channel||preview||!owner)return;channelClient=clientForProfile();channel=channelClient.channel('loop-'+crypto.randomUUID()).on('postgres_changes',{event:'INSERT',schema:'public',table:'ws_messages'},()=>load().catch(error)).on('postgres_changes',{event:'*',schema:'public',table:'loop_receipts'},()=>load().catch(error)).on('postgres_changes',{event:'*',schema:'public',table:'loop_hearts'},()=>{if(room&&activeView==='loop')loadThread().catch(error)}).subscribe()}
  async function load(){if(loading||!owner)return;loading=true;const c=context();try{const [directory,recent]=preview?[{data:[demoPerson,{id:'00000000-0000-4000-8000-000000000002',name:'Sample colleague',employee_id:'EMP-002',department:'Accounting Department'}]},{data:[]}]:await Promise.all([c.client.rpc('loop_directory'),c.client.rpc('loop_conversations')]);if(!valid(c))return;team=check(directory);
- if(!preview&&!document.hidden&&navigator.onLine){
-  const snapshot=await c.client.rpc('loop_presence_snapshot');
-  if(!valid(c))return;
-  if(!snapshot.error)presence=new Map(snapshot.data.map(row=>[row.user_id,row]));
- }
 const summaries=check(recent);messages=summaries.map(x=>x.last_message).filter(m=>participant(m.room));listReceipts=summaries.flatMap(x=>x.receipt_rows||[]);unreadByRoom=new Map(summaries.map(x=>[x.room,Number(x.unread_count)]));if(!preview){const pending=messages.filter(m=>m.sender_id!==owner).map(m=>m.id);if(pending.length)check(await c.client.rpc('loop_ack',{ids:pending,seen:false}));if(!valid(c))return;}renderPeople();updateThreadPresence();if(room&&activeView==='loop')await loadThread();subscribe();}finally{loading=false}}
+ async function refreshPresence(){
+  if(preview||!owner||document.hidden||!navigator.onLine||presenceRequest)return;
+  const c=context(),request=new AbortController();
+  presenceRequest=request;
+  const timer=setTimeout(()=>request.abort(),6000);
+  try{
+   const rows=check(await c.client.rpc('loop_presence_snapshot').abortSignal(request.signal));
+   if(!valid(c))return;
+   presence=new Map(rows.map(row=>[row.user_id,row]));
+   presenceUpdated=Date.now();
+  }catch(e){
+   if(valid(c)&&Date.now()-presenceUpdated>75000)presenceUpdated=0;
+  }finally{
+   clearTimeout(timer);
+   if(presenceRequest===request)presenceRequest=null;
+  }
+  if(valid(c)){renderPeople();updateThreadPresence()}
+ }
  function readingRoom(){return activeView==='loop'&&!document.hidden&&document.hasFocus()&&(matchMedia('(min-width:701px)').matches||el('loopView').classList.contains('thread-open'))}
  function presenceLabel(person){
+  if(!preview&&!presenceUpdated)return make('small','Status unavailable');
   const entry=presence.get(person.id);
   const label=make('small',entry?.online?'Online':'Offline','loop-presence'+(entry?.online?' online':''));
   if(entry&&!entry.online){
@@ -88,5 +102,5 @@ const summaries=check(recent);messages=summaries.map(x=>x.last_message).filter(m
  el('loopUploadGif').onclick=()=>{if(!sending)el('loopGifFile').click()};el('loopMediaClose').onclick=()=>el('loopMedia').classList.add('hidden');
  for(let i=0;i<31;i++){const button=make('button'),image=make('img');button.type='button';button.setAttribute('aria-label','Add sticker '+(i+1));image.src='assets/stickers/'+i+'.webp';image.alt='Sticker '+(i+1);image.loading='lazy';button.append(image);button.onclick=async()=>{if(sending)return;if(files.length>=5){error(Error('Attach up to five files'));return}const c=context();button.disabled=true;try{const response=await fetch(image.src);if(!response.ok)throw Error('Sticker could not load');const blob=await response.blob();if(!valid(c))return;const file=new File([blob],'Sticker '+(i+1)+'.webp',{type:'image/webp'});file.loopSticker=true;files.push(file);request=null;renderPending();el('loopMedia').classList.add('hidden')}catch(e){error(e)}finally{button.disabled=false}};el('loopStickerGrid').append(button)}
 
- setInterval(()=>{sessionChanged();if(owner&&!document.hidden&&navigator.onLine)load().catch(()=>{})},8000);document.addEventListener('visibilitychange',()=>{if(!document.hidden&&owner)load().catch(()=>{})});window.addEventListener('focus',()=>{if(activeView==='loop'&&room)loadThread().catch(()=>{})});queueMicrotask(sessionChanged);return {show,sessionChanged,openPerson};
+ setInterval(()=>{sessionChanged();if(owner&&!document.hidden&&navigator.onLine){refreshPresence();load().catch(()=>{})}},8000);document.addEventListener('visibilitychange',()=>{if(!document.hidden&&owner){refreshPresence();load().catch(()=>{})}});window.addEventListener('focus',()=>{if(activeView==='loop'&&room)loadThread().catch(()=>{})});window.addEventListener('online',refreshPresence);queueMicrotask(sessionChanged);return {show,sessionChanged,openPerson};
 })();
