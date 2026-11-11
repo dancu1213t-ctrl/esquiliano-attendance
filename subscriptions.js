@@ -4,13 +4,13 @@ window.Subscriptions=(()=>{
   const manager=()=>currentProfile()?.active && currentProfile()?.employee_id?.toUpperCase()==='DCU-002';
   const access=()=>!!admin||manager();
   const client=()=>manager()?clientForProfile():adminClient;
-  let rows=[],sequence=0,editing=null,saving=false;
+  let rows=[],receipts=[],sequence=0,editing=null,saving=false,submission=null,submitting=false,reviewing=false,receiptUpload=null;
 
   function sync(){
     el('openSubscriptions').classList.toggle('hidden',!admin);
     el('manageSubscriptions').classList.toggle('hidden',!manager());
     if(!access()){
-      sequence++;rows=[];el('subscriptionCards').replaceChildren();
+      sequence++;rows=[];receipts=[];el('receiptSubmissionDialog').close();el('subscriptionCards').replaceChildren();
       el('subscriptionEditor').close();el('subscriptionImageDialog').close();
       if(activeView==='subscriptions')show('clock');
     }
@@ -36,6 +36,13 @@ window.Subscriptions=(()=>{
       const card=make('article',undefined,'panel subscription-card');
       const heading=make('div',undefined,'subscription-card-heading');
       const monogram=make('span',row.name.slice(0,1),'subscription-monogram');
+      if(row.image_path){
+        const image=make('img');image.alt=row.name;monogram.replaceChildren(image);
+        const c=client();
+        c.storage.from('subscription-documents').createSignedUrl(row.image_path,120).then(result=>{
+          if(!result.error&&c===client()&&access()&&image.isConnected)image.src=result.data.signedUrl;
+        });
+      }
       const name=make('h2',row.name);
       const state=effectiveStatus(row);
       const badge=make('span',state==='paid'?'Paid':state==='pending'?'Payment pending':'Past due','subscription-badge '+(state==='paid'&&!row.active?'inactive':state));
@@ -54,6 +61,34 @@ window.Subscriptions=(()=>{
         button.onclick=()=>documentView(row,kind);documents.append(button);
       }
       card.append(documents);
+      if(admin){
+        const submit=make('button','Submit payment receipt','secondary');
+        submit.type='button';submit.className+=' subscription-submit';
+        submit.onclick=()=>{
+          submission=row;receiptUpload=null;el('receiptSubmissionForm').reset();
+          el('receiptSubmissionTitle').textContent='Submit receipt · '+row.name;
+          el('receiptSubmissionStatus').textContent='';
+          el('receiptSubmissionDialog').showModal();
+        };
+        card.append(submit);
+      }
+      for(const receipt of receipts.filter(item=>item.subscription_id===row.id&&(manager()||item.submitted_by===admin?.id))){
+        const entry=make('div',undefined,'subscription-review');
+        entry.append(make('strong',receipt.status==='pending'?(manager()?'Awaiting your review':'Awaiting DCU-002 approval'):receipt.status==='approved'?'Receipt approved':'Receipt rejected'));
+        entry.append(make('small',new Date(receipt.created_at).toLocaleString('en-US',{timeZone:settings.timezone,dateStyle:'medium',timeStyle:'short'})));
+        const buttons=make('div',undefined,'button-row');
+        const view=make('button','View receipt','text-button');view.type='button';
+        view.onclick=()=>documentView({name:row.name,receipt_path:receipt.image_path},'receipt');
+        buttons.append(view);
+        if(manager()&&receipt.status==='pending'){
+          for(const [decision,label] of [['approved','Approve receipt'],['rejected','Reject']]){
+            const button=make('button',label,'secondary');button.type='button';
+            button.onclick=()=>reviewReceipt(receipt,decision,button);
+            buttons.append(button);
+          }
+        }
+        entry.append(buttons);card.append(entry);
+      }
       if(manager()){
         const edit=make('button','Update subscription','text-button');
         edit.type='button';edit.onclick=()=>openEditor(row);card.append(edit);
@@ -68,9 +103,13 @@ window.Subscriptions=(()=>{
     if(!access()||!c)return;
     el('subscriptionMessage').textContent='Loading subscriptions…';
     try{
-      const data=check(await c.from('att_subscriptions').select('*').order('name'));
+      const [services,submissions]=await Promise.all([
+        c.from('att_subscriptions').select('*').order('name'),
+        c.from('att_subscription_receipts').select('*').order('created_at',{ascending:false})
+      ]);
+      const data=check(services),submitted=check(submissions);
       if(request!==sequence||!access()||c!==client())return;
-      rows=data;
+      rows=data;receipts=submitted;
       el('subscriptionMessage').textContent='';render();
     }catch(error){if(request===sequence)el('subscriptionMessage').textContent=error.message;}
   }
@@ -82,7 +121,7 @@ window.Subscriptions=(()=>{
     el('subscriptionActive').checked=row.active;
     el('subscriptionPayment').value=row.payment_status;
     el('subscriptionDue').value=row.due_date||'';
-    for(const kind of ['Bill','Receipt'])el('subscription'+kind+'Remove').disabled=!row[kind.toLowerCase()+'_path'];
+    for(const kind of ['Bill','Receipt','Image'])el('subscription'+kind+'Remove').disabled=!row[kind.toLowerCase()+'_path'];
     el('subscriptionSaveStatus').textContent='';
     el('subscriptionEditor').showModal();
   }
@@ -94,6 +133,50 @@ window.Subscriptions=(()=>{
     check(await c.storage.from('subscription-documents').upload(path,file,{contentType:file.type,upsert:false}));
     paths.push(path);return path;
   }
+  async function reviewReceipt(receipt,decision,button){
+    if(!manager()||reviewing)return;
+    reviewing=true;button.disabled=true;el('subscriptionMessage').textContent='Saving review…';
+    try{
+      check(await client().rpc('att_review_subscription_receipt',{receipt:receipt.id,decision}));
+      await load();
+      el('subscriptionMessage').textContent=decision==='approved'?'Receipt approved. Use Update subscription to change the payment status.':'Receipt rejected.';
+    }catch(error){el('subscriptionMessage').textContent=error.message;}
+    finally{reviewing=false;button.disabled=false;}
+  }
+  el('receiptSubmissionForm').addEventListener('submit',async event=>{
+    event.preventDefault();
+    if(!admin||!submission||submitting)return;
+    const c=adminClient,person=admin.id,service=submission.id,file=el('receiptSubmissionFile').files[0];
+    if(!file||!['image/jpeg','image/png','image/webp'].includes(file.type)||file.size>5242880){
+      el('receiptSubmissionStatus').textContent='Choose a JPEG, PNG or WebP image under 5 MB.';return;
+    }
+    submitting=true;el('receiptSubmissionFields').disabled=true;el('receiptSubmissionClose').disabled=true;
+    el('receiptSubmissionStatus').textContent='Uploading receipt…';
+    if(!receiptUpload||receiptUpload.service!==service||receiptUpload.file!==file||receiptUpload.person!==person){
+      receiptUpload={service,file,person,path:person+'/'+crypto.randomUUID()+'.'+({'image/jpeg':'jpg','image/png':'png','image/webp':'webp'}[file.type]),uploaded:false};
+    }
+    const draft=receiptUpload,path=draft.path;
+    let uploaded=false,attempted=false;
+    try{
+      if(!draft.uploaded){
+        check(await c.storage.from('subscription-documents').upload(path,file,{contentType:file.type,upsert:false}));
+        draft.uploaded=true;
+      }
+      uploaded=true;
+      if(admin?.id!==person)throw Error('Account changed. Sign in again.');
+      attempted=true;
+      check(await c.rpc('att_submit_subscription_receipt',{service,path}));
+      receiptUpload=null;el('receiptSubmissionDialog').close();await load();
+      el('subscriptionMessage').textContent='Receipt sent to DCU-002 for approval.';
+    }catch(error){
+      if(uploaded&&!attempted)await c.storage.from('subscription-documents').remove([path]).catch(()=>{});
+      el('receiptSubmissionStatus').textContent=error.message+(attempted?' Refresh to check whether it was received before trying again.':'');
+    }finally{
+      submitting=false;el('receiptSubmissionFields').disabled=false;el('receiptSubmissionClose').disabled=false;
+    }
+  });
+  el('receiptSubmissionClose').onclick=()=>{if(!submitting)el('receiptSubmissionDialog').close();};
+  el('receiptSubmissionDialog').addEventListener('cancel',event=>{if(submitting)event.preventDefault();});
   el('subscriptionForm').addEventListener('submit',async event=>{
     event.preventDefault();
     if(!manager()||!editing||saving)return;
@@ -103,8 +186,8 @@ window.Subscriptions=(()=>{
     let committed=false;
     try{
       const update={active:el('subscriptionActive').checked,payment_status:el('subscriptionPayment').value,due_date:el('subscriptionDue').value||null};
-      for(const kind of ['Bill','Receipt']){
-        const path=await upload(el('subscription'+kind),kind,c,paths);
+      for(const kind of ['Bill','Receipt','Image']){
+        const path=await upload(el(kind==='Image'?'subscriptionProfileImage':'subscription'+kind),kind,c,paths);
         const key=kind.toLowerCase()+'_path';
         update[key]=path||(el('subscription'+kind+'Remove').checked?null:record[key]);
       }

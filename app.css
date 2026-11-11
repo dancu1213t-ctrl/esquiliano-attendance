@@ -203,3 +203,15 @@ body:has(.clock-season:not(.hidden)) #pageTitle::after{
 @media(max-width:700px){.subscription-grid{grid-template-columns:1fr;gap:14px}.subscription-card{padding:22px}.subscription-documents button{min-width:100px}}
 
 .inactive{--status-color:#87908b}
+
+.subscription-monogram{overflow:hidden;flex:none}
+.subscription-monogram img{width:100%;height:100%;object-fit:cover;display:block}
+.subscription-review{margin-top:18px;padding-top:15px;border-top:1px solid var(--line)}
+.subscription-review>strong,.subscription-review>small{display:block;margin-bottom:6px}
+.subscription-review>small{color:var(--muted)}
+.subscription-review .button-row{gap:8px;margin-top:10px}
+.subscription-submit{width:100%;margin-top:14px}
+#receiptSubmissionDialog{width:min(500px,calc(100% - 24px))}
+#receiptSubmissionFields{padding:0;border:0;min-width:0}
+#receiptSubmissionFields label{display:grid;gap:10px}
+#receiptSubmissionFile{width:100%;max-width:100%}
