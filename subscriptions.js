@@ -183,7 +183,7 @@ window.Subscriptions=(()=>{
     const c=client(),record=editing,paths=[];
     saving=true;el('subscriptionFields').disabled=true;el('subscriptionEditorClose').disabled=true;
     el('subscriptionSaveStatus').textContent='Saving…';
-    let committed=false;
+    let committed=false,writeAttempted=false;
     try{
       const update={active:el('subscriptionActive').checked,payment_status:el('subscriptionPayment').value,due_date:el('subscriptionDue').value||null};
       for(const kind of ['Bill','Receipt','Image']){
@@ -192,7 +192,8 @@ window.Subscriptions=(()=>{
         update[key]=path||(el('subscription'+kind+'Remove').checked?null:record[key]);
       }
       if(!manager()||c!==client())throw Error('Account changed. Sign in again.');
-      const saved=check(await c.from('att_subscriptions').update(update).eq('id',record.id).eq('version',record.version).select('*').maybeSingle());
+      writeAttempted=true;
+      const saved=check(await c.rpc('att_save_subscription',{service:record.id,expected_version:record.version,changes:update,notify_admins:el('subscriptionNotifyAdmins').checked}));
       if(!saved)throw Error('This subscription was updated elsewhere. Close and reopen it to try again.');
       committed=true;
       el('subscriptionEditor').close();
@@ -200,7 +201,7 @@ window.Subscriptions=(()=>{
     }catch(error){
       el('subscriptionSaveStatus').textContent=error.message;
     }finally{
-      if(!committed&&paths.length)await c.storage.from('subscription-documents').remove(paths).catch(()=>{});
+      if(!committed&&!writeAttempted&&paths.length)await c.storage.from('subscription-documents').remove(paths).catch(()=>{});
       saving=false;el('subscriptionFields').disabled=false;el('subscriptionEditorClose').disabled=false;
     }
   });
