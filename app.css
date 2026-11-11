@@ -166,3 +166,40 @@ body:has(.clock-season:not(.hidden)) #pageTitle::after{
 .clocked-in-indicator{display:inline-flex;align-items:center;gap:7px;color:#256344;font-size:.85rem}
 .clocked-in-indicator i{width:29px;height:16px;background:#38845a;border-radius:999px;display:grid;justify-content:end;align-items:center;padding-inline:3px;box-sizing:border-box}
 .clocked-in-indicator i::after{content:"";width:10px;height:10px;border-radius:50%;background:#fff}
+
+.subscription-toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}
+.subscription-intro{margin-bottom:22px}
+.subscription-intro h2{font:600 clamp(26px,4vw,36px) Georgia,serif;margin:7px 0}
+.subscription-intro>p:last-child{color:var(--muted)}
+.subscription-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+.subscription-card{min-width:0;border-top:3px solid #b3a576}
+.subscription-card-heading{display:flex;align-items:center;gap:12px;margin-bottom:20px}
+.subscription-card-heading h2{margin:0;overflow-wrap:anywhere}
+.subscription-monogram{display:grid;place-items:center;width:42px;height:42px;border-radius:12px;background:#eaf0eb;color:#234b39;font:700 24px Georgia,serif}
+.subscription-statuses{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:22px}
+.subscription-service{text-transform:uppercase;letter-spacing:.06em;font-size:11px;font-weight:700;color:var(--muted)}
+.subscription-badge{display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:600;border-radius:999px;padding:7px 10px;background:#f2f4f1}
+.subscription-badge::before,.subscription-legend span::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--status-color)}
+.paid{--status-color:#278551}.pending{--status-color:#d4a018}.past_due{--status-color:#c24843}
+.subscription-due{display:grid;gap:5px;padding-bottom:20px;border-bottom:1px solid var(--line)}
+.subscription-due small{color:var(--muted)}
+.subscription-documents{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}
+.subscription-documents button{flex:1;white-space:normal;min-width:120px}
+.subscription-card>.text-button{margin-top:16px}
+.subscription-legend{display:flex;flex-wrap:wrap;gap:16px;font-size:12px;color:var(--muted);margin-bottom:24px}
+.subscription-legend span{display:inline-flex;align-items:center;gap:6px}
+#subscriptionEditor{width:min(560px,calc(100% - 24px))}
+.subscription-editor-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.subscription-editor-heading h2{min-width:0;overflow-wrap:anywhere}
+#subscriptionFields{border:0;padding:0;min-width:0}
+#subscriptionFields label:not(.subscription-checkbox){display:grid;gap:7px}
+#subscriptionFields select,#subscriptionFields input{max-width:100%;min-width:0}
+.subscription-checkbox{display:flex;align-items:center;gap:8px;margin:16px 0}
+.subscription-checkbox input{width:auto}
+.subscription-upload{border-top:1px solid var(--line);padding-top:12px;margin-top:16px}
+.subscription-upload input[type=file]{font-size:13px;width:100%}
+.subscription-image-dialog{width:min(900px,calc(100% - 24px))}
+.subscription-image-dialog img{display:block;width:100%;max-height:70dvh;object-fit:contain}
+@media(max-width:700px){.subscription-grid{grid-template-columns:1fr;gap:14px}.subscription-card{padding:22px}.subscription-documents button{min-width:100px}}
+
+.inactive{--status-color:#87908b}
