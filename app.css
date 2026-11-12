@@ -228,3 +228,15 @@ body:has(.clock-season:not(.hidden)) #pageTitle::after{
 .music-settings details{margin-top:18px}
 .music-settings ol{padding-inline-start:20px;line-height:1.7}
 .music-settings .button-row button{white-space:normal}
+
+.loop-music:not(.hidden)::before{
+  content:"";display:inline-block;width:14px;height:14px;margin-inline-end:6px;
+  vertical-align:-3px;border-radius:50%;
+  background:radial-gradient(circle,#fff 0 1px,#b8a15b 1px 3px,transparent 3px),
+    repeating-radial-gradient(circle,transparent 0 2px,#ffffff20 2px 2.5px,transparent 2.5px 3px),
+    conic-gradient(from 30deg,#20282b,#78858a 55deg,#20282b 90deg,#20282b 180deg,#78858a 235deg,#20282b 270deg);
+  box-shadow:0 0 0 1px #24323825;
+  animation:loop-record-spin 3s linear infinite;
+}
+@keyframes loop-record-spin{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.loop-music:not(.hidden)::before{animation:none}}

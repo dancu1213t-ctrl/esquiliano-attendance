@@ -4,7 +4,7 @@ window.Music=(()=>{
   function paint(){
     for(const node of document.querySelectorAll('[data-music-user]')){
       const title=tracks.get(node.dataset.musicUser)||'';
-      node.textContent=title?'♫ '+title:'';
+      node.textContent=title;
       node.classList.toggle('hidden',!title);
       node.title=title?'Listening to '+title:'';
     }
@@ -13,7 +13,7 @@ window.Music=(()=>{
     const node=document.createElement('small');
     node.className='loop-music hidden';node.dataset.musicUser=id;
     const title=tracks.get(id);
-    if(title){node.textContent='♫ '+title;node.classList.remove('hidden');node.title='Listening to '+title;}
+    if(title){node.textContent=title;node.classList.remove('hidden');node.title='Listening to '+title;}
     return node;
   }
   function sync(){
