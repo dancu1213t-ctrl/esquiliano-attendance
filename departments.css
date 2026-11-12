@@ -1,0 +1,14 @@
+#departmentDialog{width:min(640px,calc(100% - 24px));box-sizing:border-box}
+.department-dialog-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}
+#departmentControls{border:0;padding:0;min-width:0}
+.department-add-form{display:flex;align-items:flex-end;gap:12px;border-bottom:1px solid var(--line);padding-bottom:20px;margin:12px 0 20px}
+.department-add-form label{display:grid;gap:8px;flex:1;min-width:0}
+.department-add-form input{width:100%}
+.department-add-form button{flex:none}
+.department-replacement{display:grid;gap:8px;color:var(--muted);font-size:12px;margin-bottom:20px}
+.department-manage-list{list-style:none;padding:0;margin:0}
+.department-manage-row{display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid var(--line)}
+.department-manage-row input{min-width:0;flex:1}
+.department-manage-row .button-row{flex:none}
+#addDepartment{justify-self:start;margin-bottom:16px}
+@media(max-width:540px){.department-add-form,.department-manage-row{flex-direction:column;align-items:stretch}.department-add-form button{align-self:flex-start}.department-manage-row .button-row{justify-content:flex-end}.department-manage-row{gap:10px;padding:18px 0}}
