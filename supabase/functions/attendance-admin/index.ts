@@ -1,7 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import webpush from 'npm:web-push@3.6.7';
 const PROJECT_URL=Deno.env.get('SUPABASE_URL')!,SERVICE=Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,ANON=Deno.env.get('SUPABASE_ANON_KEY')!;
-const jobRoles=['','Agent','Marketing Department','Assistant','Manager','Director','Accounting Department'];
 const origins=[...new Set(['https://attendance.esquilianoconsulting.com','https://attendance.swiftshopow.com',...(Deno.env.get('ATTENDANCE_ORIGINS')||'').split(',').map(s=>s.trim()).filter(Boolean)])];
 const db=createClient(PROJECT_URL,SERVICE,{auth:{persistSession:false,autoRefreshToken:false}});
 function result(body:unknown,status=200,origin=''){return new Response(JSON.stringify(body),{status,headers:{'Content-Type':'application/json','Access-Control-Allow-Origin':origins.includes(origin)?origin:origins[0],'Access-Control-Allow-Headers':'authorization,apikey,content-type,x-client-info','Access-Control-Allow-Methods':'POST,OPTIONS','Vary':'Origin'}})}
@@ -43,7 +42,7 @@ Deno.serve(async req=>{
   const client=createClient(PROJECT_URL,ANON,{global:{headers:{Authorization:'Bearer '+jwt}},auth:{persistSession:false}});
   const {data:{user},error:authError}=await client.auth.getUser(jwt);if(authError||!user)return result({error:'Session expired'},401,origin);
   const {data:actor}=await db.from('att_profiles').select('id,role,active').eq('id',user.id).single();if(!actor?.active)return result({error:'Account inactive'},403,origin);
-  if(['create','update'].includes(input.action)&&input.department!==undefined){const {data:department}=await db.from('att_departments').select('name').eq('name',input.department).maybeSingle();if(!department)throw Error('Choose a valid department');}if(['create','update'].includes(input.action)&&input.jobRole!==undefined&&!jobRoles.includes(input.jobRole))throw Error('Choose a valid job role');if(input.action==='dispatch')return result(await dispatch(user.id),200,origin);
+  if(['create','update'].includes(input.action)&&input.department!==undefined){const {data:department}=await db.from('att_departments').select('name').eq('name',input.department).maybeSingle();if(!department)throw Error('Choose a valid department');}if(['create','update'].includes(input.action)&&input.jobRole!==undefined&&(typeof input.jobRole!=='string'||input.jobRole.length>80))throw Error('Enter a profile label up to 80 characters');if(input.action==='dispatch')return result(await dispatch(user.id),200,origin);
   if(input.action==='push-status'){let subscriptionQuery=db.from('att_push').select('id',{count:'exact',head:true}).eq('user_id',user.id);if(typeof input.endpoint==='string')subscriptionQuery=subscriptionQuery.eq('endpoint',input.endpoint);const {count,error}=await subscriptionQuery;if(error)throw error;return result({pushConfigured:!!Deno.env.get('VAPID_PRIVATE_KEY')&&!!Deno.env.get('VAPID_PUBLIC_KEY'),registered:!!count},200,origin);}
   if(input.action==='test-push'){
    const endpoint=typeof input.endpoint==='string'?input.endpoint:undefined;if(endpoint){const {data:registered,error}=await db.from('att_push').select('id').eq('user_id',user.id).eq('endpoint',endpoint).maybeSingle();if(error)throw error;if(!registered)throw Error('Enable notifications on this device first');}
