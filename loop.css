@@ -57,3 +57,6 @@ body.loop-screen{height:100dvh;overflow:hidden}body.loop-screen .app{height:100d
 .loop-photo-dialog{width:min(880px,calc(100vw - 24px))}
 .loop-photo-dialog form{justify-content:space-between;margin-bottom:10px}
 .loop-photo-dialog img{display:block;width:100%;max-height:68dvh;object-fit:contain}
+
+.loop-presence.standby{color:#946e14}
+.loop-presence.standby::before{background:#e1b137}
