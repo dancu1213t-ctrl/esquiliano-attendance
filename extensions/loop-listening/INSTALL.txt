@@ -1,0 +1,15 @@
+LOOP LISTENING — DESKTOP SETUP
+
+1. Unzip this folder.
+2. In Chrome, open chrome://extensions. In Edge, open edge://extensions.
+3. Enable Developer mode, choose Load unpacked, and select this folder.
+4. Reload any open YouTube tabs and the Esquiliano app.
+5. Open Esquiliano → Profile → YouTube listening → Connect extension.
+6. Click Connect extension to enable sharing for your own account.
+
+Play YouTube or YouTube Music in that same browser profile.
+The server shares the title only while your attendance shows clocked in.
+You can pause sharing from the extension popup or disconnect in Profile.
+If multiple videos play, one track is shown. Titles expire after 45 seconds without updates.
+It cannot detect the separate YouTube mobile app.
+This is an unpacked extension. Managed computers may require the IT administrator to permit installation.

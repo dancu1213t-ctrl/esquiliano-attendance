@@ -221,3 +221,10 @@ body:has(.clock-season:not(.hidden)) #pageTitle::after{
 .subscription-notify input[role=switch]::after{content:"";position:absolute;width:15px;height:15px;border-radius:50%;background:#fff;top:3px;left:3px;transition:transform .16s}
 .subscription-notify input[role=switch]:checked{background:#35795a}
 .subscription-notify input[role=switch]:checked::after{transform:translateX(15px)}
+
+.loop-music{display:block!important;color:#3d7959!important;font-size:11px!important;font-weight:600;line-height:1.4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
+.loop-music.hidden{display:none!important}
+.music-settings>p{color:var(--muted);line-height:1.5}
+.music-settings details{margin-top:18px}
+.music-settings ol{padding-inline-start:20px;line-height:1.7}
+.music-settings .button-row button{white-space:normal}
