@@ -37,3 +37,8 @@
 @media(max-width:700px){#loopCallHistoryButton{width:36px;height:40px;padding:9px}.loop-call-header-actions{gap:0}.loop-call-header-actions .loop-call-icon{width:36px;height:40px;padding:8px}#loopThreadHeader{gap:5px}#loopThreadHeader .loop-profile-button{min-width:0;flex:1}#loopThreadHeader .loop-profile-arrow{display:none}#loopThreadHeader .loop-pin-control{width:30px;min-width:30px;padding:6px}.loop-call-dialog{padding:18px}.loop-call-chip{right:16px;bottom:100px}}
 @media(max-width:370px){#loopHeaderSearch{display:none}#loopThreadHeader .loop-avatar{width:32px;height:32px}#loopThreadHeader .loop-profile-button{gap:7px}.loop-call-header-actions .loop-call-icon{width:32px;padding:7px}}
 @media(prefers-reduced-motion:reduce){.loop-call-icon{transition:none}}
+
+body:not(.loop-screen) #loopCallHistoryButton{display:none}
+#loopThreadHeader>.loop-call-header-actions{display:flex;flex:0 0 auto;align-items:center;gap:4px}
+@media(max-width:700px){#loopThreadHeader>.loop-call-header-actions{gap:0}}
+@media(max-width:450px){body.loop-screen #loopHeaderSearch{display:none}}
