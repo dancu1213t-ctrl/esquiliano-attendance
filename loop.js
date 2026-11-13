@@ -316,7 +316,7 @@ window.Loop=(()=>{
  button.append(avatar(p),info,make('span','›','loop-profile-arrow'));
  button.onclick=()=>openProfile(peer(room));
  head.replaceChildren(back,button);
-}else head.replaceChildren(back,avatar({name:title(r)}),info);el('loopThread').classList.add('has-conversation');el('loopMentionChoices').classList.add('hidden');installPinControl();el('loopForm').classList.toggle('hidden',r==='announcements'&&currentProfile()?.role!=='admin');renderPending();renderPeople();loadThread().catch(error)}
+}else head.replaceChildren(back,avatar({name:title(r)}),info);el('loopThread').classList.add('has-conversation');el('loopMentionChoices').classList.add('hidden');installPinControl();window.LoopCalls?.mount(p,head);el('loopForm').classList.toggle('hidden',r==='announcements'&&currentProfile()?.role!=='admin');renderPending();renderPeople();loadThread().catch(error)}
  async function openPerson(id){await show();showView();open(dm(id))}function showView(){showApp('loop')}const showApp=view=>window.navigateLoop(view);
  function delivery(m,source=receipts){const expected=m.room.startsWith('dm:')?m.room.split(':').slice(1).filter(id=>id!==owner).map(id=>({id})):team.filter(p=>p.id!==owner);const rows=source.filter(r=>r.message_id===m.id);if(expected.length&&expected.every(p=>rows.some(r=>r.user_id===p.id&&r.read_at)))return ['✓✓','Read',' read'];if(expected.length&&expected.every(p=>rows.some(r=>r.user_id===p.id)))return ['✓✓','Received',''];return ['✓','Sent','']}
  function readTime(m){if(delivery(m)[1]!=='Read')return null;const times=receipts.filter(r=>r.message_id===m.id&&r.user_id!==owner&&r.read_at).map(r=>Date.parse(r.read_at)).filter(Number.isFinite);return times.length?new Date(Math.max(...times)).toISOString():null}

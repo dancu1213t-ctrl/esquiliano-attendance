@@ -1,0 +1,39 @@
+
+/* Loop calling and local sound controls */
+.loop-call-header-actions{display:flex;align-items:center;gap:4px;flex:none}
+.loop-call-icon{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;padding:11px;border:0;border-radius:50%;background:transparent;color:var(--ink,#183e40);cursor:pointer;touch-action:manipulation;transition:background .16s,transform .16s}
+.loop-call-icon svg{width:22px;height:22px;flex:none}
+.loop-call-icon:hover{background:#eaf1ee}.loop-call-icon:active{transform:scale(.95)}
+.loop-call-icon:focus-visible{outline:2px solid #788b70;outline-offset:3px}
+.loop-call-icon:disabled{opacity:.5;cursor:wait}
+.loop-call-dialog{width:min(480px,calc(100vw - 24px));max-height:calc(100dvh - 24px);overflow:auto;border:1px solid #dce5df;border-radius:24px;padding:22px;background:#f7faf7;color:#193e40;box-shadow:0 18px 60px #142e3833}
+.loop-call-dialog::backdrop{background:#132d34a6;backdrop-filter:blur(5px)}
+.loop-call-top{display:flex;align-items:center;justify-content:space-between;font-size:13px;font-weight:600;letter-spacing:.02em}
+.loop-call-person{text-align:center;padding:24px 8px 12px}
+.loop-call-person>.avatar{display:inline-flex;width:88px;height:88px;overflow:hidden;border-radius:50%}
+.loop-call-person .avatar img{width:100%;height:100%;object-fit:cover}
+.loop-call-person h2{font-size:25px;font-weight:600;line-height:1.2;margin:16px 0 8px;overflow-wrap:anywhere}
+.loop-call-person p{font-size:14px;color:#627773;margin:0}
+.loop-call-stage{position:relative;aspect-ratio:4/3;min-height:150px;background:#152a2d;border-radius:16px;overflow:hidden;margin-top:16px}
+#loopCallRemote{width:100%;height:100%;object-fit:contain}
+#loopCallLocal{position:absolute;right:10px;bottom:10px;width:28%;height:32%;object-fit:cover;border:2px solid #ffffff99;border-radius:10px;transform:scaleX(-1)}
+.loop-call-error{font-size:13px;line-height:1.5;color:#a23c31;text-align:center;overflow-wrap:anywhere}
+.loop-call-controls{display:flex;justify-content:center;gap:18px;padding:18px 0 8px}
+.loop-call-controls .loop-call-icon{width:56px;height:56px;padding:16px;background:#e6eeea}
+.loop-call-controls .answer{background:#26794f;color:white}
+#loopCallEnd,#loopCallDecline,#loopCallClose{background:#b8443b;color:white}
+.loop-call-controls .off{background:#5b6a67;color:white}
+.loop-call-chip{position:fixed;right:20px;bottom:100px;z-index:200;background:#1b6651;color:white;box-shadow:0 4px 16px #123c4433}
+.loop-call-history{width:min(540px,calc(100vw - 24px));max-height:80dvh;padding:22px;border:1px solid #dce5df;border-radius:22px}
+.loop-call-history-row{display:flex;align-items:center;gap:12px;padding:16px 0;border-bottom:1px solid #e4eae6}
+.loop-call-history-row .avatar{width:40px;height:40px;flex:none;overflow:hidden;border-radius:50%}
+.loop-call-history-row .avatar img{width:100%;height:100%;object-fit:cover}
+.loop-call-history-row>div{min-width:0;flex:1}
+.loop-call-history-row strong,.loop-call-history-row small{display:block;overflow-wrap:anywhere}
+.loop-call-history-row small{font-size:12px;color:#6c7d78;margin-top:5px}
+.loop-call-history-row time{font-size:11px;color:#6c7d78;max-width:84px;text-align:right;flex:none}
+.loop-sound-controls{display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;margin:12px 0 18px}
+.loop-sound-controls button{min-height:44px;font-size:13px}
+@media(max-width:700px){#loopCallHistoryButton{width:36px;height:40px;padding:9px}.loop-call-header-actions{gap:0}.loop-call-header-actions .loop-call-icon{width:36px;height:40px;padding:8px}#loopThreadHeader{gap:5px}#loopThreadHeader .loop-profile-button{min-width:0;flex:1}#loopThreadHeader .loop-profile-arrow{display:none}#loopThreadHeader .loop-pin-control{width:30px;min-width:30px;padding:6px}.loop-call-dialog{padding:18px}.loop-call-chip{right:16px;bottom:100px}}
+@media(max-width:370px){#loopHeaderSearch{display:none}#loopThreadHeader .loop-avatar{width:32px;height:32px}#loopThreadHeader .loop-profile-button{gap:7px}.loop-call-header-actions .loop-call-icon{width:32px;padding:7px}}
+@media(prefers-reduced-motion:reduce){.loop-call-icon{transition:none}}

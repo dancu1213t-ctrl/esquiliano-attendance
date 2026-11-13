@@ -63,7 +63,7 @@ end $$;
 create function public.loop_call_signal(call_id uuid,device uuid,signal_kind text,signal_data jsonb) returns void language plpgsql security definer set search_path=public,pg_temp as $$
 declare saved loop_calls;
 begin
- if not exists(select 1 from att_profiles where id=auth.uid() and active) then raise exception 'Sign in required';end if;
+ if not exists(select 1 from att_profiles where id=auth.uid() and active) or device is null then raise exception 'Sign in required';end if;
  select * into saved from loop_calls where id=call_id for update;
  if not found or saved.state not in('accepted','connected') or not((saved.caller_id=auth.uid() and saved.caller_device=device) or(saved.callee_id=auth.uid() and saved.callee_device=device)) then raise exception 'Call unavailable';end if;
  if signal_kind not in('offer','answer','ice') or signal_data is null or length(signal_data::text)>40000 then raise exception 'Invalid signal';end if;
