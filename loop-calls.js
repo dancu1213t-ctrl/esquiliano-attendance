@@ -49,10 +49,10 @@ window.LoopCalls=(()=>{
  async function start(person,video=false){
   sync();if(starting||busy||call&&!terminal(call.state)){toast('Finish your current call first');return}
   try{usable()}catch(e){toast(e.message);return}
-  await LoopSounds.unlock();starting=true;busy=true;const version=generation;
+  await LoopSounds.unlock();starting=true;busy=true;const version=generation,startClient=client,startDevice=device;
   call={id:crypto.randomUUID(),caller_id:owner,callee_id:person.id,video,state:'ringing',caller_device:device};directory=[...directory.filter(p=>p.id!==person.id),person];$('loopCallError').textContent='';paint('Opening '+(video?'camera and microphone…':'microphone…'));openDialog();
   let saved=false;
-  try{await media(video,version);if(version!==generation)return;const row=await rpc('loop_call_start',{target:person.id,video_call:video,device,request_id:call.id});saved=true;if(version!==generation)return;call={...row,saved:true};heartbeat=0;paint();client.functions.invoke('attendance-admin',{body:{action:'dispatch'}}).catch(()=>{});await poll()}
+  try{await media(video,version);if(version!==generation)return;const row=await rpc('loop_call_start',{target:person.id,video_call:video,device,request_id:call.id});saved=true;if(version!==generation){await startClient.rpc('loop_call_action',{call_id:row.id,device:startDevice,action:'end'});return}call={...row,saved:true};heartbeat=0;paint();client.functions.invoke('attendance-admin',{body:{action:'dispatch'}}).catch(()=>{});await poll()}
   catch(e){if(version===generation){if(saved)await finish('fail');else{clearMedia();call.state='failed';$('loopCallError').textContent=e.message;paint()}}}
   finally{if(version===generation){busy=false;starting=false;paint()}}
  }
