@@ -42,3 +42,41 @@ body:not(.loop-screen) #loopCallHistoryButton{display:none}
 #loopThreadHeader>.loop-call-header-actions{display:flex;flex:0 0 auto;align-items:center;gap:4px}
 @media(max-width:700px){#loopThreadHeader>.loop-call-header-actions{gap:0}}
 @media(max-width:450px){body.loop-screen #loopHeaderSearch{display:none}}
+
+/* Calling waves and the connected state are decorative; controls stay still. */
+.loop-call-dialog{position:relative;isolation:isolate;transition:background-color .6s ease,border-color .6s ease;overflow-x:hidden}
+.loop-call-dialog> :not(.loop-call-waves){position:relative;z-index:1}
+.loop-call-waves{position:absolute;z-index:0;top:25px;left:0;width:100%;height:290px;overflow:hidden;pointer-events:none;opacity:.42;transition:opacity .6s}
+.loop-call-waves svg{width:100%;height:100%;overflow:visible}
+.loop-call-waves path{stroke:#729d9d;stroke-width:.8;fill:none;opacity:.55;transform-origin:center;animation:loop-call-wave 4.8s ease-in-out infinite alternate;animation-delay:calc(var(--wave-order)*-90ms);transition:stroke .6s}
+@keyframes loop-call-wave{from{transform:translateY(-7px) scaleY(.91)}to{transform:translateY(7px) scaleY(1.07)}}
+.loop-call-avatar-shell{position:relative;display:grid;place-items:center;width:114px;height:114px;margin:0 auto 12px}
+.loop-call-avatar-shell .avatar{position:relative;z-index:2;width:88px;height:88px;border-radius:50%;overflow:hidden;border:3px solid #fff;box-shadow:0 3px 18px #1d4e5118}
+.loop-call-avatar-shell .avatar img{width:100%;height:100%;object-fit:cover}
+.loop-call-avatar-shell::before,.loop-call-avatar-shell::after{content:"";position:absolute;inset:7px;border:1px solid #5e95956b;border-radius:50%;pointer-events:none}
+.is-calling .loop-call-avatar-shell::before{animation:loop-call-ring 2.8s ease-out infinite}
+.is-calling .loop-call-avatar-shell::after{animation:loop-call-ring 2.8s 1.4s ease-out infinite}
+@keyframes loop-call-ring{0%{transform:scale(.86);opacity:.8}100%{transform:scale(1.52);opacity:0}}
+.loop-call-dialog.is-connected{background:#f3f8ff;border-color:#c8dcf4}
+.is-connected .loop-call-waves path{stroke:#3879b9;animation-duration:7s}
+.is-connected .loop-call-avatar-shell::before{border:2px solid #6c9cd5;background:#dceaff42}
+.is-connected .loop-call-avatar-shell::after{border-color:#548cc7}
+.just-connected .loop-call-avatar-shell::after{animation:loop-call-burst 1s ease-out both}
+@keyframes loop-call-burst{0%{opacity:1;transform:scale(.9);box-shadow:0 0 0 0 #619be140}100%{opacity:0;transform:scale(1.8);box-shadow:0 0 0 20px #619be100}}
+.is-connected #loopCallState{color:#32679f;font-variant-numeric:tabular-nums}
+.is-ended .loop-call-waves{opacity:.12}.is-ended .loop-call-waves path{animation:none}
+.loop-call-output{display:flex;align-items:center;justify-content:center;gap:8px;max-width:100%;min-height:44px;margin:8px auto 0;padding:10px 16px;border:1px solid #dbe5e3;border-radius:24px;background:#ffffffa8;color:#365858;font-size:12px;cursor:pointer}
+.loop-audio-glyph{display:inline-flex;flex:none;width:20px;height:20px;align-items:center;justify-content:center}.loop-audio-glyph svg{width:100%;height:100%}
+.loop-call-output-panel{margin-top:12px;border:1px solid #dce5e6;border-radius:16px;padding:8px;background:#ffffffeb}
+.loop-call-output[hidden],.loop-call-output-panel[hidden]{display:none!important}
+.loop-call-output-panel p{font-size:12px;line-height:1.55;color:#627773;margin:10px 8px}
+.loop-audio-option{display:flex;align-items:center;gap:12px;width:100%;min-height:48px;padding:12px;border:0;border-radius:10px;background:none;text-align:left;color:#23484a;font-size:13px;cursor:pointer}
+.loop-audio-option>span:nth-child(2){flex:1;overflow-wrap:anywhere}
+.loop-audio-option:hover,.loop-audio-option[aria-pressed=true]{background:#edf4f4}
+.loop-audio-types{display:flex;justify-content:space-around;gap:10px;padding:10px}
+.loop-audio-types>span{display:flex;align-items:center;flex-direction:column;gap:7px;color:#526f74}
+.loop-audio-types small{font-size:11px}
+@media(max-width:450px){.loop-call-dialog{padding:18px}.loop-call-person{padding-top:20px}.loop-call-waves{height:260px}.loop-call-controls{gap:14px}.loop-call-person h2{font-size:23px}}
+@media(prefers-reduced-motion:reduce){.loop-call-dialog,.loop-call-waves,.loop-call-waves path{transition:none}.loop-call-waves path,.is-calling .loop-call-avatar-shell::before,.is-calling .loop-call-avatar-shell::after,.just-connected .loop-call-avatar-shell::after{animation:none}}
+
+.loop-call-output>span:last-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:260px}

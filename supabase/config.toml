@@ -1,3 +1,7 @@
 [functions.attendance-admin]
 verify_jwt = false
 # JWTs are verified using auth.getUser in the function before every operation.
+
+[functions.loop-call-token]
+verify_jwt = false
+# auth.getUser and accepted-call/device ownership are verified before issuing a room-scoped JWT.
