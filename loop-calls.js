@@ -96,12 +96,13 @@ function buildCallWaves(){
    const attach=track=>{
     if(!current()||closing)return;
     if(!remote.getTracks().some(t=>t.id===track.mediaStreamTrack.id))remote.addTrack(track.mediaStreamTrack);
+    track.attach(track.kind==='video'?$('loopCallRemote'):$('loopCallAudio'));
     $('loopCallAudio').play().then(()=>$('loopCallPlay').classList.add('hidden')).catch(()=>$('loopCallPlay').classList.remove('hidden'));
     if(call.video)$('loopCallRemote').play().catch(()=>{});
     markConnected();
    };
    roomInstance.on(sdk.RoomEvent.TrackSubscribed,(track,publication,participant)=>{if(participant.identity===peerId)attach(track)});
-   roomInstance.on(sdk.RoomEvent.TrackUnsubscribed,track=>{if(remote)remote.removeTrack(track.mediaStreamTrack)});
+   roomInstance.on(sdk.RoomEvent.TrackUnsubscribed,track=>{track.detach();if(remote)remote.removeTrack(track.mediaStreamTrack)});
    roomInstance.on(sdk.RoomEvent.ParticipantConnected,markConnected);
    roomInstance.on(sdk.RoomEvent.Reconnected,()=>{if(current()){$('loopCallError').textContent='';markConnected()}});
    roomInstance.on(sdk.RoomEvent.Reconnecting,()=>{if(current())paint('Reconnecting…')});
