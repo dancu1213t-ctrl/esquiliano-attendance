@@ -82,3 +82,6 @@
 #portfolioView .pf-sales-filters input[type=date]::-webkit-date-and-time-value{min-width:0;text-align:left}
 @media(max-width:1150px){#portfolioView .pf-sales-filters{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:600px){#portfolioView .pf-sales-filters{grid-template-columns:minmax(0,1fr);gap:18px}#portfolioView .pf-sales-filters>label:first-child{grid-column:auto}#portfolioView .pf-sales-filters>button{width:100%;margin-top:2px}}
+
+#portfolioView .pf-folder-art.has-cover:before,#portfolioView .pf-folder-art.has-cover:after,#portfolioView .pf-folder-art.has-cover>svg,#portfolioView .pf-folder-art.has-cover .pf-folder-number{display:none}
+#portfolioView .pf-cover-image{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;display:block}
