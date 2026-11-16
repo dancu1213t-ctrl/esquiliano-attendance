@@ -73,3 +73,12 @@
 
 #portfolioView .pf-intro>.pf-actions{flex-shrink:0}
 @media(min-width:701px) and (max-width:1100px){#portfolioView .pf-folder-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* Constrain native date controls, whose intrinsic width can overflow iOS grids. */
+#portfolioView .pf-sales-filters{grid-template-columns:minmax(0,1fr) minmax(0,150px) minmax(0,150px) auto}
+#portfolioView .pf-sales-filters>label{min-width:0;max-width:100%}
+#portfolioView .pf-sales-filters input{display:block;box-sizing:border-box;min-width:0;width:100%;max-width:100%}
+#portfolioView .pf-sales-filters input[type=date]{font-size:16px;min-height:44px}
+#portfolioView .pf-sales-filters input[type=date]::-webkit-date-and-time-value{min-width:0;text-align:left}
+@media(max-width:1150px){#portfolioView .pf-sales-filters{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){#portfolioView .pf-sales-filters{grid-template-columns:minmax(0,1fr);gap:18px}#portfolioView .pf-sales-filters>label:first-child{grid-column:auto}#portfolioView .pf-sales-filters>button{width:100%;margin-top:2px}}
