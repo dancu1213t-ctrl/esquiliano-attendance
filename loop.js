@@ -140,7 +140,7 @@ window.Loop=(()=>{
  const participant=r=>!r.startsWith('dm:')||r.split(':').includes(owner);
  function avatar(p){const a=make('span',undefined,'avatar loop-avatar');initAvatar(a,p);return a}
  function sessionChanged(){const id=currentProfile()?.id||'';if(id===owner)return;owner=id;epoch++;toolsByRoom.clear();toolsQuery='';quickKey='';activeFilter='all';for(const button of el('loopFilters').querySelectorAll('[data-loop-filter]')){const selected=button.dataset.loopFilter==='all';button.classList.toggle('selected',selected);button.setAttribute('aria-pressed',String(selected))}el('loopSearch').value='';el('loopOnlyFiles').checked=false;el('loopOnlyOnline').checked=false;el('loopQuickPeople').replaceChildren();el('loopMentionChoices').classList.add('hidden');el('loopThread').classList.remove('has-conversation');el('loopNewChatDialog').close();el('loopProfileDialog').close();el('loopPhotoDialog').close();presenceRequest?.abort();presenceRequest=null;presence.clear();messageActivity.clear();presenceUpdated=0;peopleKey="";room='';team=[];messages=[];receipts=[];hearts=[];heartBusy.clear();listReceipts=[];unreadByRoom.clear();files=[];request=null;drafts.clear();urls.clear();renderKey='';el('loopPeople').replaceChildren();el('loopLog').replaceChildren();el('loopText').value='';el('loopForm').classList.add('hidden');el('loopMedia').classList.add('hidden');if(el('loopForwardDialog').open)el('loopForwardDialog').close();el('loopThreadHeader').replaceChildren(make('p','Select a conversation'));el('loopView').classList.remove('thread-open');window.LoopViewport?.sync();if(channel)channelClient.removeChannel(channel);channel=null;if(id){refreshPresence();load().catch(error)}}
- function error(e){const message=e.message||'Loop could not load';el('loopError').textContent=message;el('loopListStatus').textContent=message}
+ function error(e){const raw=e.message||'Loop could not load',network=/failed to fetch|network|fetch failed|load failed/i.test(raw);const message=network?'Connection interrupted. Loop will retry automatically.':raw;el('loopError').textContent=message;el('loopListStatus').textContent=message}
  async function show(){sessionChanged();if(!owner)return;await load().catch(error);subscribe();}
  function subscribe(){if(channel||preview||!owner)return;channelClient=clientForProfile();channel=channelClient.channel('loop-'+crypto.randomUUID()).on('postgres_changes',{event:'INSERT',schema:'public',table:'ws_messages'},()=>load().catch(error)).on('postgres_changes',{event:'*',schema:'public',table:'loop_receipts'},()=>load().catch(error)).on('postgres_changes',{event:'*',schema:'public',table:'loop_hearts'},()=>{if(room&&activeView==='loop')loadThread().catch(error)}).subscribe()}
  async function load(){
@@ -154,7 +154,7 @@ window.Loop=(()=>{
     {data:[]},{data:[]}
    ]:await Promise.all([c.client.rpc('loop_directory'),c.client.rpc('loop_conversations'),c.client.rpc('loop_conversation_tools',{query_value:query})]);
    if(!valid(c))return;
-   team=check(directory);
+   team=check(directory);if(/Connection interrupted|session ended|Failed to fetch/i.test(el('loopError').textContent))el('loopError').textContent='';
    const summaries=check(recent);
    if(!tools.error&&query===el('loopSearch').value.trim().toLowerCase()){
     toolsByRoom=new Map(tools.data.map(row=>[row.room,row]));toolsQuery=query;
