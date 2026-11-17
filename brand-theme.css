@@ -1,111 +1,24 @@
-/* ECB palette: forest green, warm ivory and restrained gold. Color only. */
+/* Neutral office surfaces with restrained green accents.
+   Seasonal Clock artwork is intentionally left to app.css. */
 :root{
- --ink:#173d2d;--muted:#697268;--teal:#053c2d;--green:#32674b;
- --accent:#a37d2b;--line:#e1dccf;--bg:#faf8f2;--white:#fffdf8;
- --ecb-forest:#053c2d;--ecb-forest-hover:#0c503b;--ecb-gold:#dfbd69;
- --ecb-paper:#fffdf8;--ecb-tint:#f1eee3;--ecb-sage:#e8eee3;
+ --ink:#24382f;--muted:#707c75;--teal:#21483c;--green:#36765f;
+ --accent:#a69c68;--line:#e2e7e3;--bg:#f4f6f5;--white:#ffffff;
 }
-body,body.clock-screen{background:var(--bg);color:var(--ink);background-image:none}
-aside{background:var(--ecb-forest);color:#fff9e9}
-.brand small{color:#d4d9c8}
-aside nav button{color:#d9dfd2}
-aside nav button:hover{background:#ffffff0b}
-aside nav button.active{background:var(--ecb-gold);color:#073a28}
-aside .aside-foot .text-button{color:#d9dfd2}
-.connection{color:#d9dfd2}
-.connection:before{background:#c9b675}
-.panel,dialog,.pf-folder,.pf-category,.pf-manage-card,.pf-table-wrap,.staff-day{
- background-color:var(--ecb-paper);border-color:var(--line)
-}
-dialog{color:var(--ink)}
-dialog::backdrop{background:#092b2266}
-.primary{background:var(--ecb-forest);color:#fffdf4}
-.primary:hover{background:var(--ecb-forest-hover)}
-.secondary{background:var(--ecb-paper);border-color:var(--line);color:var(--ink)}
-.secondary:hover{background:#f3efe3}
-.text-button,.icon-button{color:var(--ecb-forest)}
-input,select,textarea{color:var(--ink);background-color:#fffefa;border-color:#dcd6c6;accent-color:var(--ecb-forest)}
-input::placeholder,textarea::placeholder{color:#797f74}
-button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{
- outline-color:#a37d2b
-}
-.tabs,.ws-tabs,.staff-tabs,.action-switch{background:var(--ecb-tint)}
-.tabs .selected,.ws-tabs .selected,.staff-tabs .selected,.action-switch .selected{
- background:var(--ecb-paper);color:var(--ecb-forest)
-}
-.department-tabs button{background:var(--ecb-tint);color:var(--ecb-forest)}
-.department-tabs .selected,.staff-day.selected{background:var(--ecb-forest);color:#fffdf4;border-color:var(--ecb-forest)}
-.avatar{background:var(--ecb-sage);color:var(--ecb-forest)}
-.home-announcement{background:#fffdf5;border-color:var(--line);border-left-color:#b5913f}
-.home-announcement:hover{background:#f5f1e5}
-.home-announcement strong,.home-shift strong{color:var(--ink)}
-.home-announcement>#homeAnnouncementBody{color:var(--muted)}
-.simple-clock{background:var(--ecb-paper);border-color:var(--line)}
-.simple-clock:has(.clock-season:not(.hidden)){
- background-color:var(--ecb-forest);
- background-image:linear-gradient(#033d2cea,#033d2cea),url("assets/christmas-ornaments.jpg");
- border-color:#b7984e;box-shadow:0 8px 28px #153e2914
-}
-.simple-clock:has(.clock-season:not(.hidden)) :is(.clock-card-heading,.office-time-label,.clock-face time,.clock-face p,.office-progress-times,.clock-season){
- color:#fff8e7;text-shadow:none
-}
-.simple-clock:has(.clock-season:not(.hidden)) :is(.clock-today,.home-shift) :is(span,strong){color:#fff8e7;text-shadow:none}
-.simple-clock:has(.clock-season:not(.hidden)) .christmas-units span{color:#e6c675}
-.simple-clock:has(.clock-season:not(.hidden)) .clock-holiday-lights::before{border-color:#d8bd7a}
-.simple-clock:has(.clock-season:not(.hidden)) .clock-season .christmas-caption text{fill:#fff8e7}
-.slide-control{background:var(--ecb-forest)}
-.slide-out{background:var(--ecb-sage);border-color:#d9e1d1;color:var(--ecb-forest)}
-.slide-out .slide-thumb{background:var(--ecb-forest)}
-.subscription-card{border-top-color:#b5913f}
-.subscription-monogram{background:#f2ead4;color:var(--ecb-forest)}
-.subscription-badge{background:#f3f0e7}
-#wsChatLog{background:#f6f3eb;border-color:var(--line)}
-.ws-chat-message{background:var(--ecb-paper);border-color:var(--line)}
-.ws-chat-message.own{background:var(--ecb-sage);border-color:#d6dfce}
-body.loop-screen .loop-shell{background:var(--ecb-paper);border-color:var(--line)}
-.loop-sidebar{background:#f7f4ec}
-.loop-people,.loop-person,.loop-thread-header,.loop-compose,.loop-mention-choices{background:var(--ecb-paper);border-color:var(--line)}
-.loop-thread,body.loop-conversation .loop-shell{background:#f3f0e6}
-.loop-square-button,.loop-search-field,.loop-filter-tabs>button{background:var(--ecb-paper);border-color:var(--line);color:var(--ink)}
-.loop-filter-tabs>button.selected,.loop-new-fab{background:var(--ecb-forest);border-color:var(--ecb-forest);color:#fffdf4}
-.loop-person.selected,.loop-person:hover{background:#eeeadd}
-.loop-person.unread{background:#fbf8e9}
-.loop-quick-icon,.loop-group-avatar,.loop-thread-empty>span{background:#eee8d8;color:var(--ecb-forest)}
-.loop-bubble{background:#fffdf8;border-color:#e0dacb}
-.loop-bubble.own{background:#e6eddf;border-color:#d4dfca}
-.loop-date{background:#eae5d7;color:#5b6557}
-.loop-thread-empty h2{color:var(--ecb-forest)}
-.loop-thread-empty,.loop-page-subtitle{color:var(--muted)}
-.loop-file{background:#fffdf8d9;border-color:var(--line)}
-.bobby-panel,.bobby-log,.bobby-head{background:var(--ecb-paper);border-color:var(--line)}
-.bobby-name{background:var(--ecb-forest)}
-.bobby-line{background:#f5efdf;border-color:#e3dac1}
-.bobby-line.you{background:var(--ecb-sage);border-color:#d6dfce}
-.bobby-intro,.bobby-suggestions button{background:#f5f0e4;border-color:var(--line);color:var(--ink)}
-#bobbyForm input{background:#fffefa}
-#portfolioView{--pf-gold:#b5913f}
-#portfolioView .pf-tabs{background:var(--ecb-tint)}
-#portfolioView .pf-tabs button[aria-selected=true]{background:var(--ecb-paper);color:var(--ecb-forest)}
-#portfolioView .pf-category{background:var(--ecb-paper);border-color:var(--line)}
-#portfolioView .pf-category[aria-pressed=true]{background:var(--ecb-forest);border-color:#bd9944;color:#fffdf4}
-#portfolioView .pf-categories{border-bottom-color:#b5913f70}
-#portfolioView .pf-empty,#portfolioView .pf-services .pf-empty,#portfolioView .pf-sales-filters{
- background:#fffdf8;border-color:var(--line)
-}
-#portfolioView .pf-table th{background:#f3eee0;color:#626b60}
-#portfolioView .pf-folder-link{color:var(--ecb-forest);border-bottom-color:#b5913f}
-#portfolioView .pf-folder-art{background:#e9eddf;color:var(--ecb-forest)}
-#portfolioView .pf-folder:nth-child(3n+2) .pf-folder-art{background:#f2ead5;color:#876e31}
-#portfolioView .pf-folder:nth-child(3n) .pf-folder-art{background:#e6eadc;color:#4f6750}
-#portfolioView .pf-price{background:var(--ecb-paper);border-color:var(--line)}
-#portfolioView .pf-price strong{color:var(--ecb-forest)}
-.pf-dialog{background:var(--ecb-paper);border-color:var(--line)}
-.bottom-nav{background:#fffdf6f5;border-color:var(--line)}
-.bottom-nav button.active,body.loop-screen #bottomNav button.active{
- background:#f1e5c3;color:var(--ecb-forest)
-}
-@media(min-width:761px){
- .simple-clock:has(.clock-season:not(.hidden)){
-  background-image:linear-gradient(#033d2cea,#033d2cea),url("assets/christmas-ornaments-4k.jpg")
- }
-}
+body{background:var(--bg);color:var(--ink)}
+aside{background:#183b32;color:#edf2ef}
+aside nav button{color:#bacac2}
+aside nav button:hover{background:#ffffff09}
+aside nav button.active{background:#ffffff12;color:#fff;box-shadow:inset 2px 0 #8fae9b}
+.brand small{color:#aebfb6}
+aside .aside-foot .text-button{color:#bacac2}
+.primary{background:#21483c;color:#fff}
+.primary:hover{background:#2a5748}
+.secondary{background:#fff;color:var(--ink);border-color:var(--line)}
+.secondary:hover{background:#f5f7f5}
+#portfolioView .pf-tabs{background:#eaf0ec}
+#portfolioView .pf-category{background:#fff}
+#portfolioView .pf-category[aria-pressed=true]{background:#21483c;border-color:#73907f;box-shadow:none}
+#portfolioView .pf-categories{border-bottom-color:#dde4dd}
+#portfolioView .pf-services .pf-empty{background:#f9fbfa}
+.bottom-nav{background:#ffffffef}
+.bottom-nav button.active{color:#21483c}
