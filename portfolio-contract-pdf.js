@@ -2,6 +2,7 @@
 (function(root){
  'use strict';
  async function build(sale,lib=root.PDFLib){
+  if(sale.contract_snapshot?.layout==='document-v1')return (root.PortfolioContractDocumentPDF||(typeof require==='function'?require('./portfolio-contract-document-pdf.js'):null)).build(sale,lib);
   if(!lib)throw Error('PDF tools could not load. Refresh while online and try again.');
   const {PDFDocument,StandardFonts,rgb}=lib,doc=await PDFDocument.create(),font=await doc.embedFont(StandardFonts.Helvetica),bold=await doc.embedFont(StandardFonts.HelveticaBold),form=doc.getForm();
   const snap=sale.contract_snapshot;if(!snap)throw Error('This older sale has no saved contract.');

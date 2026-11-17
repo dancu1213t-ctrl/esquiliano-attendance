@@ -1,7 +1,7 @@
 from pathlib import Path
 from pypdf import PdfReader
 root=Path(__file__).resolve().parents[1]/'tmp'/'pdfs'
-for filename in ('Marketing.pdf','Accounting.pdf','Government-Documents.pdf','HR.pdf','Business-Intelligence.pdf','IT.pdf','long-contract.pdf'):
+for filename in [p.name for p in root.glob('*.pdf')]:
     reader=PdfReader(root/filename)
     fields=reader.get_fields()
     assert fields and fields['customer_name']['/V']=='Sample Customer'
