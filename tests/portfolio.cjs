@@ -24,6 +24,6 @@ function descendants(e){return [e,...e.children.flatMap(descendants)]}
  assert.equal(ctx.Portfolio.csvCell('=HYPERLINK("bad")'),'"\'=HYPERLINK(""bad"")"');assert.equal(ctx.Portfolio.csvCell('Client, Inc.'),'"Client, Inc."');
  ctx.Portfolio.openManagement();assert(descendants(elements.get('pfManage')).some(x=>x.textContent==='Staff access · Marketing'));
  profile={id:'worker',role:'employee'};data={pf_categories:[],pf_folders:[],pf_services:[],pf_access:[]};ctx.Portfolio.sync();await ctx.Portfolio.show();assert.equal(elements.get('pfCategories').children.length,0);assert.equal(elements.get('pfManage').children.length,0);assert(descendants(elements.get('pfBrowse')).some(x=>x.textContent==='Your portfolio access'));
- const html=fs.readFileSync(__dirname+'/../index.html','utf8'),app=fs.readFileSync(__dirname+'/../app.js','utf8');assert.equal((html.match(/id="portfolioView"/g)||[]).length,1);assert(html.indexOf('app.js?v=44')<html.indexOf('portfolio.js?v='));assert(app.includes("['portfolio','Portfolio']"));
+ const html=fs.readFileSync(__dirname+'/../index.html','utf8'),app=fs.readFileSync(__dirname+'/../app.js','utf8');assert.equal((html.match(/id="portfolioView"/g)||[]).length,1);assert(html.indexOf('app.js?v=45')<html.indexOf('portfolio.js?v=4'));assert(app.includes("['portfolio','Portfolio']"));
  console.log('Portfolio tests passed: bootstrap, category rendering, folder links, invalid URL rejection, CSV safety, admin controls and account-switch privacy.');
 })().catch(e=>{console.error(e);process.exitCode=1});
