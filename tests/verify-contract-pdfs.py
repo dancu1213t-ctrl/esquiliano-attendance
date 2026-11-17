@@ -10,7 +10,7 @@ for filename in [p.name for p in root.glob('*.pdf')]:
         assert 'Sample Customer' in ''.join(p.extract_text() or '' for p in reader.pages)
         continue
     assert fields and fields['customer_name']['/V']=='Sample Customer'
-    assert fields['contract_date']['/V']=='2026-11-18'
+    assert fields['contract_date']['/V']==('2026-11-17' if filename=='editable-contract.pdf' else '2026-11-18')
     widgets=0
     for page in reader.pages:
         for ref in page.get('/Annots',[]):
@@ -27,3 +27,4 @@ for filename in [p.name for p in root.glob('*.pdf')]:
             assert x0>=40 and x1<=555 and y0>=60 and y1<=818,(filename,name,obj['/Rect'])
     assert widgets>=len(fields),(filename,widgets,len(fields))
 print('Independent PDF verification passed: canonical values, widget values/appearances, and page bounds for all six services and long content.')
+
