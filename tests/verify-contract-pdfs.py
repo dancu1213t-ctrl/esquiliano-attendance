@@ -4,6 +4,11 @@ root=Path(__file__).resolve().parents[1]/'tmp'/'pdfs'
 for filename in [p.name for p in root.glob('*.pdf')]:
     reader=PdfReader(root/filename)
     fields=reader.get_fields()
+    if filename=='print-ready-contract.pdf':
+        assert not fields and '/AcroForm' not in reader.trailer['/Root']
+        assert all(not p.get('/Annots') for p in reader.pages)
+        assert 'Sample Customer' in ''.join(p.extract_text() or '' for p in reader.pages)
+        continue
     assert fields and fields['customer_name']['/V']=='Sample Customer'
     assert fields['contract_date']['/V']=='2026-11-18'
     widgets=0

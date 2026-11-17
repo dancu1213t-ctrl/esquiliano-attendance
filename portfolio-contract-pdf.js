@@ -35,6 +35,7 @@
   for(const [i,p] of doc.getPages().entries()){p.drawLine({start:{x:42,y:48},end:{x:553,y:48},thickness:.5,color:line});p.drawText(clean('Reference '+sale.id),{x:42,y:33,size:7,font,color:muted});p.drawText((i+1)+' / '+doc.getPageCount(),{x:518,y:33,size:8,font,color:muted})}
   form.updateFieldAppearances(font);doc.setTitle(sale.service+' contract - '+sale.customer_name);doc.setAuthor('Esquiliano Consulting & Bookkeeping');doc.setSubject('Saved service contract; editable PDF copy');return doc.save();
  }
- async function download(sale){const bytes=await build(sale),url=URL.createObjectURL(new Blob([bytes],{type:'application/pdf'})),a=document.createElement('a');a.href=url;a.download='Contract-'+sale.customer_name.replace(/[^A-Za-z0-9_-]/g,'-')+'-'+sale.sale_date+'.pdf';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000)}
- root.PortfolioContractPDF={build,download};if(typeof module==='object')module.exports={build};
+ async function buildPrint(sale,lib=root.PDFLib,logoBytes){const bytes=await build(sale,lib,logoBytes),doc=await lib.PDFDocument.load(bytes);doc.getForm().flatten();for(const page of doc.getPages())page.node.delete(lib.PDFName.of('Annots'));doc.catalog.delete(lib.PDFName.of('AcroForm'));doc.setSubject('Saved service contract; print-ready copy');return doc.save()}
+ async function download(sale,{editable=false}={}){const bytes=await (editable?build(sale):buildPrint(sale)),url=URL.createObjectURL(new Blob([bytes],{type:'application/pdf'})),a=document.createElement('a');a.href=url;a.download='Contract-'+sale.customer_name.replace(/[^A-Za-z0-9_-]/g,'-')+'-'+sale.sale_date+(editable?'-editable':'')+'.pdf';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000)}
+ root.PortfolioContractPDF={build,buildPrint,download};if(typeof module==='object')module.exports={build,buildPrint};
 })(typeof window==='object'?window:globalThis);
