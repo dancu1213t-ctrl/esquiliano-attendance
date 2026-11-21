@@ -1,0 +1,84 @@
+.pf-gov-docs {
+  border: 0;
+  padding: 0;
+  margin: 8px 0;
+  min-width: 0;
+}
+.pf-gov-docs > legend {
+  font-size: 18px;
+  font-weight: 650;
+  padding: 0;
+}
+.pf-gov-docs > .muted {
+  font-size: 13px;
+  line-height: 1.6;
+  margin: 8px 0 20px;
+}
+.pf-gov-applicant {
+  min-width: 0;
+  border: 1px solid var(--line);
+  padding: 22px;
+  border-radius: 12px;
+  margin: 22px 0 0;
+  background: #fff;
+}
+.pf-gov-applicant > legend {
+  padding: 0 8px;
+  font-size: 15px;
+  font-weight: 650;
+}
+.pf-gov-parent {
+  display: grid;
+  gap: 16px;
+  border-top: 1px solid var(--line);
+  margin-top: 20px;
+  padding-top: 20px;
+  min-width: 0;
+}
+.pf-gov-docs select,
+.pf-gov-docs input,
+.pf-gov-docs textarea {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+.pf-gov-docs label {
+  margin: 0;
+}
+.pf-gov-sale-details {
+  margin: 24px 0;
+}
+.pf-gov-sale-details h3 {
+  font-size: 17px;
+}
+.pf-gov-sale-details h4 {
+  margin: 0;
+  font-size: 15px;
+}
+.pf-gov-sale-details .pf-detail {
+  font-size: 12px;
+}
+.pf-gov-sale-details .pf-gov-applicant {
+  padding: 16px;
+}
+@media (max-width: 600px) {
+  .pf-gov-applicant {
+    padding: 16px;
+  }
+  .pf-gov-sale-details .pf-detail {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 6px;
+  }
+  .pf-gov-sale-details dd {
+    margin-bottom: 10px;
+  }
+}
+.pf-gov-price {
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font-size: 14px;
+  line-height: 1.6;
+  font-weight: 600;
+  margin-top: 20px;
+}

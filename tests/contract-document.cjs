@@ -52,6 +52,21 @@ const out = path.join(__dirname, '../tmp/pdfs');
           ' services for the customer, as agreed in the approved service package. Contract / project reference: {{reference}}. Other reference {{custom_1}}.\n\n3. SERVICE PERIOD\nThe anticipated service period begins on {{start_date}} and ends on {{end_date}}. Dates remain subject to the approved final agreement.\n\n4. FEES & PAYMENT\nThe recorded charge is {{amount}}. Payment method: {{payment_method}}. Atlantic Bank, Jose Armando Esquiliano, checking account 211747902, Belize (BZD).\n\n5. CONTACT & RECORD\nCustomer email: {{email}}. Phone: {{phone}}. Prepared by {{staff_name}}. Contract date: {{contract_date}}.\n\nMOCK CONTRACT - FOR REVIEW ONLY. Replace with the approved company contract before use as a final agreement.',
       },
     };
+    if (service === 'Government Documents')
+      sale.service_details = {
+        version: 2,
+        document_type: 'birth_certificate',
+        pricing: { total: 450, declaration_count: 3 },
+        applicants: Array.from({ length: 3 }, (_, i) => ({
+          full_name: 'Applicant ' + (i + 1),
+          address: 'Test Street',
+          town: 'Test Town',
+          mother_id_status: 'missing',
+          mother_id_reason: 'ID unavailable. ' + 'Long supporting explanation. '.repeat(12),
+          applicant_id_status: 'available',
+          applicant_id_reference: 'TEST-' + i,
+        })),
+      };
     const bytes = await build(
         sale,
         lib,
@@ -69,6 +84,7 @@ const out = path.join(__dirname, '../tmp/pdfs');
     assert.equal(form.getTextField('staff_name').getText(), 'Edited preparer');
     assert(!form.getFieldMaybe('scope'));
     assert(!form.getFieldMaybe('deliverables'));
+    if (service === 'Government Documents') assert(pdf.getPageCount() >= 3);
     fs.writeFileSync(path.join(out, 'Document-' + service.replaceAll(' ', '-') + '.pdf'), bytes);
   }
   console.log(

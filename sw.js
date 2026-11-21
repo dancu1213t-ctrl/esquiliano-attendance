@@ -1,4 +1,4 @@
-const CACHE = 'esquiliano-shell-v97';
+const CACHE = 'esquiliano-shell-v99';
 const SHELL = [
   ...new Set([
     ...Array.from({ length: 31 }, (_, i) => './assets/stickers/' + i + '.webp'),
@@ -12,12 +12,15 @@ const SHELL = [
     './subscriptions.js?v=3',
     './session-transport.js?v=2',
     './app.js?v=45',
-    './portfolio.js?v=6',
-    './portfolio-contracts.js?v=6',
+    './portfolio.js?v=7',
+    './portfolio-contracts.js?v=8',
+    './portfolio-signature-pad.js?v=1',
+    './portfolio-gov-docs.js?v=2',
+    './portfolio-gov-docs.css?v=2',
     './portfolio-template-editor.js?v=2',
-    './portfolio-contracts.css?v=4',
+    './portfolio-contracts.css?v=5',
     './portfolio-contract-pdf.js?v=4',
-    './portfolio-contract-document-pdf.js?v=4',
+    './portfolio-contract-document-pdf.js?v=5',
     './vendor/pdf-lib.min.js',
     './assets/portfolio/video-cover.jpg',
     './assets/portfolio/flyers-cover.jpg',

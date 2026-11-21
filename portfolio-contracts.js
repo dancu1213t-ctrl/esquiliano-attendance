@@ -125,9 +125,7 @@ window.PortfolioContracts = (() => {
     if (!owner || signatureBusy) return;
     const id = owner,
       c = client();
-    let ink = false,
-      drawing = false,
-      last = null;
+    let ink = false;
     signatureDialog.replaceChildren();
     const head = el('div', undefined, 'section-title');
     head.append(
@@ -145,33 +143,9 @@ window.PortfolioContracts = (() => {
     );
     canvas.style.touchAction = 'none';
     const ctx = canvas.getContext('2d');
-    ctx.lineWidth = 4;
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-    ctx.strokeStyle = '#19382f';
-    const point = (e) => {
-      const r = canvas.getBoundingClientRect();
-      return [((e.clientX - r.left) * 1000) / r.width, ((e.clientY - r.top) * 300) / r.height];
-    };
-    canvas.onpointerdown = (e) => {
-      drawing = true;
-      last = point(e);
-      canvas.setPointerCapture(e.pointerId);
-    };
-    canvas.onpointermove = (e) => {
-      if (!drawing) return;
-      const p = point(e);
-      ctx.beginPath();
-      ctx.moveTo(...last);
-      ctx.lineTo(...p);
-      ctx.stroke();
-      last = p;
+    window.PortfolioSignaturePad.attach(canvas, () => {
       ink = true;
-    };
-    canvas.onpointerup = canvas.onpointercancel = () => {
-      drawing = false;
-      last = null;
-    };
+    });
     const upload = field('Or upload your existing signature', 'signature_upload', 'file');
     upload.querySelector('input').accept = 'image/png,image/jpeg,image/webp';
     const error = el('p', undefined, 'error');
@@ -242,7 +216,13 @@ window.PortfolioContracts = (() => {
       error,
       actions,
     );
-    signatureDialog.showModal();
+    const unlock = window.PortfolioSignaturePad.lockBackground(signatureDialog);
+    try {
+      signatureDialog.showModal();
+    } catch (error) {
+      unlock();
+      throw error;
+    }
   }
   signatureDialog.addEventListener('cancel', (e) => {
     if (signatureBusy) e.preventDefault();
@@ -341,6 +321,8 @@ window.PortfolioContracts = (() => {
     ])
       grid.querySelector('[name="' + name + '"]').maxLength = max;
     customer.append(grid);
+    const gov = window.PortfolioGovDocs.create(customer);
+    gov.setCategory(s.categories.find((c) => c.id === s.selected));
     const payment = field('Payment method', 'payment_method', 'select');
     const po = el('option', 'IFT');
     po.value = 'IFT';
@@ -407,6 +389,18 @@ window.PortfolioContracts = (() => {
       };
     }
     function refreshReadouts() {
+      const price = gov.pricing();
+      const amountInput = form.querySelector('[name=amount]');
+      const currencyInput = form.querySelector('[name=currency]');
+      if (amountInput) {
+        amountInput.readOnly = !!price;
+        if (price) amountInput.value = price.total === null ? '' : price.total.toFixed(2);
+      }
+      if (currencyInput) {
+        if (price) currencyInput.value = 'BZD';
+        for (const option of currencyInput.options)
+          option.disabled = !!price && option.value !== 'BZD';
+      }
       const values = defaults();
       for (const input of contract.querySelectorAll('[data-contract-key]')) {
         const key = input.dataset.contractKey;
@@ -417,6 +411,7 @@ window.PortfolioContracts = (() => {
         n.textContent = values.currency || 'BZD';
     }
     function updateContract() {
+      gov.setCategory(s.categories.find((c) => c.id === select.value));
       for (const input of contract.querySelectorAll('[data-contract-key]'))
         draft[input.dataset.contractKey] = input.value;
       contract.replaceChildren();
@@ -553,6 +548,7 @@ window.PortfolioContracts = (() => {
     }
     totals.append(amounts);
     form.append(totals);
+    refreshReadouts();
     const error = el('p', undefined, 'error');
     error.setAttribute('role', 'alert');
     error.id = 'pfSaleError';
@@ -570,6 +566,8 @@ window.PortfolioContracts = (() => {
     form.onsubmit = async (e) => {
       e.preventDefault();
       if (s.saving || !same(s.id)) return;
+      refreshReadouts();
+      if (!form.reportValidity()) return;
       error.textContent = '';
       if (!signature) {
         error.textContent = 'Save your profile signature first.';
@@ -602,8 +600,11 @@ window.PortfolioContracts = (() => {
             ]),
           ),
         };
+      const serviceDetails = gov.read();
+      if (serviceDetails) data.service_details = serviceDetails;
       s.saving = true;
       const controls = Array.from(form.elements);
+      const disabledBefore = controls.map((c) => c.disabled);
       controls.forEach((c) => (c.disabled = true));
       try {
         check(await s.client.rpc('pf_sale_save', { data }));
@@ -618,7 +619,7 @@ window.PortfolioContracts = (() => {
           error.textContent = e.message || 'The sale could not be saved. Try again.';
       } finally {
         s.saving = false;
-        controls.forEach((c) => (c.disabled = false));
+        controls.forEach((c, i) => (c.disabled = disabledBefore[i]));
       }
     };
     salePage.append(form);

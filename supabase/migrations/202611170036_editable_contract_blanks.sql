@@ -37,29 +37,13 @@ begin
   if not found then raise exception 'Contract template is not available'; end if;
   if (data->>'template_version')::integer is distinct from tmpl.version then raise exception 'The contract template changed. Reopen the form to use the latest version.'; end if;
   values_data:=data->'contract_fields';
-  if jsonb_typeof(values_data)<>'object' or (select count(*) from jsonb_object_keys(values_data))>100 or exists(select 1 from jsonb_each(values_data) where key !~ '^[a-z][a-z0-9_]{0,63} or jsonb_typeof(value)<>'string' or length(value#>>'{}')>3000) then raise exception 'Invalid contract fields'; end if;
+  if jsonb_typeof(values_data)<>'object' or (select count(*) from jsonb_object_keys(values_data))>100 or exists(select 1 from jsonb_each(values_data) where key !~ '^[a-z][a-z0-9_]{0,63}$' or key in('constructor','prototype') or jsonb_typeof(value)<>'string' or length(value#>>'{}')>3000) then raise exception 'Invalid contract fields'; end if;
   if coalesce(data->>'contract_format','')<>'document-v1' and (length(btrim(coalesce(values_data->>'scope','')))=0 or length(btrim(coalesce(values_data->>'deliverables','')))=0) then raise exception 'Complete the scope and deliverables'; end if;
   if coalesce((data->>'use_signature')::boolean,false) is not true then raise exception 'Confirm use of your profile signature'; end if;
   select * into signer from pf_signatures where user_id=auth.uid();
   if not found then raise exception 'Save your signature in Profile first'; end if;
   select * into person from att_profiles where id=auth.uid();
   snapshot:=jsonb_build_object('layout',coalesce(data->>'contract_format','form-v1'),'title',tmpl.title,'header_text',tmpl.header_text,'footer_text',tmpl.footer_text,'body',tmpl.body,'version',tmpl.version,'fields',values_data,'signer_name',person.name,'signer_employee_id',person.employee_id,'signature',signer.image,'signature_updated_at',signer.updated_at,'confirmed_at',now(),'bank',jsonb_build_object('name','Atlantic Bank','account_name','Jose Armando Esquiliano','account_number','211747902','account_type','Checking','currency','BZD'));
- end if;
- insert into pf_sales(id,category_id,user_id,customer_name,business,email,phone,service,requirements,amount,currency,sale_date,payment_method,contract_date,contract_snapshot)
- values(item,category,auth.uid(),btrim(data->>'customer_name'),btrim(coalesce(data->>'business','')),btrim(coalesce(data->>'email','')),btrim(coalesce(data->>'phone','')),coalesce((select name from pf_categories where id=category),btrim(data->>'service')),coalesce(values_data->>'scope',data->>'requirements',''),(data->>'amount')::numeric,data->>'currency',(data->>'sale_date')::date,data->>'payment_method',(data->>'contract_date')::date,snapshot);
- insert into att_audit(actor,action,target) values(auth.uid(),'portfolio_sale_recorded',item::text);
- return item;
-end $$;
-revoke all on function public.pf_sale_save(jsonb) from public,anon;
-grant execute on function public.pf_sale_save(jsonb) to authenticated;
-
- or key in('constructor','prototype') or jsonb_typeof(value)<>'string' or length(value#>>'{}')>3000) then raise exception 'Invalid contract fields'; end if;
-  if coalesce(data->>'contract_format','')<>'document-v1' and (length(btrim(coalesce(values_data->>'scope','')))=0 or length(btrim(coalesce(values_data->>'deliverables','')))=0) then raise exception 'Complete the scope and deliverables'; end if;
-  if coalesce((data->>'use_signature')::boolean,false) is not true then raise exception 'Confirm use of your profile signature'; end if;
-  select * into signer from pf_signatures where user_id=auth.uid();
-  if not found then raise exception 'Save your signature in Profile first'; end if;
-  select * into person from att_profiles where id=auth.uid();
-  snapshot:=jsonb_build_object('layout',coalesce(data->>'contract_format','form-v1'),'title',tmpl.title,'body',tmpl.body,'version',tmpl.version,'fields',values_data,'signer_name',person.name,'signer_employee_id',person.employee_id,'signature',signer.image,'signature_updated_at',signer.updated_at,'confirmed_at',now(),'bank',jsonb_build_object('name','Atlantic Bank','account_name','Jose Armando Esquiliano','account_number','211747902','account_type','Checking','currency','BZD'));
  end if;
  insert into pf_sales(id,category_id,user_id,customer_name,business,email,phone,service,requirements,amount,currency,sale_date,payment_method,contract_date,contract_snapshot)
  values(item,category,auth.uid(),btrim(data->>'customer_name'),btrim(coalesce(data->>'business','')),btrim(coalesce(data->>'email','')),btrim(coalesce(data->>'phone','')),coalesce((select name from pf_categories where id=category),btrim(data->>'service')),coalesce(values_data->>'scope',data->>'requirements',''),(data->>'amount')::numeric,data->>'currency',(data->>'sale_date')::date,data->>'payment_method',(data->>'contract_date')::date,snapshot);

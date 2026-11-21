@@ -71,6 +71,7 @@ w.HTMLDialogElement.prototype.close = function () {
 w.HTMLDialogElement.prototype.showModal = function () {
   this.open = true;
 };
+w.eval(fs.readFileSync(__dirname + '/../portfolio-gov-docs.js', 'utf8'));
 w.eval(fs.readFileSync(__dirname + '/../portfolio-contracts.js', 'utf8'));
 const opts = {
   categories,
@@ -103,7 +104,7 @@ const tick = () => new Promise((resolve) => setImmediate(resolve));
   select.value = 'cat-1';
   select.onchange();
   assert.equal(form.querySelector('[name=contract_reference]').value, 'Project 001');
-  assert.equal(form.querySelectorAll('textarea').length, 0);
+  assert.equal(form.querySelectorAll('.pf-contract-document textarea').length, 0);
   assert(form.querySelector('.pf-contract-document'));
   assert.equal(form.querySelector('[data-contract-key=customer_name]').value, 'Test Customer');
   assert.equal(form.querySelector('h4').textContent, 'Accounting mock');

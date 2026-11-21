@@ -1,5 +1,19 @@
 # Sale pages and contracts
 
+## Government Documents
+
+The customer and payment section offers Birth Certificate (BZD 130), Death Certificate (BZD 130), Marriage Certificate (BZD 150), Birth Registration (BZD 130), Death Registration (BZD 130), Marriage Registration (BZD 150), Visa Application (BZD 100), and quote-based Late Registration, Apostille, and Translation. An agreed positive quote per request is required for quote-based services.
+
+One sale can contain one to three requests of the selected service, with separate applicant details. Applicant, mother, and father ID availability are recorded with an ID number/reference when available. Each unavailable ID requires a reason and one declaration at BZD 20. The form shows the fee breakdown and calculated BZD total. The server independently validates details and recomputes prices and declaration counts, retaining the existing sale access rules and duplicate-request protection. ID image uploads are not part of this version.
+
+Saved details appear in Sale details and in an appendix to the downloaded contract PDF. Existing contracts and non-government sale flows remain available. The Government Documents price list is also published under the category; calculation rates are defined in the client catalog and the database validator and must be changed together.
+
+Profile signature drawing records dots immediately on pointer contact, retains coalesced movement samples and the final pointer-up segment, and ignores secondary pointers. The signature dialog locks background scrolling and restores the original page position when closed.
+
+Migration: `supabase/migrations/20261121152833_government_services_and_declarations.sql`. Regression checks: `tests/portfolio-gov-docs.cjs`, `tests/portfolio-signature-pad.cjs`, `tests/contract-document.cjs`, and rollback-only `supabase/tests/government-services.sql`.
+
+## Contract workflow
+
 Record a sale opens an in-app page, not a modal. Cancel, browser Back and successful saves return to the original Portfolio context. Unsaved form fields are held only in memory and cleared on an account switch. Existing sales remain readable; older records have no invented contract.
 
 The six service categories have replaceable mock contract wording. The form shows one paper-style contract. Every placeholder is an editable inline field, including auto-populated customer details, fees, dates and the prepared-by name. Matching sale fields stay synchronized. The actual signer's account identity remains recorded separately from editable contract wording. There are no scope, deliverables or other separate contract text areas. Administrators edit the title, header, body and footer in Portfolio → Manage → Contract template, and can insert named blanks anywhere. A token such as `{{custom_reference_1}}` creates a fillable field; typing an underscore line (____) in the admin editor automatically converts it into a named blank when saved. Repeated names share values. All blanks and edited header/footer text carry into the saved snapshot and editable PDF. Limits: 100 distinct blanks, 4,000 characters per header/footer, 12,000 body characters. Each save advances its version; an open sale rejects a stale version. Category sales access remains enforced on the server.

@@ -201,6 +201,36 @@
     y -= 35;
     x = 48;
     section(snap.footer_text || '');
+    if (sale.service_details?.version === 2) {
+      const details = sale.service_details;
+      const detailLine = (text) => {
+        plain(text);
+        newline();
+        y -= 8;
+        if (y < 74) next();
+      };
+      next();
+      draw('GOVERNMENT DOCUMENTS - REQUEST DETAILS', 48, y, 11, bold);
+      y -= 30;
+      detailLine(
+        'Service: ' +
+          details.document_type.replaceAll('_', ' ') +
+          '\nRequests: ' +
+          details.applicants.length +
+          '\nTotal: BZD ' +
+          Number(details.pricing.total).toFixed(2) +
+          '\nDeclarations: ' +
+          details.pricing.declaration_count +
+          ' at BZD 20 each',
+      );
+      for (const [index, applicant] of details.applicants.entries()) {
+        detailLine('Request ' + (index + 1) + ': ' + applicant.full_name);
+        for (const [key, value] of Object.entries(applicant)) {
+          if (key === 'full_name' || !value) continue;
+          detailLine(key.replaceAll('_', ' ') + ': ' + value);
+        }
+      }
+    }
     for (const [i, p] of doc.getPages().entries()) {
       p.drawLine({ start: { x: 48, y: 48 }, end: { x: 547, y: 48 }, thickness: 0.5, color: line });
       p.drawText(clean('Reference ' + sale.id + ' | Template v' + snap.version), {

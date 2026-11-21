@@ -871,6 +871,7 @@ window.Portfolio = (() => {
   }
   function showSale(sale) {
     detailDialog.querySelector('dl')?.remove();
+    detailDialog.querySelector('.pf-gov-sale-details')?.remove();
     detailDialog.querySelectorAll('.pf-contract-download').forEach((n) => n.remove());
     const list = node('dl', undefined, 'pf-detail');
     for (const [label, value] of [
@@ -911,6 +912,8 @@ window.Portfolio = (() => {
       list.append(node('dt', label), entry);
     }
     detailDialog.append(list);
+    const govDetails = window.PortfolioGovDocs?.details(sale.service_details);
+    if (govDetails) detailDialog.append(govDetails);
     if (sale.contract_snapshot) {
       const download = button('Download contract PDF', 'primary pf-contract-download', () =>
         window.PortfolioContracts.download(sale, download),

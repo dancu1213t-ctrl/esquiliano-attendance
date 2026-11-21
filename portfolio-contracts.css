@@ -296,3 +296,8 @@
     font-size: 16px;
   }
 }
+.pf-signature-dialog {
+  overscroll-behavior: contain;
+  max-height: calc(100dvh - 32px);
+  overflow-y: auto;
+}
