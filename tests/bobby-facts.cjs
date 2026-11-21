@@ -1,9 +1,90 @@
-const assert=require('node:assert/strict'),F=require('../bobby-facts.js');const s={today:'2026-11-03',week:'2026-11-02',as_of:'2026-11-04T01:00:00Z',settings:{timezone:'America/Belize',name:'Main office',opens:'08:00:00',closes:'16:00:00',grace_minutes:10,lunch_effective_date:'2026-11-03'},people:[{id:'a',name:'Administrator',employee_id:'ADM-1',role:'admin',active:true},{id:'w',name:'Test Worker',employee_id:'WRK-2',role:'employee',job_role:'Agent',active:true}],events:[],latest:[],days:[{user_id:'w',work_date:'2026-11-02',status:'Worked',hours:8},{user_id:'w',work_date:'2026-11-03',status:'Worked',hours:7}]};
-assert.match(F.answer('How many hours has Test Worker done this week so far?',s),/15h/);assert.match(F.answer('How many hours did Test Worker work on Monday?',s),/8h/);assert.match(F.answer('How many hours did Test Worker work today?',s),/7h/);assert.match(F.answer('Is Test Worker clocked in?',s),/no clock-in\/out record/);assert.match(F.answer('Who forgot to clock in?',s),/Administrator: no clock-in/);assert(!F.answer('Who forgot to clock in?',s).includes('Test Worker: no'));assert.match(F.answer('Who forgot to clock out?',s),/No overdue open/);assert.match(F.answer('Who is clocked in?',s),/No matching/);assert.match(F.answer('What is Test Worker role?',s),/Agent/);assert.match(F.answer('What time does the office open?',s),/8:00 AM/);assert.match(F.answer('What is the weather?',s),/I can check/);
-s.days=[];s.events=[{user_id:'w',action:'IN',work_date:'2026-11-03',happened_at:'2026-11-03T14:15:00Z',late_minutes:15}];s.latest=s.events;assert.match(F.answer('Who forgot to clock out?',s),/Test Worker: open/);assert.match(F.answer('How many hours has Test Worker worked?',s),/provisional/);assert.match(F.answer('Who was late this week?',s),/15 min/);s.as_of='2026-11-03T20:00:00Z';assert.match(F.answer('Who has missing clock outs?',s),/No overdue/);console.log('PASS fresh factual totals, named days, manual/status distinction, missing punches, lateness and unsupported questions');
+const assert = require('node:assert/strict'),
+  F = require('../bobby-facts.js');
+const s = {
+  today: '2026-11-03',
+  week: '2026-11-02',
+  as_of: '2026-11-04T01:00:00Z',
+  settings: {
+    timezone: 'America/Belize',
+    name: 'Main office',
+    opens: '08:00:00',
+    closes: '16:00:00',
+    grace_minutes: 10,
+    lunch_effective_date: '2026-11-03',
+  },
+  people: [
+    { id: 'a', name: 'Administrator', employee_id: 'ADM-1', role: 'admin', active: true },
+    {
+      id: 'w',
+      name: 'Test Worker',
+      employee_id: 'WRK-2',
+      role: 'employee',
+      job_role: 'Agent',
+      active: true,
+    },
+  ],
+  events: [],
+  latest: [],
+  days: [
+    { user_id: 'w', work_date: '2026-11-02', status: 'Worked', hours: 8 },
+    { user_id: 'w', work_date: '2026-11-03', status: 'Worked', hours: 7 },
+  ],
+};
+assert.match(F.answer('How many hours has Test Worker done this week so far?', s), /15h/);
+assert.match(F.answer('How many hours did Test Worker work on Monday?', s), /8h/);
+assert.match(F.answer('How many hours did Test Worker work today?', s), /7h/);
+assert.match(F.answer('Is Test Worker clocked in?', s), /no clock-in\/out record/);
+assert.match(F.answer('Who forgot to clock in?', s), /Administrator: no clock-in/);
+assert(!F.answer('Who forgot to clock in?', s).includes('Test Worker: no'));
+assert.match(F.answer('Who forgot to clock out?', s), /No overdue open/);
+assert.match(F.answer('Who is clocked in?', s), /No matching/);
+assert.match(F.answer('What is Test Worker role?', s), /Agent/);
+assert.match(F.answer('What time does the office open?', s), /8:00 AM/);
+assert.match(F.answer('What is the weather?', s), /I can check/);
+s.days = [];
+s.events = [
+  {
+    user_id: 'w',
+    action: 'IN',
+    work_date: '2026-11-03',
+    happened_at: '2026-11-03T14:15:00Z',
+    late_minutes: 15,
+  },
+];
+s.latest = s.events;
+assert.match(F.answer('Who forgot to clock out?', s), /Test Worker: open/);
+assert.match(F.answer('How many hours has Test Worker worked?', s), /provisional/);
+assert.match(F.answer('Who was late this week?', s), /15 min/);
+s.as_of = '2026-11-03T20:00:00Z';
+assert.match(F.answer('Who has missing clock outs?', s), /No overdue/);
+console.log(
+  'PASS fresh factual totals, named days, manual/status distinction, missing punches, lateness and unsupported questions',
+);
 
-assert.match(F.answer('How many workers do I have?',s),/1 active worker/);assert.match(F.answer('How many staff do we have?',s),/2 active staff/);assert.match(F.answer('How many administrators are there?',s),/1 active administrator/);
+assert.match(F.answer('How many workers do I have?', s), /1 active worker/);
+assert.match(F.answer('How many staff do we have?', s), /2 active staff/);
+assert.match(F.answer('How many administrators are there?', s), /1 active administrator/);
 
-for(const q of ['Who built Bobby?','Who made you?','Who is your creator?'])assert.equal(F.identity(q),'Bobby was built by Mr. Cu.');assert.equal(F.identity('Who built the office?'),null);assert.equal(F.answer('Who created Bobby?',null),'Bobby was built by Mr. Cu.');
+for (const q of ['Who built Bobby?', 'Who made you?', 'Who is your creator?'])
+  assert.equal(F.identity(q), 'Bobby was built by Mr. Cu.');
+assert.equal(F.identity('Who built the office?'), null);
+assert.equal(F.answer('Who created Bobby?', null), 'Bobby was built by Mr. Cu.');
 
-assert.match(F.answer('Is Test Worker an Active member?',s),/^Yes\. Test Worker’s account is active/);assert.match(F.answer('Is Test Worker inactive?',s),/^No\./);assert.match(F.answer('Is Unknown Person an active member?',s),/Who should I check/);s.people[1].active=false;assert.match(F.answer('Is Test Worker an active member?',s),/^No\. Test Worker’s account is inactive/);assert.match(F.answer('Is Test Worker disabled?',s),/^Yes\./);assert.match(F.answer('Who is inactive?',s),/Test Worker/);assert.match(F.answer('Was Test Worker active yesterday?',s),/Historical or future/);s.people[1].active=true;console.log('PASS active/inactive membership, unknown names, inactive lists and no invented membership history');
+assert.match(
+  F.answer('Is Test Worker an Active member?', s),
+  /^Yes\. Test Worker’s account is active/,
+);
+assert.match(F.answer('Is Test Worker inactive?', s), /^No\./);
+assert.match(F.answer('Is Unknown Person an active member?', s), /Who should I check/);
+s.people[1].active = false;
+assert.match(
+  F.answer('Is Test Worker an active member?', s),
+  /^No\. Test Worker’s account is inactive/,
+);
+assert.match(F.answer('Is Test Worker disabled?', s), /^Yes\./);
+assert.match(F.answer('Who is inactive?', s), /Test Worker/);
+assert.match(F.answer('Was Test Worker active yesterday?', s), /Historical or future/);
+s.people[1].active = true;
+console.log(
+  'PASS active/inactive membership, unknown names, inactive lists and no invented membership history',
+);

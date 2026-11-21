@@ -1,22 +1,228 @@
-(function(root){
- 'use strict';
- async function build(sale,lib=root.PDFLib,logoBytes){
-  const {PDFDocument,StandardFonts,rgb}=lib,doc=await PDFDocument.create(),font=await doc.embedFont(StandardFonts.Helvetica),bold=await doc.embedFont(StandardFonts.HelveticaBold),form=doc.getForm(),snap=sale.contract_snapshot;
-  const ink=rgb(.12,.19,.15),muted=rgb(.43,.47,.44),line=rgb(.66,.73,.68);let page,x=48,y=735;
-  const clean=value=>Array.from(String(value??'').replace(/[\u2010-\u2015]/g,'-')).map(c=>{if(c==='\n')return c;try{font.encodeText(c);return c}catch{return '?'}}).join('');
-  const values={customer_name:sale.customer_name,business:sale.business,email:sale.email,phone:sale.phone,service:sale.service,amount:sale.currency+' '+Number(sale.amount).toFixed(2),contract_date:sale.contract_date,sale_date:sale.sale_date,staff_name:snap.signer_name,payment_method:sale.payment_method,...snap.fields};values.amount=sale.currency+' '+Number(sale.amount).toFixed(2);
-  const widths={client_address:250,reference:155,start_date:100,end_date:100,customer_name:170,business:170,email:180,phone:110,amount:90,contract_date:100,sale_date:100,staff_name:150,payment_method:45,service:180};
-  function draw(text,px,py,size=10,weight=font,color=ink){page.drawText(clean(text),{x:px,y:py,size,font:weight,color})}
-  function next(){page=doc.addPage([595.28,841.89]);x=48;y=792;if(doc.getPageCount()>1){draw(sale.service+' contract - continued',48,812,9,font,muted);page.drawLine({start:{x:48,y:803},end:{x:547,y:803},thickness:.5,color:line})}}
-  function newline(){x=48;y-=21;if(y<74)next()}
-  function word(text){const width=font.widthOfTextAtSize(clean(text),10);if(x+width>547&&x>48)newline();if(width>499){for(const c of text)word(c);return}draw(text,x,y);x+=width}
-  function plain(text){for(const token of text.match(/\n|[^\S\n]+|[^\s]+/g)||[]){if(token==='\n')newline();else if(/^\s+$/.test(token)){if(x>48)x+=font.widthOfTextAtSize(' ',10)}else word(token)}}
-  function blank(key){const value=clean(values[key]||''),measured=font.widthOfTextAtSize(value,10),width=Math.min(499,Math.max(Object.hasOwn(widths,key)?widths[key]:155,measured+12)),rows=Math.max(1,Math.ceil((measured+12)/499)),height=rows*15+5;if(x+width>547&&x>48)newline();if(y-height<74)next();let f=form.getFieldMaybe(key);if(!f){f=form.createTextField(key);if(rows>1)f.enableMultiline();f.setText(value)}f.addToPage(page,{x,y:y-height+13,width,height,borderWidth:0,textColor:ink,font,backgroundColor:rgb(1,1,1)});f.setFontSize(10);page.drawLine({start:{x,y:y-height+13},end:{x:x+width,y:y-height+13},thickness:.5,color:line});x+=width+3;if(rows>1){y-=height-20}}
-  function section(content){if(!String(content||'').trim())return;for(const paragraph of String(content||'').split(/\n\s*\n/)){if(y<100)next();let pos=0;for(const match of paragraph.matchAll(/{{([a-z][a-z0-9_]{0,63})}}/g)){plain(paragraph.slice(pos,match.index));blank(match[1]);pos=match.index+match[0].length}plain(paragraph.slice(pos));newline();y-=12;if(y<74)next()}}
-  next();if(!logoBytes&&root.document){const response=await root.fetch('assets/favicon.png?v=10');if(!response.ok)throw Error('Contract logo could not load. Refresh and try again.');logoBytes=await response.arrayBuffer()}if(logoBytes){const logo=await doc.embedPng(logoBytes),size=logo.scaleToFit(130,130);page.drawImage(logo,{x:(595.28-size.width)/2,y:y-size.height,width:size.width,height:size.height});y-=size.height+14}const headerText=snap.header_text??'';if(headerText.replace(/\s+/g,' ').trim()!=='ESQUILIANO CONSULTING & BOOKKEEPING')section(headerText);const titleWidth=bold.widthOfTextAtSize(clean(snap.title),12);draw(snap.title,Math.max(48,(595.28-titleWidth)/2),y,12,bold);y-=28;section(snap.body);
-  if(y<(snap.footer_text?330:250))next();else{newline();y-=8}draw('SIGNATURES',48,y,11,bold);y-=25;draw('Staff signature',48,y,9,font,muted);y-=64;if(snap.signature){const image=await doc.embedPng(snap.signature),size=image.scaleToFit(220,55);page.drawImage(image,{x:48,y:y+3,width:size.width,height:size.height})}draw(snap.signer_name,48,y-10,10,bold);draw('Confirmed '+String(snap.confirmed_at||'').slice(0,10),330,y-10,9);y-=47;draw('Customer signature / name',48,y,9,font,muted);y-=25;const f=form.createTextField('customer_signature');f.setText('');f.addToPage(page,{x:48,y,width:499,height:25,borderWidth:0,font});f.setFontSize(10);page.drawLine({start:{x:48,y},end:{x:547,y},thickness:.5,color:line});
-  y-=35;x=48;section(snap.footer_text||'');for(const [i,p] of doc.getPages().entries()){p.drawLine({start:{x:48,y:48},end:{x:547,y:48},thickness:.5,color:line});p.drawText(clean('Reference '+sale.id+' | Template v'+snap.version),{x:48,y:33,size:7,font,color:muted});p.drawText((i+1)+' / '+doc.getPageCount(),{x:512,y:33,size:8,font,color:muted})}
-  form.updateFieldAppearances(font);doc.setTitle(sale.service+' contract - '+sale.customer_name);doc.setAuthor('Esquiliano Consulting & Bookkeeping');return doc.save();
- }
- root.PortfolioContractDocumentPDF={build};if(typeof module==='object')module.exports={build};
-})(typeof window==='object'?window:globalThis);
+(function (root) {
+  'use strict';
+  async function build(sale, lib = root.PDFLib, logoBytes) {
+    const { PDFDocument, StandardFonts, rgb } = lib,
+      doc = await PDFDocument.create(),
+      font = await doc.embedFont(StandardFonts.Helvetica),
+      bold = await doc.embedFont(StandardFonts.HelveticaBold),
+      form = doc.getForm(),
+      snap = sale.contract_snapshot;
+    const ink = rgb(0.12, 0.19, 0.15),
+      muted = rgb(0.43, 0.47, 0.44),
+      line = rgb(0.66, 0.73, 0.68);
+    let page,
+      x = 48,
+      y = 735;
+    const clean = (value) =>
+      Array.from(String(value ?? '').replace(/[\u2010-\u2015]/g, '-'))
+        .map((c) => {
+          if (c === '\n') return c;
+          try {
+            font.encodeText(c);
+            return c;
+          } catch {
+            return '?';
+          }
+        })
+        .join('');
+    const values = {
+      customer_name: sale.customer_name,
+      business: sale.business,
+      email: sale.email,
+      phone: sale.phone,
+      service: sale.service,
+      amount: sale.currency + ' ' + Number(sale.amount).toFixed(2),
+      contract_date: sale.contract_date,
+      sale_date: sale.sale_date,
+      staff_name: snap.signer_name,
+      payment_method: sale.payment_method,
+      ...snap.fields,
+    };
+    values.amount = sale.currency + ' ' + Number(sale.amount).toFixed(2);
+    const widths = {
+      client_address: 250,
+      reference: 155,
+      start_date: 100,
+      end_date: 100,
+      customer_name: 170,
+      business: 170,
+      email: 180,
+      phone: 110,
+      amount: 90,
+      contract_date: 100,
+      sale_date: 100,
+      staff_name: 150,
+      payment_method: 45,
+      service: 180,
+    };
+    function draw(text, px, py, size = 10, weight = font, color = ink) {
+      page.drawText(clean(text), { x: px, y: py, size, font: weight, color });
+    }
+    function next() {
+      page = doc.addPage([595.28, 841.89]);
+      x = 48;
+      y = 792;
+      if (doc.getPageCount() > 1) {
+        draw(sale.service + ' contract - continued', 48, 812, 9, font, muted);
+        page.drawLine({
+          start: { x: 48, y: 803 },
+          end: { x: 547, y: 803 },
+          thickness: 0.5,
+          color: line,
+        });
+      }
+    }
+    function newline() {
+      x = 48;
+      y -= 21;
+      if (y < 74) next();
+    }
+    function word(text) {
+      const width = font.widthOfTextAtSize(clean(text), 10);
+      if (x + width > 547 && x > 48) newline();
+      if (width > 499) {
+        for (const c of text) word(c);
+        return;
+      }
+      draw(text, x, y);
+      x += width;
+    }
+    function plain(text) {
+      for (const token of text.match(/\n|[^\S\n]+|[^\s]+/g) || []) {
+        if (token === '\n') newline();
+        else if (/^\s+$/.test(token)) {
+          if (x > 48) x += font.widthOfTextAtSize(' ', 10);
+        } else word(token);
+      }
+    }
+    function blank(key) {
+      const value = clean(values[key] || ''),
+        measured = font.widthOfTextAtSize(value, 10),
+        width = Math.min(
+          499,
+          Math.max(Object.hasOwn(widths, key) ? widths[key] : 155, measured + 12),
+        ),
+        rows = Math.max(1, Math.ceil((measured + 12) / 499)),
+        height = rows * 15 + 5;
+      if (x + width > 547 && x > 48) newline();
+      if (y - height < 74) next();
+      let f = form.getFieldMaybe(key);
+      if (!f) {
+        f = form.createTextField(key);
+        if (rows > 1) f.enableMultiline();
+        f.setText(value);
+      }
+      f.addToPage(page, {
+        x,
+        y: y - height + 13,
+        width,
+        height,
+        borderWidth: 0,
+        textColor: ink,
+        font,
+        backgroundColor: rgb(1, 1, 1),
+      });
+      f.setFontSize(10);
+      page.drawLine({
+        start: { x, y: y - height + 13 },
+        end: { x: x + width, y: y - height + 13 },
+        thickness: 0.5,
+        color: line,
+      });
+      x += width + 3;
+      if (rows > 1) {
+        y -= height - 20;
+      }
+    }
+    function section(content) {
+      if (!String(content || '').trim()) return;
+      for (const paragraph of String(content || '').split(/\n\s*\n/)) {
+        if (y < 100) next();
+        let pos = 0;
+        for (const match of paragraph.matchAll(/{{([a-z][a-z0-9_]{0,63})}}/g)) {
+          plain(paragraph.slice(pos, match.index));
+          blank(match[1]);
+          pos = match.index + match[0].length;
+        }
+        plain(paragraph.slice(pos));
+        newline();
+        y -= 12;
+        if (y < 74) next();
+      }
+    }
+    next();
+    if (!logoBytes && root.document) {
+      const response = await root.fetch('assets/favicon.png?v=10');
+      if (!response.ok) throw Error('Contract logo could not load. Refresh and try again.');
+      logoBytes = await response.arrayBuffer();
+    }
+    if (logoBytes) {
+      const logo = await doc.embedPng(logoBytes),
+        size = logo.scaleToFit(130, 130);
+      page.drawImage(logo, {
+        x: (595.28 - size.width) / 2,
+        y: y - size.height,
+        width: size.width,
+        height: size.height,
+      });
+      y -= size.height + 14;
+    }
+    const headerText = snap.header_text ?? '';
+    if (headerText.replace(/\s+/g, ' ').trim() !== 'ESQUILIANO CONSULTING & BOOKKEEPING')
+      section(headerText);
+    const titleWidth = bold.widthOfTextAtSize(clean(snap.title), 12);
+    draw(snap.title, Math.max(48, (595.28 - titleWidth) / 2), y, 12, bold);
+    y -= 28;
+    section(snap.body);
+    if (y < (snap.footer_text ? 330 : 250)) next();
+    else {
+      newline();
+      y -= 8;
+    }
+    draw('SIGNATURES', 48, y, 11, bold);
+    y -= 25;
+    draw('Staff signature', 48, y, 9, font, muted);
+    y -= 64;
+    if (snap.signature) {
+      const image = await doc.embedPng(snap.signature),
+        size = image.scaleToFit(220, 55);
+      page.drawImage(image, { x: 48, y: y + 3, width: size.width, height: size.height });
+    }
+    draw(snap.signer_name, 48, y - 10, 10, bold);
+    draw('Confirmed ' + String(snap.confirmed_at || '').slice(0, 10), 330, y - 10, 9);
+    y -= 47;
+    draw('Customer signature / name', 48, y, 9, font, muted);
+    y -= 25;
+    const f = form.createTextField('customer_signature');
+    f.setText('');
+    f.addToPage(page, { x: 48, y, width: 499, height: 25, borderWidth: 0, font });
+    f.setFontSize(10);
+    page.drawLine({ start: { x: 48, y }, end: { x: 547, y }, thickness: 0.5, color: line });
+    y -= 35;
+    x = 48;
+    section(snap.footer_text || '');
+    for (const [i, p] of doc.getPages().entries()) {
+      p.drawLine({ start: { x: 48, y: 48 }, end: { x: 547, y: 48 }, thickness: 0.5, color: line });
+      p.drawText(clean('Reference ' + sale.id + ' | Template v' + snap.version), {
+        x: 48,
+        y: 33,
+        size: 7,
+        font,
+        color: muted,
+      });
+      p.drawText(i + 1 + ' / ' + doc.getPageCount(), {
+        x: 512,
+        y: 33,
+        size: 8,
+        font,
+        color: muted,
+      });
+    }
+    form.updateFieldAppearances(font);
+    doc.setTitle(sale.service + ' contract - ' + sale.customer_name);
+    doc.setAuthor('Esquiliano Consulting & Bookkeeping');
+    return doc.save();
+  }
+  root.PortfolioContractDocumentPDF = { build };
+  if (typeof module === 'object') module.exports = { build };
+})(typeof window === 'object' ? window : globalThis);

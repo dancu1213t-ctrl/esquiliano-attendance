@@ -1,106 +1,1316 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"><meta name="theme-color" content="#183b32"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="assets/favicon.png?v=10" type="image/png"><link rel="apple-touch-icon" href="assets/icon-192.png?v=10"><link rel="stylesheet" href="app.css?v=37"><link rel="stylesheet" href="workspace.css?v=14"><link rel="stylesheet" href="loop.css?v=12"><link rel="stylesheet" href="staff.css?v=25"><link rel="stylesheet" href="bobby.css?v=32"><link rel="stylesheet" href="departments.css?v=1"><title>Esquiliano · Attendance</title><link rel="stylesheet" href="loop-calls.css?v=4"><link rel="stylesheet" href="portfolio.css?v=7"><link rel="stylesheet" href="brand-theme.css?v=2"><link rel="stylesheet" href="portfolio-contracts.css?v=4"></head>
-<body class="clock-screen"><div class="clock-snow" aria-hidden="true"><i style="--x:3%;--size:9px;--duration:9s;--delay:-0s;--drift:-24px"></i><i style="--x:40%;--size:12px;--duration:10s;--delay:-7s;--drift:24px"></i><i style="--x:77%;--size:15px;--duration:11s;--delay:-14s;--drift:-24px"></i><i style="--x:14%;--size:18px;--duration:12s;--delay:-4s;--drift:24px"></i><i style="--x:51%;--size:21px;--duration:13s;--delay:-11s;--drift:-24px"></i><i style="--x:88%;--size:9px;--duration:14s;--delay:-1s;--drift:24px"></i><i style="--x:25%;--size:12px;--duration:15s;--delay:-8s;--drift:-24px"></i><i style="--x:62%;--size:15px;--duration:9s;--delay:-15s;--drift:24px"></i><i style="--x:99%;--size:18px;--duration:10s;--delay:-5s;--drift:-24px"></i><i style="--x:36%;--size:21px;--duration:11s;--delay:-12s;--drift:24px"></i><i style="--x:73%;--size:9px;--duration:12s;--delay:-2s;--drift:-24px"></i><i style="--x:10%;--size:12px;--duration:13s;--delay:-9s;--drift:24px"></i><i style="--x:47%;--size:15px;--duration:14s;--delay:-16s;--drift:-24px"></i><i style="--x:84%;--size:18px;--duration:15s;--delay:-6s;--drift:24px"></i><i style="--x:21%;--size:21px;--duration:9s;--delay:-13s;--drift:-24px"></i><i style="--x:58%;--size:9px;--duration:10s;--delay:-3s;--drift:24px"></i><i style="--x:95%;--size:12px;--duration:11s;--delay:-10s;--drift:-24px"></i><i style="--x:32%;--size:15px;--duration:12s;--delay:-0s;--drift:24px"></i><i style="--x:69%;--size:18px;--duration:13s;--delay:-7s;--drift:-24px"></i><i style="--x:6%;--size:21px;--duration:14s;--delay:-14s;--drift:24px"></i><i style="--x:43%;--size:9px;--duration:15s;--delay:-4s;--drift:-24px"></i><i style="--x:80%;--size:12px;--duration:9s;--delay:-11s;--drift:24px"></i><i style="--x:17%;--size:15px;--duration:10s;--delay:-1s;--drift:-24px"></i><i style="--x:54%;--size:18px;--duration:11s;--delay:-8s;--drift:24px"></i></div><div class="app"><aside><a class="brand" href="./"><img src="assets/favicon.png?v=10" alt=""><span>ESQUILIANO<small>ATTENDANCE</small></span></a><nav id="desktopNav" aria-label="Main navigation"></nav><div class="aside-foot"><span class="connection" id="connection">Connecting</span><button class="text-button" data-action="admin-login">Administrator</button></div></aside>
-<main><header><div><p class="eyebrow" id="dayLabel">STAFF PORTAL</p><h1 id="pageTitle">Clock</h1><p class="loop-page-subtitle">Office Conversations</p></div><div class="header-actions"><button id="loopHeaderSearch" class="icon-button loop-header-search" type="button" aria-label="Search Loop conversations"><span class="loop-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.8" cy="10.8" r="7.1"/><path d="m16 16 5 5"/></svg></span></button><span id="previewBadge" class="badge hidden">Preview</span><button class="icon-button" id="notificationBell" data-action="toggle-inbox" aria-label="Notifications" aria-expanded="false"><svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg><i id="unreadDot" class="dot hidden"></i></button><button class="avatar" id="headerAvatar" data-action="account-menu" aria-label="Open account menu" aria-haspopup="dialog">E</button></div></header><div id="banner" class="banner hidden" role="status"></div>
-<section id="clockView" class="view"><div class="home-intro"><div class="portal-signature"><img src="assets/favicon.png?v=10" width="30" height="30" alt=""><div><strong>Esquiliano</strong><span>Staff Portal</span></div></div><p id="homeGreeting" class="home-greeting hidden"></p></div><article class="panel clock-panel simple-clock"><div class="clock-card-heading"><span id="homeOffice">Main office</span><div class="clock-holiday-lights" aria-hidden="true"><i style="--x:10%;--y:7px"></i><i style="--x:20%;--y:9px"></i><i style="--x:30%;--y:10px"></i><i style="--x:40%;--y:11px"></i><i style="--x:50%;--y:11px"></i><i style="--x:60%;--y:11px"></i><i style="--x:70%;--y:10px"></i><i style="--x:80%;--y:9px"></i><i style="--x:90%;--y:7px"></i></div><span class="office-time-label">Office time</span></div><div class="clock-face"><time id="clockTime">—</time><p id="clockDate"></p><div class="office-progress"><div class="office-progress-track"><progress id="officeProgress" max="540" value="0" aria-label="Scheduled workday progress"></progress></div><div class="office-progress-times"><span>8 AM</span><span>5 PM</span></div></div><div id="christmasCountdown" class="clock-season hidden"><img src="assets/christmas-clock.png?v=2" width="80" height="80" alt=""><div class="christmas-readout"><div id="christmasTimer" class="christmas-units" role="timer" aria-label="Time until Christmas"><div><strong id="christmasDays">00</strong><span>Days</span></div><div><strong id="christmasHours">00</strong><span>Hours</span></div><div><strong id="christmasMins">00</strong><span>Mins</span></div><div><strong id="christmasSecs">00</strong><span>Secs</span></div></div><svg class="christmas-caption" viewBox="0 0 200 39" role="img" aria-label="Till Christmas"><defs><path id="christmasArc" d="M12 12 Q100 45 188 12"/></defs><text><textPath id="christmasCaption" href="#christmasArc" startOffset="50%" text-anchor="middle">Till Christmas</textPath></text></svg></div></div></div><span id="attendanceStatus" class="status">Signed out</span><div class="clock-slides"><div class="slide-control" data-slide="IN"><span class="slide-caption">Slide to clock in</span><span class="slide-thumb" aria-hidden="true">→</span><input id="slideIn" type="range" min="0" max="100" value="0" aria-label="Slide to clock in" aria-valuetext="Slide right to confirm clock in"></div><div class="slide-control slide-out" data-slide="OUT"><span class="slide-caption">Slide to clock out</span><span class="slide-thumb" aria-hidden="true">→</span><input id="slideOut" type="range" min="0" max="100" value="0" aria-label="Slide to clock out" aria-valuetext="Slide right to confirm clock out"></div></div><label id="lateField" class="hidden">Late arrival note<textarea id="lateNote" rows="2" maxlength="1000" placeholder="Reason for arriving late"></textarea></label><p id="clockFeedback" class="clock-feedback" role="status"></p><span id="locationStatus" class="sr-only"></span><p id="lunchStatus" class="muted hidden" role="status">Lunch · Hours paused until 1 p.m.</p><div id="clockToday" class="clock-today hidden"><div><span>Clock in</span><strong id="todayClockIn">—</strong></div><div><span>Clock out</span><strong id="todayClockOut">—</strong></div></div><div class="home-shift"><span>Today’s shift</span><strong id="homeShift">8:00 AM — 4:00 PM</strong></div></article><button id="homeAnnouncement" class="home-announcement hidden" data-view="inbox"><span class="announcement-kicker">Office update</span><strong id="homeAnnouncementTitle"></strong><span id="homeAnnouncementBody"></span><span class="announcement-arrow" aria-hidden="true">↗</span></button></section>
-<section id="workView" class="view hidden"><div class="ws-top"><div class="ws-tabs" role="tablist" aria-label="Workspace"><button data-ws-tab="clients" class="selected" role="tab" aria-selected="true">Clients</button><button data-ws-tab="team" role="tab" aria-selected="false">Directory</button></div></div>
-<div id="wsClients"><div id="wsClientIndex"><article class="panel"><div class="section-title"><div><h2>Client register</h2><p id="wsSummary" class="ws-summary"></p></div><button id="wsNewClient" class="primary">New client</button></div><div class="ws-filters"><input id="wsSearch" type="search" placeholder="Search clients" aria-label="Search clients"><select id="wsFilter" aria-label="Client status"><option value="">All statuses</option><option>Draft</option><option>Active</option></select></div><div id="wsClientList"></div></article></div>
-<div id="wsClientDetail" class="hidden"><article class="panel"><div class="section-title"><div><h2 id="wsDetailTitle"></h2><div id="wsDetailStatus"></div></div><div class="button-row"><button id="wsBack" class="secondary">Back</button><button id="wsEditClient" class="primary">Edit client</button></div></div><div id="wsDetail"></div></article><article class="panel"><h2>Client notes</h2><div id="wsNotes"></div><form id="wsNoteForm"><label>Add a note<textarea id="wsNoteText" rows="2" required maxlength="2000" placeholder="Follow-up or internal note"></textarea></label><button class="primary" data-write type="submit">Add note</button></form></article><article class="panel"><details><summary>Revision history</summary><div id="wsHistory"></div></details></article></div></div>
-<div id="wsTeam" class="hidden"><article class="panel"><div class="section-title"><h2>Staff directory</h2></div><div id="wsDepartments" class="department-tabs" aria-label="Departments"></div><div id="wsDirectory"></div></article></div></section>
-<section id="loopView" class="view hidden"><div class="loop-shell"><section class="loop-sidebar">
- <div class="loop-list-heading"><h2>Conversations</h2><button id="loopNewChat" type="button" class="loop-square-button" aria-label="New conversation"><span class="loop-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7"/><path d="m16 3 5 5-10 10-5 1 1-5Z"/></svg></span></button></div>
- <div class="loop-search-row"><label class="loop-search-field"><span class="loop-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.8" cy="10.8" r="7.1"/><path d="m16 16 5 5"/></svg></span><input id="loopSearch" type="search" maxlength="160" placeholder="Search conversations, people, or files…" aria-label="Search conversations, people, or files"></label><button id="loopFilterToggle" type="button" class="loop-square-button" aria-label="Conversation filters" aria-expanded="false"><span class="loop-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 17h16"/><circle cx="9" cy="7" r="2.5"/><circle cx="15" cy="17" r="2.5"/></svg></span></button></div>
- <div id="loopAdvancedFilters" class="loop-advanced-filters hidden"><label><input id="loopOnlyFiles" type="checkbox">With files</label><label><input id="loopOnlyOnline" type="checkbox">Online now</label></div>
- <nav id="loopQuickPeople" class="loop-quick-people" aria-label="Quick conversations"></nav>
- <div id="loopFilters" class="loop-filter-tabs" role="group" aria-label="Filter conversations">
-  <button type="button" data-loop-filter="all" class="selected" aria-pressed="true"><span class="loop-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5H4l-3 3v-9.5A8.5 8.5 0 0 1 9.5 5H13a8 8 0 0 1 8 6.5Z"/><path d="M7 10h9M7 14h6"/></svg></span>All</button>
-  <button type="button" data-loop-filter="unread" aria-pressed="false">Unread<span id="loopUnreadFilterCount" class="loop-filter-count hidden"></span></button>
-  <button type="button" data-loop-filter="mentions" aria-pressed="false">Mentions<span aria-hidden="true">@</span></button>
-  <button type="button" data-loop-filter="teams" aria-pressed="false"><span class="loop-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M22 21v-2a4 4 0 0 0-3-3.9"/><circle cx="9" cy="7" r="4"/><path d="M16 3.1a4 4 0 0 1 0 7.8"/></svg></span>Teams</button>
-  <button type="button" data-loop-filter="pinned" aria-pressed="false" aria-label="Pinned conversations"><span class="loop-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m15 3 6 6-4 1-3 5-2 1-4-4 1-2 5-3Z"/><path d="m8 16-5 5"/></svg></span></button>
- </div>
- <p id="loopListStatus" role="status"></p>
- <div id="loopPeople" class="loop-people" aria-label="Conversations"></div>
- <button id="loopNewChatFloating" type="button" class="loop-new-fab" aria-label="Start a new conversation"><span class="loop-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7"/><path d="m16 3 5 5-10 10-5 1 1-5Z"/></svg></span></button>
-</section><section id="loopThread" class="loop-thread"><div id="loopThreadHeader" class="loop-thread-header"><p>Select a conversation</p></div><button id="loopOlder" class="text-button hidden">Earlier messages</button><div id="loopLog" class="loop-log" role="log" aria-label="Loop messages"></div><div class="loop-thread-empty"><span><span class="loop-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5H4l-3 3v-9.5A8.5 8.5 0 0 1 9.5 5H13a8 8 0 0 1 8 6.5Z"/><path d="M7 10h9M7 14h6"/></svg></span></span><h2>Your conversations</h2><p>Choose someone from the list to get started.</p></div><p id="loopError" class="error" role="status"></p><div id="loopPending" class="loop-pending"></div><div id="loopEmoji" class="loop-emoji hidden" aria-label="Emoji picker"></div><section id="loopMedia" class="loop-media hidden" aria-label="GIF and stickers"><div class="loop-media-heading"><strong>Stickers</strong><button id="loopUploadGif" type="button" class="text-button">Upload GIF</button><button id="loopMediaClose" type="button" class="icon-button" aria-label="Close stickers">×</button></div><div id="loopStickerGrid" class="loop-sticker-grid"></div><small>whatsapp sticker · scc / SigStick</small></section><div id="loopMentionChoices" class="loop-mention-choices hidden" role="group" aria-label="Mention a colleague"></div><form id="loopForm" class="loop-compose hidden"><button id="loopAttach" class="icon-button" type="button" aria-label="Attach files">＋</button><button id="loopGif" class="text-button" type="button" aria-label="GIF and stickers">GIF</button><button id="loopEmojiButton" class="icon-button" type="button" aria-label="Choose emoji">☺</button><textarea id="loopText" rows="1" maxlength="2000" placeholder="Message" aria-label="Loop message"></textarea><button class="primary" id="loopSend" type="submit" aria-label="Send message">➤</button><input id="loopFiles" type="file" multiple hidden><input id="loopGifFile" type="file" accept="image/gif" hidden></form></section></div></section>
-<section id="historyView" class="view hidden"><article class="panel"><div class="section-title"><h2>My attendance</h2><button class="secondary" data-action="refresh">Refresh</button></div><div id="historyEvents" class="record-list"></div></article></section>
-<section id="inboxView" class="view hidden"><article class="panel"><div class="section-title"><h2>Notifications</h2><button class="text-button" data-action="read-all">Mark read</button></div><div class="notification-controls"><button class="secondary" data-action="enable-push">Enable notifications <span id="inboxPushStatus">→</span></button><button id="testPush" class="text-button" data-action="test-push">Test delivery</button><button id="disablePush" class="text-button hidden" data-action="disable-push">Turn off</button></div><p id="pushFeedback" class="notification-feedback" role="status"></p><div class="loop-sound-controls"><button type="button" class="secondary" data-loop-sound aria-pressed="true">Loop sounds: On</button><button type="button" class="text-button" data-loop-sound-test>Preview sound</button></div><div id="notifications" class="record-list"></div></article></section>
-<section id="subscriptionsView" class="view hidden">
-  <div class="subscription-toolbar"><button id="subscriptionBack" type="button" class="text-button">← Back</button><button id="subscriptionRefresh" type="button" class="secondary">Refresh</button></div>
-  <div class="subscription-intro"><p class="eyebrow">OFFICE SERVICES</p><h2>Subscriptions</h2><p>Services, bills and payment receipts</p></div>
-  <div class="subscription-legend" aria-label="Payment status legend"><span class="paid">Active & paid</span><span class="pending">Pending</span><span class="past_due">Past due</span></div>
-  <p id="subscriptionMessage" role="status"></p><div id="subscriptionCards" class="subscription-grid"></div>
-</section><section id="profileView" class="view hidden"><div class="profile-grid"><article class="panel profile-card"><div class="profile-head"><label class="avatar xlarge photo-edit" title="Change photo"><span id="profileAvatar" class="avatar xlarge">E</span><input id="photoInput" type="file" accept="image/jpeg,image/png,image/webp" hidden><span class="photo-edit-badge" aria-hidden="true">✎</span></label><h2 id="profileName">Profile</h2><p id="profileId" class="muted"></p></div><div class="profile-tools"><button class="text-button" id="removePhoto" data-action="remove-photo">Remove photo</button><button id="switchProfile" class="text-button hidden" data-action="switch-profile">Switch account</button><button class="text-button" id="profileSignOut" data-action="profile-logout">Sign out</button><button class="secondary hidden" id="profileSignIn" data-action="account-menu">Sign in</button></div></article><article id="musicSettings" class="panel music-settings"><h2>YouTube listening</h2><p>Share your YouTube title in Loop while clocked in.</p><div class="button-row"><button id="musicConnect" type="button" class="primary" disabled>Connect extension</button><button id="musicDisconnect" type="button" class="secondary">Disconnect</button></div><p id="musicConnectionStatus" role="status">Install the desktop extension, then reload this app.</p><details><summary>Desktop setup</summary><ol><li><a href="assets/loop-listening-extension.zip" download>Download the extension</a> and unzip it.</li><li>Open Chrome or Edge → Extensions → Manage extensions.</li><li>Enable Developer mode → Load unpacked → choose the unzipped folder.</li><li>Reload YouTube and this app, then click Connect extension.</li></ol><p>Play YouTube in the same browser profile. Desktop YouTube and YouTube Music are supported.</p></details></article><article class="panel settings-list"><h2>Preferences</h2><button id="manageSubscriptions" type="button" class="hidden"><span>Manage subscriptions</span><span>›</span></button><p id="profilePushFeedback" class="notification-feedback" role="status"></p><button data-action="enable-push"><span>Push notifications</span><span id="pushStatus">Enable →</span></button><button data-action="install"><span>Install app</span><span>↗</span></button><button data-action="refresh"><span>Refresh profile</span><span>↻</span></button></article></div></section>
-<section id="portfolioView" class="view hidden">
- <div class="pf-intro"><div><span class="pf-eyebrow">SERVICES & CLIENT WORK</span><p>Browse our services, show clients our work, and turn a conversation into a clear brief.</p></div><div class="pf-actions"><button id="pfRefresh" type="button" class="secondary">Refresh</button><button id="pfNewSale" type="button" class="primary hidden">+ Record a sale</button></div></div>
- <div class="pf-tabs" role="tablist" aria-label="Company portfolio pages"><button type="button" role="tab" aria-selected="true" data-pf-page="browse">Portfolio</button><button type="button" role="tab" aria-selected="false" data-pf-page="sales">Sales records</button><button type="button" role="tab" aria-selected="false" data-pf-page="manage" class="hidden" id="pfManageTab">Manage</button></div>
- <p id="pfStatus" class="pf-status" role="status" aria-live="polite"></p><div id="pfCategories" class="pf-categories" aria-label="Service categories"></div>
- <div id="pfBrowse"></div><div id="pfSales" class="hidden"></div><div id="pfManage" class="hidden"></div>
-</section>
-<section id="adminView" class="view hidden"><div class="admin-head"><div class="tabs" id="adminTabs"><button data-admin-tab="overview" class="selected">Overview</button><button data-admin-tab="people">People</button><button data-admin-tab="settings">Settings</button></div><button id="openSchedule" type="button" class="secondary">Schedule</button><button id="openPortfolioAdmin" type="button" class="secondary pf-admin-entry">Portfolio controls</button><button id="openSubscriptions" type="button" class="secondary">Subscriptions</button><button class="text-button" data-action="admin-logout">Admin sign out</button></div><div id="adminOverview"><div class="metrics"><button id="openClockedIn" type="button" class="panel clocked-in-metric" aria-haspopup="dialog"><span>Clocked in</span><strong id="metricIn">0</strong><span>View staff ›</span></button><article class="panel"><span>Late today</span><strong id="metricLate">0</strong></article><article class="panel"><span>People</span><strong id="metricPeople">0</strong></article></div><article class="panel"><div class="section-title"><h2>Attendance register</h2><div class="button-row"><button class="secondary" data-action="export-xlsx">Timesheet Excel</button><button class="text-button" data-action="export">CSV</button><button class="secondary" data-action="wall">Office QR</button></div></div><input id="registerSearch" type="search" placeholder="Search name or ID" aria-label="Search attendance"><div id="adminEvents" class="record-list"></div></article><article class="panel"><h2>Send notification</h2><form id="announcementForm"><label>Recipient<select id="announcementTarget"><option value="">Everyone</option></select></label><label>Title<input id="announcementTitle" required maxlength="80"></label><label>Message<textarea id="announcementBody" required maxlength="500" rows="2"></textarea></label><button class="primary" type="submit">Send</button></form></article></div><div id="adminPeople" class="hidden"><article class="panel"><div class="section-title"><h2>People</h2><button class="primary" data-action="add-person">Add person</button></div><input id="peopleSearch" type="search" placeholder="Search people" aria-label="Search people"><div id="peopleList" class="record-list"></div></article><article class="panel"><details><summary>Registered devices</summary><div class="section-title"><span></span><button class="secondary" data-action="devices">Refresh</button></div><div id="deviceList" class="record-list"><p class="empty">Select Refresh</p></div></details></article></div><div id="adminSettings" class="hidden"><article class="panel"><h2>Office settings</h2><form id="settingsForm"><div class="form-grid"><label>Office name<input id="officeName" required maxlength="80"></label><label>Grace period<select id="grace"><option value="5">5 minutes</option><option value="10">10 minutes</option></select></label><label>Latitude<input id="latitude" type="number" step="any" min="-90" max="90" required></label><label>Longitude<input id="longitude" type="number" step="any" min="-180" max="180" required></label><label>Radius (m)<input id="radius" type="number" min="20" max="1000" required></label><label>GPS accuracy (m)<input id="accuracy" type="number" min="10" max="200" required></label><label>Opens<input id="opens" type="time" required></label><label>Closes<input id="closes" type="time" required></label></div><button class="primary" type="submit">Save changes</button></form><hr><button class="secondary" data-action="rotate-qr">Replace office QR</button></article></div><section id="staffPage" class="hidden">
-<div class="staff-toolbar"><button class="text-button" id="staffBack">← People</button><button class="secondary" id="staffRefresh">Refresh</button></div>
-<div class="staff-heading"><div class="staff-identity"><div id="staffAvatar" class="avatar large">E</div><div><h2 id="staffName"></h2><p id="staffMeta" class="muted"></p><span id="staffStatus" class="badge"></span></div></div><button id="staffClockOut" class="primary hidden">Clock out person</button></div>
-<div class="staff-tabs" role="tablist" aria-label="Staff profile"><button role="tab" aria-selected="true" data-staff-tab="attendance" class="selected">Attendance</button><button role="tab" aria-selected="false" data-staff-tab="profile">Profile</button><button role="tab" aria-selected="false" data-staff-tab="devices">Devices</button></div>
-<p id="staffError" class="error" role="status"></p>
-<div id="staffAttendance"><article class="panel">
-<div class="staff-week-title"><div><p class="eyebrow">WEEKLY ATTENDANCE</p><h3 id="staffWeekLabel"></h3></div><div class="button-row"><button id="staffPrev" class="secondary" aria-label="Previous week">←</button><button id="staffToday" class="secondary">This week</button><button id="staffNext" class="secondary" aria-label="Next week">→</button></div></div>
-<div class="staff-summary"><div><span>Recorded hours</span><strong id="staffHours">—</strong></div><div><span>Days worked</span><strong id="staffDays">—</strong></div><div><span>Open shifts</span><strong id="staffOpen">—</strong></div></div>
-<div id="staffCalendar" class="staff-calendar" aria-label="Weekly attendance calendar"></div>
-</article><article id="staffDayPanel" class="panel"><div class="section-title"><h3 id="staffDayTitle"></h3><button class="secondary" id="staffAddShift">Add shift</button></div><details id="staffDeleted" class="hidden"><summary>Deleted shifts</summary><div id="staffDeletedList"></div></details><div id="staffShifts"></div></article>
-<article id="staffShiftEditor" class="panel hidden"><div class="section-title"><h3 id="staffShiftTitle">Edit shift</h3><button class="text-button" id="staffCancelShift">Cancel</button></div><form id="staffShiftForm"><div class="form-grid"><label>Clock in · office time<input id="staffStart" step="1" type="datetime-local" required></label><label>Clock out · office time<input id="staffEnd" step="1" type="datetime-local"></label><label>Hours worked<input id="staffDuration" type="number" min="0" step="0.01" placeholder="Open shift"></label><label>Work location<select id="staffLocation"><option value="office">Office</option><option value="home">Work from home</option></select></label></div><label>Reason for correction<textarea id="staffReason" rows="2" required minlength="5" maxlength="1000"></textarea></label><p id="staffShiftError" class="error" role="alert"></p><div class="button-row"><button class="primary" type="submit">Save shift</button><button id="staffDeleteShift" class="text-button staff-delete hidden" type="button">Delete shift</button></div><p id="staffDeleteHint" class="muted hidden"></p></form></article></div>
-<div id="staffProfile" class="hidden"><article class="panel staff-profile-panel"><h3>Profile details</h3><div id="staffProfileForm"></div></article></div>
-<div id="staffDevices" class="hidden"><article class="panel"><div class="section-title"><h3>Registered devices</h3><button id="staffDeviceRefresh" class="secondary">Refresh</button></div><div id="staffDeviceList"></div></article></div>
-</section>
-</section>
-</main></div><nav class="bottom-nav" id="bottomNav" aria-label="Mobile navigation"></nav><dialog id="loopForwardDialog"><form id="loopForwardForm"><div class="dialog-title"><h2>Forward message</h2><button id="loopForwardClose" type="button" class="icon-button" aria-label="Close forwarding">×</button></div><p id="loopForwardPreview" class="loop-forward-preview"></p><input id="loopForwardSearch" type="search" placeholder="Search workers" aria-label="Search forwarding recipients"><div id="loopForwardPeople"></div><p id="loopForwardError" class="error" role="status"></p><button id="loopForwardSend" class="primary wide" type="submit" disabled>Forward</button></form></dialog><dialog id="wsClientDialog"><div class="dialog-title"><h2 id="wsFormTitle">New client</h2><button id="wsCloseClient" type="button" class="icon-button" aria-label="Close client form">×</button></div><form id="wsClientForm"><div id="wsFields" class="form-grid"></div><p class="ws-form-help">System access: use password-vault references, not passwords.</p><div id="wsSystems"></div><div class="ws-form-actions"><button id="wsDraft" class="secondary" type="button">Save draft</button><button class="primary" type="submit">Save client</button></div></form></dialog><dialog id="accountDialog" class="account-dialog"><div class="dialog-title"><h2>Account</h2><button class="icon-button" data-close="accountDialog" aria-label="Close account menu">×</button></div><div id="accountIdentity" class="account-identity hidden"><div id="accountAvatar" class="avatar large">E</div><div><strong id="accountName"></strong><p id="accountId" class="muted"></p></div></div><div class="account-options"><button id="accountProfile" class="hidden" data-action="account-profile">My profile <span>→</span></button><button id="workerAccount" data-action="worker-account">Sign in as worker <span>→</span></button><button id="adminAccount" data-action="admin-account">Sign in as Administrator <span>→</span></button></div></dialog><dialog id="loginDialog"><form id="loginForm"><div class="dialog-title"><h2 id="loginTitle">Worker sign in</h2><button class="icon-button" type="button" data-close="loginDialog" aria-label="Close">×</button></div><label>Employee ID<input id="loginId" autocomplete="username" required maxlength="30" autocapitalize="characters"></label><label>Access code<input id="loginCode" type="password" autocomplete="current-password" required minlength="8" maxlength="64"></label><p id="loginError" class="error" role="alert"></p><button class="primary wide" type="submit">Sign in</button></form></dialog>
-<dialog id="scanDialog" class="scan-dialog"><div class="dialog-title"><h2>Scan office QR</h2><div class="button-row"><button class="secondary" data-action="expand-camera">Expand</button><button class="icon-button" data-close="scanDialog" aria-label="Close camera">×</button></div></div><div class="camera-stage"><video id="camera" autoplay muted playsinline></video><div class="scan-frame"></div></div><p id="scanMessage" class="muted" role="status">Allow camera access</p><div class="button-row"><button class="primary" data-action="start-camera">Open camera</button><label class="secondary upload">Choose QR photo<input type="file" id="qrPhoto" accept="image/*" capture="environment" hidden></label></div></dialog>
-<dialog id="personDialog"><div class="dialog-title"><h2 id="personTitle">Add person</h2><button class="icon-button" data-close="personDialog" aria-label="Close">×</button></div><div id="personFormHome"><form id="personForm"><input id="personUid" type="hidden"><div class="person-photo-editor"><span id="personPhotoPreview" class="avatar large"></span><label class="secondary">Add photo<input id="personPhotoInput" type="file" accept="image/jpeg,image/png,image/webp" hidden></label><button id="personPhotoRemove" type="button" class="text-button">Remove</button></div><label>Employee ID<input id="personId" required pattern="[A-Za-z0-9_-]{2,30}" maxlength="30"></label><label>Full name<input id="personName" required maxlength="100"></label><label>Access<select id="personRole"><option value="employee">Employee</option><option value="admin">Administrator</option></select></label><label>Profile label<input id="personJobRole" maxlength="80" placeholder="Job title or profile label"></label><label>Department<select id="personDepartment"><option>General</option></select></label><button id="addDepartment" type="button" class="text-button">Manage departments</button><label id="codeField">Access code<input id="personCode" minlength="8" maxlength="32" placeholder="8 or more characters" autocomplete="new-password"></label><label>Work location<select id="personWorkMode"><option value="office">Office</option><option value="home">Work from home</option></select></label><label>Status<select id="personActive"><option value="true">Active</option><option value="false">Inactive</option></select></label><button class="primary wide" type="submit">Save person</button></form></div><div id="adminAttendanceTools" class="admin-attendance-tools hidden"><h3>Attendance</h3><div class="button-row"><button class="secondary" data-action="admin-clock-in">Add clock in</button><button class="secondary" data-action="admin-clock-out">Add clock out</button></div></div></dialog>
-<dialog id="correctionDialog"><div class="dialog-title"><h2>Add attendance</h2><button class="icon-button" data-close="correctionDialog" aria-label="Close attendance form">×</button></div><p id="correctionPerson" class="muted"></p><form id="correctionForm"><input type="hidden" id="correctionUid"><label>Action<select id="correctionAction"><option value="IN">Clock in</option><option value="OUT">Clock out</option></select></label><label>Date &amp; time · office time<input type="datetime-local" id="correctionTime" required></label><label>Work location<select id="correctionMode"><option value="office">Office</option><option value="home">Work from home</option></select></label><label>Reason<textarea id="correctionReason" required minlength="5" maxlength="1000" rows="2" placeholder="Reason for adding this record"></textarea></label><p id="correctionError" class="error" role="alert"></p><button type="submit" class="primary wide">Save attendance</button></form></dialog>
-<dialog id="wallDialog"><div class="dialog-title"><h2>Office QR</h2><button class="icon-button" data-close="wallDialog" aria-label="Close">×</button></div><div class="wall"><img src="assets/favicon.png?v=10" width="52" height="52" alt="Esquiliano"><h2>Clock in / Clock out</h2><canvas id="wallQr"></canvas><p id="wallHours">8:00 AM — 4:00 PM</p></div><button class="primary wide" data-action="print">Print QR</button></dialog><div id="toast" role="status" class="toast hidden"></div>
-<dialog id="loopProfileDialog" class="loop-detail-dialog" aria-label="Staff profile"><form method="dialog"><button class="icon-button" aria-label="Back to conversation">×</button></form><div id="loopProfileDetails" class="loop-profile-details"></div></dialog>
-<dialog id="loopPhotoDialog" class="loop-detail-dialog loop-photo-dialog" aria-labelledby="loopPhotoTitle"><form method="dialog"><span id="loopPhotoTitle"></span><button class="icon-button" aria-label="Close photo">×</button></form><img id="loopPhotoFull" alt=""></dialog>
-<dialog id="clockedInDialog" aria-labelledby="clockedInHeading">
-  <form method="dialog" class="button-row"><button type="submit" class="text-button">Close</button></form>
-  <h2 id="clockedInHeading">Clocked-in staff</h2>
-  <ul id="clockedInList" class="clocked-in-list"></ul>
-  <p id="clockedInMessage" role="status"></p>
-</dialog>
-<dialog id="scheduleDialog" aria-labelledby="scheduleHeading">
-  <form method="dialog" class="button-row"><button type="submit" class="text-button" aria-label="Close schedule">Close</button></form>
-  <h2 id="scheduleHeading">Shift schedule</h2><details id="savedScheduleDetails"><summary>Saved schedules</summary><p id="savedScheduleStatus" role="status"></p><ul id="savedScheduleList"></ul><div class="button-row"><button id="savedSchedulePrevious" type="button" class="secondary" disabled>Previous</button><button id="savedScheduleNext" type="button" class="secondary" disabled>Next</button></div></details>
-  <form id="scheduleForm">
-    <div class="form-grid">
-      <label>Employee<select id="schedulePerson" required></select></label>
-      <label>First date<input id="scheduleDate" type="date" required></label><label>Second date (optional)<input id="scheduleDate2" type="date"></label><label>Third date (optional)<input id="scheduleDate3" type="date"></label>
-      <label>Starts<input id="scheduleStart" type="time" required></label>
-      <label>Ends<input id="scheduleEnd" type="time" required></label>
-    </div>
-    <label class="schedule-off"><input id="scheduleOff" type="checkbox"> Day off</label>
-    <p>Choose up to three dates in the same Monday–Sunday week. The same hours or day-off setting apply to all selected dates.</p><p id="scheduleStatus" role="status"></p>
-    <div class="button-row"><button id="scheduleSave" class="primary" disabled>Save schedule</button><button id="scheduleRemove" type="button" class="secondary" disabled>Remove schedule</button></div>
-  </form>
-</dialog>
-<dialog id="subscriptionEditor" aria-labelledby="subscriptionEditorTitle">
-  <div class="subscription-editor-heading"><h2 id="subscriptionEditorTitle">Update subscription</h2><button id="subscriptionEditorClose" type="button" class="text-button">Close</button></div>
-  <form id="subscriptionForm"><fieldset id="subscriptionFields">
-    <label class="subscription-checkbox"><input id="subscriptionActive" type="checkbox">Service active</label>
-    <div class="form-grid"><label>Payment status<select id="subscriptionPayment"><option value="paid">Paid</option><option value="pending">Pending</option><option value="past_due">Past due</option></select></label><label>Next bill due<input id="subscriptionDue" type="date"></label></div>
-    <div class="subscription-upload"><h3>Service image</h3><label>Upload profile image<input id="subscriptionProfileImage" type="file" accept="image/jpeg,image/png,image/webp"></label><label class="subscription-checkbox"><input id="subscriptionImageRemove" type="checkbox">Remove current image</label></div><div class="subscription-upload"><h3>Bill</h3><label>Upload bill image<input id="subscriptionBill" type="file" accept="image/jpeg,image/png,image/webp"></label><label class="subscription-checkbox"><input id="subscriptionBillRemove" type="checkbox">Remove current bill</label></div>
-    <div class="subscription-upload"><h3>Receipt</h3><label>Upload receipt image<input id="subscriptionReceipt" type="file" accept="image/jpeg,image/png,image/webp"></label><label class="subscription-checkbox"><input id="subscriptionReceiptRemove" type="checkbox">Remove current receipt</label></div>
-    <label class="subscription-checkbox subscription-notify"><input id="subscriptionNotifyAdmins" type="checkbox" role="switch">Notify admins when I save</label><p id="subscriptionSaveStatus" role="status"></p><button type="submit" class="primary">Save changes</button>
-  </fieldset></form>
-</dialog>
-<dialog id="receiptSubmissionDialog" aria-labelledby="receiptSubmissionTitle">
-  <div class="subscription-editor-heading"><h2 id="receiptSubmissionTitle">Submit payment receipt</h2><button id="receiptSubmissionClose" type="button" class="text-button">Close</button></div>
-  <form id="receiptSubmissionForm"><fieldset id="receiptSubmissionFields"><label>Receipt image<input id="receiptSubmissionFile" type="file" accept="image/jpeg,image/png,image/webp" required></label><p>Your receipt will be sent to DCU-002 for review.</p><p id="receiptSubmissionStatus" role="status"></p><button type="submit" class="primary">Send for approval</button></fieldset></form>
-</dialog>
-<dialog id="subscriptionImageDialog" class="subscription-image-dialog" aria-labelledby="subscriptionImageTitle"><form method="dialog" class="subscription-editor-heading"><h2 id="subscriptionImageTitle">Document</h2><button class="text-button">Close</button></form><img id="subscriptionImage" alt=""></dialog><dialog id="departmentDialog" aria-labelledby="departmentHeading">
- <div class="department-dialog-heading"><h2 id="departmentHeading">Departments</h2><button id="departmentClose" type="button" class="text-button">Close</button></div>
- <fieldset id="departmentControls">
-  <form id="departmentAddForm" class="department-add-form"><label>New department<input id="departmentNewName" maxlength="80" required placeholder="Department name"></label><button type="submit" class="primary">Add department</button></form>
-  <label class="department-replacement">When removing, move assigned staff to<select id="departmentReplacement"></select></label>
-  <ul id="departmentList" class="department-manage-list"></ul>
- </fieldset>
- <p id="departmentStatus" role="status"></p>
-</dialog>
-<dialog id="loopNewChatDialog" class="loop-new-dialog" aria-labelledby="loopNewChatTitle"><div class="loop-dialog-heading"><h2 id="loopNewChatTitle">New conversation</h2><form method="dialog"><button class="text-button" aria-label="Close new conversation">Close</button></form></div><input id="loopNewChatSearch" type="search" placeholder="Find a colleague" aria-label="Find a colleague"><div id="loopNewChatPeople"></div></dialog><script src="config.js"></script><script src="vendor/supabase.js"></script><script src="vendor/jsqr.js"></script><script src="vendor/qrcode.js"></script><script src="attendance-state.js?v=15"></script><script src="work-hours.js?v=22"></script><script src="staff-week.js?v=22"></script><script src="vendor/exceljs.min.js"></script><script src="timesheet-export.js?v=27"></script><script src="session-transport.js?v=2"></script><script src="app.js?v=45"></script><script src="vendor/pdf-lib.min.js"></script><script src="portfolio-contract-document-pdf.js?v=4"></script><script src="portfolio-contract-pdf.js?v=4"></script><script src="portfolio-template-editor.js?v=2"></script><script src="portfolio-contracts.js?v=6"></script><script src="portfolio.js?v=6"></script><script src="schedule.js?v=3"></script><script src="subscriptions.js?v=3"></script><script src="staff.js?v=26"></script><script src="workspace.js?v=19"></script><script src="music.js?v=2"></script><script src="loop-viewport.js?v=1"></script><script src="loop-sounds.js?v=1"></script><script src="https://cdn.jsdelivr.net/npm/livekit-client@2.24.1/dist/livekit-client.umd.min.js" integrity="sha384-bEBX66JcfDtveS4XnY3CM0ELufJ30A+CMwvispkDJIVEfQ0PNbMKMFX6aRlS93we" crossorigin="anonymous"></script><script src="loop-call-output.js?v=1"></script><script src="loop-calls.js?v=4"></script><script src="loop.js?v=21"></script><script src="departments.js?v=2"></script><script src="bobby-facts.js?v=33"></script><script src="bobby-commands.js?v=31"></script><script src="bobby.js?v=32"></script></body></html>
+<html lang="en"
+  ><head
+    ><meta charset="utf-8" /><meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover" /><meta
+      name="theme-color"
+      content="#183b32" /><meta name="apple-mobile-web-app-capable" content="yes" /><meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="default" /><link rel="manifest" href="manifest.webmanifest" /><link
+      rel="icon"
+      href="assets/favicon.png?v=10"
+      type="image/png" /><link rel="apple-touch-icon" href="assets/icon-192.png?v=10" /><link
+      rel="stylesheet"
+      href="app.css?v=37" /><link rel="stylesheet" href="workspace.css?v=14" /><link
+      rel="stylesheet"
+      href="loop.css?v=12" /><link rel="stylesheet" href="staff.css?v=25" /><link
+      rel="stylesheet"
+      href="bobby.css?v=32" /><link rel="stylesheet" href="departments.css?v=1" /><title
+      >Esquiliano · Attendance</title
+    ><link rel="stylesheet" href="loop-calls.css?v=4" /><link
+      rel="stylesheet"
+      href="portfolio.css?v=7" /><link rel="stylesheet" href="brand-theme.css?v=2" /><link
+      rel="stylesheet"
+      href="portfolio-contracts.css?v=4"
+  /></head>
+  <body class="clock-screen"
+    ><div class="clock-snow" aria-hidden="true"
+      ><i style="--x: 3%; --size: 9px; --duration: 9s; --delay: -0s; --drift: -24px"></i
+      ><i style="--x: 40%; --size: 12px; --duration: 10s; --delay: -7s; --drift: 24px"></i
+      ><i style="--x: 77%; --size: 15px; --duration: 11s; --delay: -14s; --drift: -24px"></i
+      ><i style="--x: 14%; --size: 18px; --duration: 12s; --delay: -4s; --drift: 24px"></i
+      ><i style="--x: 51%; --size: 21px; --duration: 13s; --delay: -11s; --drift: -24px"></i
+      ><i style="--x: 88%; --size: 9px; --duration: 14s; --delay: -1s; --drift: 24px"></i
+      ><i style="--x: 25%; --size: 12px; --duration: 15s; --delay: -8s; --drift: -24px"></i
+      ><i style="--x: 62%; --size: 15px; --duration: 9s; --delay: -15s; --drift: 24px"></i
+      ><i style="--x: 99%; --size: 18px; --duration: 10s; --delay: -5s; --drift: -24px"></i
+      ><i style="--x: 36%; --size: 21px; --duration: 11s; --delay: -12s; --drift: 24px"></i
+      ><i style="--x: 73%; --size: 9px; --duration: 12s; --delay: -2s; --drift: -24px"></i
+      ><i style="--x: 10%; --size: 12px; --duration: 13s; --delay: -9s; --drift: 24px"></i
+      ><i style="--x: 47%; --size: 15px; --duration: 14s; --delay: -16s; --drift: -24px"></i
+      ><i style="--x: 84%; --size: 18px; --duration: 15s; --delay: -6s; --drift: 24px"></i
+      ><i style="--x: 21%; --size: 21px; --duration: 9s; --delay: -13s; --drift: -24px"></i
+      ><i style="--x: 58%; --size: 9px; --duration: 10s; --delay: -3s; --drift: 24px"></i
+      ><i style="--x: 95%; --size: 12px; --duration: 11s; --delay: -10s; --drift: -24px"></i
+      ><i style="--x: 32%; --size: 15px; --duration: 12s; --delay: -0s; --drift: 24px"></i
+      ><i style="--x: 69%; --size: 18px; --duration: 13s; --delay: -7s; --drift: -24px"></i
+      ><i style="--x: 6%; --size: 21px; --duration: 14s; --delay: -14s; --drift: 24px"></i
+      ><i style="--x: 43%; --size: 9px; --duration: 15s; --delay: -4s; --drift: -24px"></i
+      ><i style="--x: 80%; --size: 12px; --duration: 9s; --delay: -11s; --drift: 24px"></i
+      ><i style="--x: 17%; --size: 15px; --duration: 10s; --delay: -1s; --drift: -24px"></i
+      ><i style="--x: 54%; --size: 18px; --duration: 11s; --delay: -8s; --drift: 24px"></i></div
+    ><div class="app"
+      ><aside
+        ><a class="brand" href="./"
+          ><img src="assets/favicon.png?v=10" alt="" /><span
+            >ESQUILIANO<small>ATTENDANCE</small></span
+          ></a
+        ><nav id="desktopNav" aria-label="Main navigation"></nav
+        ><div class="aside-foot"
+          ><span class="connection" id="connection">Connecting</span
+          ><button class="text-button" data-action="admin-login">Administrator</button></div
+        ></aside
+      >
+      <main
+        ><header
+          ><div
+            ><p class="eyebrow" id="dayLabel">STAFF PORTAL</p><h1 id="pageTitle">Clock</h1
+            ><p class="loop-page-subtitle">Office Conversations</p></div
+          ><div class="header-actions"
+            ><button
+              id="loopHeaderSearch"
+              class="icon-button loop-header-search"
+              type="button"
+              aria-label="Search Loop conversations"
+              ><span class="loop-icon" aria-hidden="true"
+                ><svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <circle cx="10.8" cy="10.8" r="7.1" />
+                  <path d="m16 16 5 5" /></svg></span></button
+            ><span id="previewBadge" class="badge hidden">Preview</span
+            ><button
+              class="icon-button"
+              id="notificationBell"
+              data-action="toggle-inbox"
+              aria-label="Notifications"
+              aria-expanded="false"
+              ><svg viewBox="0 0 24 24">
+                <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4" /></svg
+              ><i id="unreadDot" class="dot hidden"></i></button
+            ><button
+              class="avatar"
+              id="headerAvatar"
+              data-action="account-menu"
+              aria-label="Open account menu"
+              aria-haspopup="dialog"
+              >E</button
+            ></div
+          ></header
+        ><div id="banner" class="banner hidden" role="status"></div>
+        <section id="clockView" class="view"
+          ><div class="home-intro"
+            ><div class="portal-signature"
+              ><img src="assets/favicon.png?v=10" width="30" height="30" alt="" /><div
+                ><strong>Esquiliano</strong><span>Staff Portal</span></div
+              ></div
+            ><p id="homeGreeting" class="home-greeting hidden"></p></div
+          ><article class="panel clock-panel simple-clock"
+            ><div class="clock-card-heading"
+              ><span id="homeOffice">Main office</span
+              ><div class="clock-holiday-lights" aria-hidden="true"
+                ><i style="--x: 10%; --y: 7px"></i><i style="--x: 20%; --y: 9px"></i
+                ><i style="--x: 30%; --y: 10px"></i><i style="--x: 40%; --y: 11px"></i
+                ><i style="--x: 50%; --y: 11px"></i><i style="--x: 60%; --y: 11px"></i
+                ><i style="--x: 70%; --y: 10px"></i><i style="--x: 80%; --y: 9px"></i
+                ><i style="--x: 90%; --y: 7px"></i></div
+              ><span class="office-time-label">Office time</span></div
+            ><div class="clock-face"
+              ><time id="clockTime">—</time><p id="clockDate"></p
+              ><div class="office-progress"
+                ><div class="office-progress-track"
+                  ><progress
+                    id="officeProgress"
+                    max="540"
+                    value="0"
+                    aria-label="Scheduled workday progress"
+                  ></progress></div
+                ><div class="office-progress-times"><span>8 AM</span><span>5 PM</span></div></div
+              ><div id="christmasCountdown" class="clock-season hidden"
+                ><img src="assets/christmas-clock.png?v=2" width="80" height="80" alt="" /><div
+                  class="christmas-readout"
+                  ><div
+                    id="christmasTimer"
+                    class="christmas-units"
+                    role="timer"
+                    aria-label="Time until Christmas"
+                    ><div><strong id="christmasDays">00</strong><span>Days</span></div
+                    ><div><strong id="christmasHours">00</strong><span>Hours</span></div
+                    ><div><strong id="christmasMins">00</strong><span>Mins</span></div
+                    ><div><strong id="christmasSecs">00</strong><span>Secs</span></div></div
+                  ><svg
+                    class="christmas-caption"
+                    viewBox="0 0 200 39"
+                    role="img"
+                    aria-label="Till Christmas"
+                  >
+                    <defs><path id="christmasArc" d="M12 12 Q100 45 188 12" /></defs>
+                    <text>
+                      <textPath
+                        id="christmasCaption"
+                        href="#christmasArc"
+                        startOffset="50%"
+                        text-anchor="middle"
+                      >
+                        Till Christmas
+                      </textPath>
+                    </text>
+                  </svg></div
+                ></div
+              ></div
+            ><span id="attendanceStatus" class="status">Signed out</span
+            ><div class="clock-slides"
+              ><div class="slide-control" data-slide="IN"
+                ><span class="slide-caption">Slide to clock in</span
+                ><span class="slide-thumb" aria-hidden="true">→</span
+                ><input
+                  id="slideIn"
+                  type="range"
+                  min="0"
+                  max="100"
+                  value="0"
+                  aria-label="Slide to clock in"
+                  aria-valuetext="Slide right to confirm clock in" /></div
+              ><div class="slide-control slide-out" data-slide="OUT"
+                ><span class="slide-caption">Slide to clock out</span
+                ><span class="slide-thumb" aria-hidden="true">→</span
+                ><input
+                  id="slideOut"
+                  type="range"
+                  min="0"
+                  max="100"
+                  value="0"
+                  aria-label="Slide to clock out"
+                  aria-valuetext="Slide right to confirm clock out" /></div></div
+            ><label id="lateField" class="hidden"
+              >Late arrival note<textarea
+                id="lateNote"
+                rows="2"
+                maxlength="1000"
+                placeholder="Reason for arriving late"
+              ></textarea></label
+            ><p id="clockFeedback" class="clock-feedback" role="status"></p
+            ><span id="locationStatus" class="sr-only"></span
+            ><p id="lunchStatus" class="muted hidden" role="status"
+              >Lunch · Hours paused until 1 p.m.</p
+            ><div id="clockToday" class="clock-today hidden"
+              ><div><span>Clock in</span><strong id="todayClockIn">—</strong></div
+              ><div><span>Clock out</span><strong id="todayClockOut">—</strong></div></div
+            ><div class="home-shift"
+              ><span>Today’s shift</span><strong id="homeShift">8:00 AM — 4:00 PM</strong></div
+            ></article
+          ><button id="homeAnnouncement" class="home-announcement hidden" data-view="inbox"
+            ><span class="announcement-kicker">Office update</span
+            ><strong id="homeAnnouncementTitle"></strong><span id="homeAnnouncementBody"></span
+            ><span class="announcement-arrow" aria-hidden="true">↗</span></button
+          ></section
+        >
+        <section id="workView" class="view hidden"
+          ><div class="ws-top"
+            ><div class="ws-tabs" role="tablist" aria-label="Workspace"
+              ><button data-ws-tab="clients" class="selected" role="tab" aria-selected="true"
+                >Clients</button
+              ><button data-ws-tab="team" role="tab" aria-selected="false">Directory</button></div
+            ></div
+          >
+          <div id="wsClients"
+            ><div id="wsClientIndex"
+              ><article class="panel"
+                ><div class="section-title"
+                  ><div><h2>Client register</h2><p id="wsSummary" class="ws-summary"></p></div
+                  ><button id="wsNewClient" class="primary">New client</button></div
+                ><div class="ws-filters"
+                  ><input
+                    id="wsSearch"
+                    type="search"
+                    placeholder="Search clients"
+                    aria-label="Search clients"
+                  /><select id="wsFilter" aria-label="Client status"
+                    ><option value="">All statuses</option
+                    ><option>Draft</option
+                    ><option>Active</option></select
+                  ></div
+                ><div id="wsClientList"></div></article
+            ></div>
+            <div id="wsClientDetail" class="hidden"
+              ><article class="panel"
+                ><div class="section-title"
+                  ><div><h2 id="wsDetailTitle"></h2><div id="wsDetailStatus"></div></div
+                  ><div class="button-row"
+                    ><button id="wsBack" class="secondary">Back</button
+                    ><button id="wsEditClient" class="primary">Edit client</button></div
+                  ></div
+                ><div id="wsDetail"></div></article
+              ><article class="panel"
+                ><h2>Client notes</h2><div id="wsNotes"></div
+                ><form id="wsNoteForm"
+                  ><label
+                    >Add a note<textarea
+                      id="wsNoteText"
+                      rows="2"
+                      required
+                      maxlength="2000"
+                      placeholder="Follow-up or internal note"
+                    ></textarea></label
+                  ><button class="primary" data-write type="submit">Add note</button></form
+                ></article
+              ><article class="panel"
+                ><details
+                  ><summary>Revision history</summary
+                  ><div id="wsHistory"></div></details></article></div
+          ></div>
+          <div id="wsTeam" class="hidden"
+            ><article class="panel"
+              ><div class="section-title"><h2>Staff directory</h2></div
+              ><div id="wsDepartments" class="department-tabs" aria-label="Departments"></div
+              ><div id="wsDirectory"></div></article></div
+        ></section>
+        <section id="loopView" class="view hidden"
+          ><div class="loop-shell"
+            ><section class="loop-sidebar">
+              <div class="loop-list-heading"
+                ><h2>Conversations</h2
+                ><button
+                  id="loopNewChat"
+                  type="button"
+                  class="loop-square-button"
+                  aria-label="New conversation"
+                  ><span class="loop-icon" aria-hidden="true"
+                    ><svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.8"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path d="M12 5H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7" />
+                      <path d="m16 3 5 5-10 10-5 1 1-5Z" /></svg></span></button
+              ></div>
+              <div class="loop-search-row"
+                ><label class="loop-search-field"
+                  ><span class="loop-icon" aria-hidden="true"
+                    ><svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.8"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <circle cx="10.8" cy="10.8" r="7.1" />
+                      <path d="m16 16 5 5" /></svg></span
+                  ><input
+                    id="loopSearch"
+                    type="search"
+                    maxlength="160"
+                    placeholder="Search conversations, people, or files…"
+                    aria-label="Search conversations, people, or files" /></label
+                ><button
+                  id="loopFilterToggle"
+                  type="button"
+                  class="loop-square-button"
+                  aria-label="Conversation filters"
+                  aria-expanded="false"
+                  ><span class="loop-icon" aria-hidden="true"
+                    ><svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.8"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path d="M4 7h16M4 17h16" />
+                      <circle cx="9" cy="7" r="2.5" />
+                      <circle cx="15" cy="17" r="2.5" /></svg></span></button
+              ></div>
+              <div id="loopAdvancedFilters" class="loop-advanced-filters hidden"
+                ><label><input id="loopOnlyFiles" type="checkbox" />With files</label
+                ><label><input id="loopOnlyOnline" type="checkbox" />Online now</label></div
+              >
+              <nav
+                id="loopQuickPeople"
+                class="loop-quick-people"
+                aria-label="Quick conversations"
+              ></nav>
+              <div
+                id="loopFilters"
+                class="loop-filter-tabs"
+                role="group"
+                aria-label="Filter conversations"
+              >
+                <button type="button" data-loop-filter="all" class="selected" aria-pressed="true"
+                  ><span class="loop-icon" aria-hidden="true"
+                    ><svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.8"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path
+                        d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5H4l-3 3v-9.5A8.5 8.5 0 0 1 9.5 5H13a8 8 0 0 1 8 6.5Z"
+                      />
+                      <path d="M7 10h9M7 14h6" /></svg></span
+                  >All</button
+                >
+                <button type="button" data-loop-filter="unread" aria-pressed="false"
+                  >Unread<span id="loopUnreadFilterCount" class="loop-filter-count hidden"></span
+                ></button>
+                <button type="button" data-loop-filter="mentions" aria-pressed="false"
+                  >Mentions<span aria-hidden="true">@</span></button
+                >
+                <button type="button" data-loop-filter="teams" aria-pressed="false"
+                  ><span class="loop-icon" aria-hidden="true"
+                    ><svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.8"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path
+                        d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M22 21v-2a4 4 0 0 0-3-3.9"
+                      />
+                      <circle cx="9" cy="7" r="4" />
+                      <path d="M16 3.1a4 4 0 0 1 0 7.8" /></svg></span
+                  >Teams</button
+                >
+                <button
+                  type="button"
+                  data-loop-filter="pinned"
+                  aria-pressed="false"
+                  aria-label="Pinned conversations"
+                  ><span class="loop-icon" aria-hidden="true"
+                    ><svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.8"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path d="m15 3 6 6-4 1-3 5-2 1-4-4 1-2 5-3Z" />
+                      <path d="m8 16-5 5" /></svg></span
+                ></button>
+              </div>
+              <p id="loopListStatus" role="status"></p>
+              <div id="loopPeople" class="loop-people" aria-label="Conversations"></div>
+              <button
+                id="loopNewChatFloating"
+                type="button"
+                class="loop-new-fab"
+                aria-label="Start a new conversation"
+                ><span class="loop-icon" aria-hidden="true"
+                  ><svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M12 5H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7" />
+                    <path d="m16 3 5 5-10 10-5 1 1-5Z" /></svg></span
+              ></button> </section
+            ><section id="loopThread" class="loop-thread"
+              ><div id="loopThreadHeader" class="loop-thread-header"
+                ><p>Select a conversation</p></div
+              ><button id="loopOlder" class="text-button hidden">Earlier messages</button
+              ><div id="loopLog" class="loop-log" role="log" aria-label="Loop messages"></div
+              ><div class="loop-thread-empty"
+                ><span
+                  ><span class="loop-icon" aria-hidden="true"
+                    ><svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.8"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path
+                        d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5H4l-3 3v-9.5A8.5 8.5 0 0 1 9.5 5H13a8 8 0 0 1 8 6.5Z"
+                      />
+                      <path d="M7 10h9M7 14h6" /></svg></span></span
+                ><h2>Your conversations</h2><p>Choose someone from the list to get started.</p></div
+              ><p id="loopError" class="error" role="status"></p
+              ><div id="loopPending" class="loop-pending"></div
+              ><div id="loopEmoji" class="loop-emoji hidden" aria-label="Emoji picker"></div
+              ><section id="loopMedia" class="loop-media hidden" aria-label="GIF and stickers"
+                ><div class="loop-media-heading"
+                  ><strong>Stickers</strong
+                  ><button id="loopUploadGif" type="button" class="text-button">Upload GIF</button
+                  ><button
+                    id="loopMediaClose"
+                    type="button"
+                    class="icon-button"
+                    aria-label="Close stickers"
+                    >×</button
+                  ></div
+                ><div id="loopStickerGrid" class="loop-sticker-grid"></div
+                ><small>whatsapp sticker · scc / SigStick</small></section
+              ><div
+                id="loopMentionChoices"
+                class="loop-mention-choices hidden"
+                role="group"
+                aria-label="Mention a colleague"
+              ></div
+              ><form id="loopForm" class="loop-compose hidden"
+                ><button id="loopAttach" class="icon-button" type="button" aria-label="Attach files"
+                  >＋</button
+                ><button
+                  id="loopGif"
+                  class="text-button"
+                  type="button"
+                  aria-label="GIF and stickers"
+                  >GIF</button
+                ><button
+                  id="loopEmojiButton"
+                  class="icon-button"
+                  type="button"
+                  aria-label="Choose emoji"
+                  >☺</button
+                ><textarea
+                  id="loopText"
+                  rows="1"
+                  maxlength="2000"
+                  placeholder="Message"
+                  aria-label="Loop message"
+                ></textarea
+                ><button class="primary" id="loopSend" type="submit" aria-label="Send message"
+                  >➤</button
+                ><input id="loopFiles" type="file" multiple hidden /><input
+                  id="loopGifFile"
+                  type="file"
+                  accept="image/gif"
+                  hidden /></form></section></div
+        ></section>
+        <section id="historyView" class="view hidden"
+          ><article class="panel"
+            ><div class="section-title"
+              ><h2>My attendance</h2
+              ><button class="secondary" data-action="refresh">Refresh</button></div
+            ><div id="historyEvents" class="record-list"></div></article
+        ></section>
+        <section id="inboxView" class="view hidden"
+          ><article class="panel"
+            ><div class="section-title"
+              ><h2>Notifications</h2
+              ><button class="text-button" data-action="read-all">Mark read</button></div
+            ><div class="notification-controls"
+              ><button class="secondary" data-action="enable-push"
+                >Enable notifications <span id="inboxPushStatus">→</span></button
+              ><button id="testPush" class="text-button" data-action="test-push"
+                >Test delivery</button
+              ><button id="disablePush" class="text-button hidden" data-action="disable-push"
+                >Turn off</button
+              ></div
+            ><p id="pushFeedback" class="notification-feedback" role="status"></p
+            ><div class="loop-sound-controls"
+              ><button type="button" class="secondary" data-loop-sound aria-pressed="true"
+                >Loop sounds: On</button
+              ><button type="button" class="text-button" data-loop-sound-test
+                >Preview sound</button
+              ></div
+            ><div id="notifications" class="record-list"></div></article
+        ></section>
+        <section id="subscriptionsView" class="view hidden">
+          <div class="subscription-toolbar"
+            ><button id="subscriptionBack" type="button" class="text-button">← Back</button
+            ><button id="subscriptionRefresh" type="button" class="secondary">Refresh</button></div
+          >
+          <div class="subscription-intro"
+            ><p class="eyebrow">OFFICE SERVICES</p><h2>Subscriptions</h2
+            ><p>Services, bills and payment receipts</p></div
+          >
+          <div class="subscription-legend" aria-label="Payment status legend"
+            ><span class="paid">Active & paid</span><span class="pending">Pending</span
+            ><span class="past_due">Past due</span></div
+          >
+          <p id="subscriptionMessage" role="status"></p
+          ><div id="subscriptionCards" class="subscription-grid"></div> </section
+        ><section id="profileView" class="view hidden"
+          ><div class="profile-grid"
+            ><article class="panel profile-card"
+              ><div class="profile-head"
+                ><label class="avatar xlarge photo-edit" title="Change photo"
+                  ><span id="profileAvatar" class="avatar xlarge">E</span
+                  ><input
+                    id="photoInput"
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    hidden
+                  /><span class="photo-edit-badge" aria-hidden="true">✎</span></label
+                ><h2 id="profileName">Profile</h2><p id="profileId" class="muted"></p></div
+              ><div class="profile-tools"
+                ><button class="text-button" id="removePhoto" data-action="remove-photo"
+                  >Remove photo</button
+                ><button id="switchProfile" class="text-button hidden" data-action="switch-profile"
+                  >Switch account</button
+                ><button class="text-button" id="profileSignOut" data-action="profile-logout"
+                  >Sign out</button
+                ><button class="secondary hidden" id="profileSignIn" data-action="account-menu"
+                  >Sign in</button
+                ></div
+              ></article
+            ><article id="musicSettings" class="panel music-settings"
+              ><h2>YouTube listening</h2><p>Share your YouTube title in Loop while clocked in.</p
+              ><div class="button-row"
+                ><button id="musicConnect" type="button" class="primary" disabled
+                  >Connect extension</button
+                ><button id="musicDisconnect" type="button" class="secondary"
+                  >Disconnect</button
+                ></div
+              ><p id="musicConnectionStatus" role="status"
+                >Install the desktop extension, then reload this app.</p
+              ><details
+                ><summary>Desktop setup</summary
+                ><ol
+                  ><li
+                    ><a href="assets/loop-listening-extension.zip" download
+                      >Download the extension</a
+                    >
+                    and unzip it.</li
+                  ><li>Open Chrome or Edge → Extensions → Manage extensions.</li
+                  ><li>Enable Developer mode → Load unpacked → choose the unzipped folder.</li
+                  ><li>Reload YouTube and this app, then click Connect extension.</li></ol
+                ><p
+                  >Play YouTube in the same browser profile. Desktop YouTube and YouTube Music are
+                  supported.</p
+                ></details
+              ></article
+            ><article class="panel settings-list"
+              ><h2>Preferences</h2
+              ><button id="manageSubscriptions" type="button" class="hidden"
+                ><span>Manage subscriptions</span><span>›</span></button
+              ><p id="profilePushFeedback" class="notification-feedback" role="status"></p
+              ><button data-action="enable-push"
+                ><span>Push notifications</span><span id="pushStatus">Enable →</span></button
+              ><button data-action="install"><span>Install app</span><span>↗</span></button
+              ><button data-action="refresh"
+                ><span>Refresh profile</span><span>↻</span></button
+              ></article
+            ></div
+          ></section
+        >
+        <section id="portfolioView" class="view hidden">
+          <div class="pf-intro"
+            ><div
+              ><span class="pf-eyebrow">SERVICES & CLIENT WORK</span
+              ><p
+                >Browse our services, show clients our work, and turn a conversation into a clear
+                brief.</p
+              ></div
+            ><div class="pf-actions"
+              ><button id="pfRefresh" type="button" class="secondary">Refresh</button
+              ><button id="pfNewSale" type="button" class="primary hidden"
+                >+ Record a sale</button
+              ></div
+            ></div
+          >
+          <div class="pf-tabs" role="tablist" aria-label="Company portfolio pages"
+            ><button type="button" role="tab" aria-selected="true" data-pf-page="browse"
+              >Portfolio</button
+            ><button type="button" role="tab" aria-selected="false" data-pf-page="sales"
+              >Sales records</button
+            ><button
+              type="button"
+              role="tab"
+              aria-selected="false"
+              data-pf-page="manage"
+              class="hidden"
+              id="pfManageTab"
+              >Manage</button
+            ></div
+          >
+          <p id="pfStatus" class="pf-status" role="status" aria-live="polite"></p
+          ><div id="pfCategories" class="pf-categories" aria-label="Service categories"></div>
+          <div id="pfBrowse"></div><div id="pfSales" class="hidden"></div
+          ><div id="pfManage" class="hidden"></div>
+        </section>
+        <section id="adminView" class="view hidden"
+          ><div class="admin-head"
+            ><div class="tabs" id="adminTabs"
+              ><button data-admin-tab="overview" class="selected">Overview</button
+              ><button data-admin-tab="people">People</button
+              ><button data-admin-tab="settings">Settings</button></div
+            ><button id="openSchedule" type="button" class="secondary">Schedule</button
+            ><button id="openPortfolioAdmin" type="button" class="secondary pf-admin-entry"
+              >Portfolio controls</button
+            ><button id="openSubscriptions" type="button" class="secondary">Subscriptions</button
+            ><button class="text-button" data-action="admin-logout">Admin sign out</button></div
+          ><div id="adminOverview"
+            ><div class="metrics"
+              ><button
+                id="openClockedIn"
+                type="button"
+                class="panel clocked-in-metric"
+                aria-haspopup="dialog"
+                ><span>Clocked in</span><strong id="metricIn">0</strong
+                ><span>View staff ›</span></button
+              ><article class="panel"
+                ><span>Late today</span><strong id="metricLate">0</strong></article
+              ><article class="panel"
+                ><span>People</span><strong id="metricPeople">0</strong></article
+              ></div
+            ><article class="panel"
+              ><div class="section-title"
+                ><h2>Attendance register</h2
+                ><div class="button-row"
+                  ><button class="secondary" data-action="export-xlsx">Timesheet Excel</button
+                  ><button class="text-button" data-action="export">CSV</button
+                  ><button class="secondary" data-action="wall">Office QR</button></div
+                ></div
+              ><input
+                id="registerSearch"
+                type="search"
+                placeholder="Search name or ID"
+                aria-label="Search attendance" /><div
+                id="adminEvents"
+                class="record-list"
+              ></div></article
+            ><article class="panel"
+              ><h2>Send notification</h2
+              ><form id="announcementForm"
+                ><label
+                  >Recipient<select id="announcementTarget"
+                    ><option value="">Everyone</option></select
+                  ></label
+                ><label>Title<input id="announcementTitle" required maxlength="80" /></label
+                ><label
+                  >Message<textarea
+                    id="announcementBody"
+                    required
+                    maxlength="500"
+                    rows="2"
+                  ></textarea></label
+                ><button class="primary" type="submit">Send</button></form
+              ></article
+            ></div
+          ><div id="adminPeople" class="hidden"
+            ><article class="panel"
+              ><div class="section-title"
+                ><h2>People</h2
+                ><button class="primary" data-action="add-person">Add person</button></div
+              ><input
+                id="peopleSearch"
+                type="search"
+                placeholder="Search people"
+                aria-label="Search people" /><div
+                id="peopleList"
+                class="record-list"
+              ></div></article
+            ><article class="panel"
+              ><details
+                ><summary>Registered devices</summary
+                ><div class="section-title"
+                  ><span></span
+                  ><button class="secondary" data-action="devices">Refresh</button></div
+                ><div id="deviceList" class="record-list"
+                  ><p class="empty">Select Refresh</p></div
+                ></details
+              ></article
+            ></div
+          ><div id="adminSettings" class="hidden"
+            ><article class="panel"
+              ><h2>Office settings</h2
+              ><form id="settingsForm"
+                ><div class="form-grid"
+                  ><label>Office name<input id="officeName" required maxlength="80" /></label
+                  ><label
+                    >Grace period<select id="grace"
+                      ><option value="5">5 minutes</option
+                      ><option value="10">10 minutes</option></select
+                    ></label
+                  ><label
+                    >Latitude<input
+                      id="latitude"
+                      type="number"
+                      step="any"
+                      min="-90"
+                      max="90"
+                      required /></label
+                  ><label
+                    >Longitude<input
+                      id="longitude"
+                      type="number"
+                      step="any"
+                      min="-180"
+                      max="180"
+                      required /></label
+                  ><label
+                    >Radius (m)<input
+                      id="radius"
+                      type="number"
+                      min="20"
+                      max="1000"
+                      required /></label
+                  ><label
+                    >GPS accuracy (m)<input
+                      id="accuracy"
+                      type="number"
+                      min="10"
+                      max="200"
+                      required /></label
+                  ><label>Opens<input id="opens" type="time" required /></label
+                  ><label>Closes<input id="closes" type="time" required /></label></div
+                ><button class="primary" type="submit">Save changes</button></form
+              ><hr /><button class="secondary" data-action="rotate-qr"
+                >Replace office QR</button
+              ></article
+            ></div
+          ><section id="staffPage" class="hidden">
+            <div class="staff-toolbar"
+              ><button class="text-button" id="staffBack">← People</button
+              ><button class="secondary" id="staffRefresh">Refresh</button></div
+            >
+            <div class="staff-heading"
+              ><div class="staff-identity"
+                ><div id="staffAvatar" class="avatar large">E</div
+                ><div
+                  ><h2 id="staffName"></h2><p id="staffMeta" class="muted"></p
+                  ><span id="staffStatus" class="badge"></span></div></div
+              ><button id="staffClockOut" class="primary hidden">Clock out person</button></div
+            >
+            <div class="staff-tabs" role="tablist" aria-label="Staff profile"
+              ><button role="tab" aria-selected="true" data-staff-tab="attendance" class="selected"
+                >Attendance</button
+              ><button role="tab" aria-selected="false" data-staff-tab="profile">Profile</button
+              ><button role="tab" aria-selected="false" data-staff-tab="devices"
+                >Devices</button
+              ></div
+            >
+            <p id="staffError" class="error" role="status"></p>
+            <div id="staffAttendance"
+              ><article class="panel">
+                <div class="staff-week-title"
+                  ><div><p class="eyebrow">WEEKLY ATTENDANCE</p><h3 id="staffWeekLabel"></h3></div
+                  ><div class="button-row"
+                    ><button id="staffPrev" class="secondary" aria-label="Previous week">←</button
+                    ><button id="staffToday" class="secondary">This week</button
+                    ><button id="staffNext" class="secondary" aria-label="Next week">→</button></div
+                  ></div
+                >
+                <div class="staff-summary"
+                  ><div><span>Recorded hours</span><strong id="staffHours">—</strong></div
+                  ><div><span>Days worked</span><strong id="staffDays">—</strong></div
+                  ><div><span>Open shifts</span><strong id="staffOpen">—</strong></div></div
+                >
+                <div
+                  id="staffCalendar"
+                  class="staff-calendar"
+                  aria-label="Weekly attendance calendar"
+                ></div> </article
+              ><article id="staffDayPanel" class="panel"
+                ><div class="section-title"
+                  ><h3 id="staffDayTitle"></h3
+                  ><button class="secondary" id="staffAddShift">Add shift</button></div
+                ><details id="staffDeleted" class="hidden"
+                  ><summary>Deleted shifts</summary><div id="staffDeletedList"></div></details
+                ><div id="staffShifts"></div
+              ></article>
+              <article id="staffShiftEditor" class="panel hidden"
+                ><div class="section-title"
+                  ><h3 id="staffShiftTitle">Edit shift</h3
+                  ><button class="text-button" id="staffCancelShift">Cancel</button></div
+                ><form id="staffShiftForm"
+                  ><div class="form-grid"
+                    ><label
+                      >Clock in · office time<input
+                        id="staffStart"
+                        step="1"
+                        type="datetime-local"
+                        required /></label
+                    ><label
+                      >Clock out · office time<input
+                        id="staffEnd"
+                        step="1"
+                        type="datetime-local" /></label
+                    ><label
+                      >Hours worked<input
+                        id="staffDuration"
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        placeholder="Open shift" /></label
+                    ><label
+                      >Work location<select id="staffLocation"
+                        ><option value="office">Office</option
+                        ><option value="home">Work from home</option></select
+                      ></label
+                    ></div
+                  ><label
+                    >Reason for correction<textarea
+                      id="staffReason"
+                      rows="2"
+                      required
+                      minlength="5"
+                      maxlength="1000"
+                    ></textarea></label
+                  ><p id="staffShiftError" class="error" role="alert"></p
+                  ><div class="button-row"
+                    ><button class="primary" type="submit">Save shift</button
+                    ><button
+                      id="staffDeleteShift"
+                      class="text-button staff-delete hidden"
+                      type="button"
+                      >Delete shift</button
+                    ></div
+                  ><p id="staffDeleteHint" class="muted hidden"></p></form></article
+            ></div>
+            <div id="staffProfile" class="hidden"
+              ><article class="panel staff-profile-panel"
+                ><h3>Profile details</h3><div id="staffProfileForm"></div></article
+            ></div>
+            <div id="staffDevices" class="hidden"
+              ><article class="panel"
+                ><div class="section-title"
+                  ><h3>Registered devices</h3
+                  ><button id="staffDeviceRefresh" class="secondary">Refresh</button></div
+                ><div id="staffDeviceList"></div></article
+            ></div>
+          </section>
+        </section> </main></div
+    ><nav class="bottom-nav" id="bottomNav" aria-label="Mobile navigation"></nav
+    ><dialog id="loopForwardDialog"
+      ><form id="loopForwardForm"
+        ><div class="dialog-title"
+          ><h2>Forward message</h2
+          ><button
+            id="loopForwardClose"
+            type="button"
+            class="icon-button"
+            aria-label="Close forwarding"
+            >×</button
+          ></div
+        ><p id="loopForwardPreview" class="loop-forward-preview"></p
+        ><input
+          id="loopForwardSearch"
+          type="search"
+          placeholder="Search workers"
+          aria-label="Search forwarding recipients"
+        /><div id="loopForwardPeople"></div><p id="loopForwardError" class="error" role="status"></p
+        ><button id="loopForwardSend" class="primary wide" type="submit" disabled
+          >Forward</button
+        ></form
+      ></dialog
+    ><dialog id="wsClientDialog"
+      ><div class="dialog-title"
+        ><h2 id="wsFormTitle">New client</h2
+        ><button id="wsCloseClient" type="button" class="icon-button" aria-label="Close client form"
+          >×</button
+        ></div
+      ><form id="wsClientForm"
+        ><div id="wsFields" class="form-grid"></div
+        ><p class="ws-form-help">System access: use password-vault references, not passwords.</p
+        ><div id="wsSystems"></div
+        ><div class="ws-form-actions"
+          ><button id="wsDraft" class="secondary" type="button">Save draft</button
+          ><button class="primary" type="submit">Save client</button></div
+        ></form
+      ></dialog
+    ><dialog id="accountDialog" class="account-dialog"
+      ><div class="dialog-title"
+        ><h2>Account</h2
+        ><button class="icon-button" data-close="accountDialog" aria-label="Close account menu"
+          >×</button
+        ></div
+      ><div id="accountIdentity" class="account-identity hidden"
+        ><div id="accountAvatar" class="avatar large">E</div
+        ><div><strong id="accountName"></strong><p id="accountId" class="muted"></p></div></div
+      ><div class="account-options"
+        ><button id="accountProfile" class="hidden" data-action="account-profile"
+          >My profile <span>→</span></button
+        ><button id="workerAccount" data-action="worker-account"
+          >Sign in as worker <span>→</span></button
+        ><button id="adminAccount" data-action="admin-account"
+          >Sign in as Administrator <span>→</span></button
+        ></div
+      ></dialog
+    ><dialog id="loginDialog"
+      ><form id="loginForm"
+        ><div class="dialog-title"
+          ><h2 id="loginTitle">Worker sign in</h2
+          ><button class="icon-button" type="button" data-close="loginDialog" aria-label="Close"
+            >×</button
+          ></div
+        ><label
+          >Employee ID<input
+            id="loginId"
+            autocomplete="username"
+            required
+            maxlength="30"
+            autocapitalize="characters" /></label
+        ><label
+          >Access code<input
+            id="loginCode"
+            type="password"
+            autocomplete="current-password"
+            required
+            minlength="8"
+            maxlength="64" /></label
+        ><p id="loginError" class="error" role="alert"></p
+        ><button class="primary wide" type="submit">Sign in</button></form
+      ></dialog
+    >
+    <dialog id="scanDialog" class="scan-dialog"
+      ><div class="dialog-title"
+        ><h2>Scan office QR</h2
+        ><div class="button-row"
+          ><button class="secondary" data-action="expand-camera">Expand</button
+          ><button class="icon-button" data-close="scanDialog" aria-label="Close camera"
+            >×</button
+          ></div
+        ></div
+      ><div class="camera-stage"
+        ><video id="camera" autoplay muted playsinline></video><div class="scan-frame"></div></div
+      ><p id="scanMessage" class="muted" role="status">Allow camera access</p
+      ><div class="button-row"
+        ><button class="primary" data-action="start-camera">Open camera</button
+        ><label class="secondary upload"
+          >Choose QR photo<input
+            type="file"
+            id="qrPhoto"
+            accept="image/*"
+            capture="environment"
+            hidden /></label></div
+    ></dialog>
+    <dialog id="personDialog"
+      ><div class="dialog-title"
+        ><h2 id="personTitle">Add person</h2
+        ><button class="icon-button" data-close="personDialog" aria-label="Close">×</button></div
+      ><div id="personFormHome"
+        ><form id="personForm"
+          ><input id="personUid" type="hidden" /><div class="person-photo-editor"
+            ><span id="personPhotoPreview" class="avatar large"></span
+            ><label class="secondary"
+              >Add photo<input
+                id="personPhotoInput"
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                hidden /></label
+            ><button id="personPhotoRemove" type="button" class="text-button">Remove</button></div
+          ><label
+            >Employee ID<input
+              id="personId"
+              required
+              pattern="[A-Za-z0-9_-]{2,30}"
+              maxlength="30" /></label
+          ><label>Full name<input id="personName" required maxlength="100" /></label
+          ><label
+            >Access<select id="personRole"
+              ><option value="employee">Employee</option
+              ><option value="admin">Administrator</option></select
+            ></label
+          ><label
+            >Profile label<input
+              id="personJobRole"
+              maxlength="80"
+              placeholder="Job title or profile label" /></label
+          ><label
+            >Department<select id="personDepartment"
+              ><option>General</option></select
+            ></label
+          ><button id="addDepartment" type="button" class="text-button">Manage departments</button
+          ><label id="codeField"
+            >Access code<input
+              id="personCode"
+              minlength="8"
+              maxlength="32"
+              placeholder="8 or more characters"
+              autocomplete="new-password" /></label
+          ><label
+            >Work location<select id="personWorkMode"
+              ><option value="office">Office</option
+              ><option value="home">Work from home</option></select
+            ></label
+          ><label
+            >Status<select id="personActive"
+              ><option value="true">Active</option
+              ><option value="false">Inactive</option></select
+            ></label
+          ><button class="primary wide" type="submit">Save person</button></form
+        ></div
+      ><div id="adminAttendanceTools" class="admin-attendance-tools hidden"
+        ><h3>Attendance</h3
+        ><div class="button-row"
+          ><button class="secondary" data-action="admin-clock-in">Add clock in</button
+          ><button class="secondary" data-action="admin-clock-out">Add clock out</button></div
+        ></div
+      ></dialog
+    >
+    <dialog id="correctionDialog"
+      ><div class="dialog-title"
+        ><h2>Add attendance</h2
+        ><button
+          class="icon-button"
+          data-close="correctionDialog"
+          aria-label="Close attendance form"
+          >×</button
+        ></div
+      ><p id="correctionPerson" class="muted"></p
+      ><form id="correctionForm"
+        ><input type="hidden" id="correctionUid" /><label
+          >Action<select id="correctionAction"
+            ><option value="IN">Clock in</option
+            ><option value="OUT">Clock out</option></select
+          ></label
+        ><label
+          >Date &amp; time · office time<input
+            type="datetime-local"
+            id="correctionTime"
+            required /></label
+        ><label
+          >Work location<select id="correctionMode"
+            ><option value="office">Office</option
+            ><option value="home">Work from home</option></select
+          ></label
+        ><label
+          >Reason<textarea
+            id="correctionReason"
+            required
+            minlength="5"
+            maxlength="1000"
+            rows="2"
+            placeholder="Reason for adding this record"
+          ></textarea></label
+        ><p id="correctionError" class="error" role="alert"></p
+        ><button type="submit" class="primary wide">Save attendance</button></form
+      ></dialog
+    >
+    <dialog id="wallDialog"
+      ><div class="dialog-title"
+        ><h2>Office QR</h2
+        ><button class="icon-button" data-close="wallDialog" aria-label="Close">×</button></div
+      ><div class="wall"
+        ><img src="assets/favicon.png?v=10" width="52" height="52" alt="Esquiliano" /><h2
+          >Clock in / Clock out</h2
+        ><canvas id="wallQr"></canvas><p id="wallHours">8:00 AM — 4:00 PM</p></div
+      ><button class="primary wide" data-action="print">Print QR</button></dialog
+    ><div id="toast" role="status" class="toast hidden"></div>
+    <dialog id="loopProfileDialog" class="loop-detail-dialog" aria-label="Staff profile"
+      ><form method="dialog"
+        ><button class="icon-button" aria-label="Back to conversation">×</button></form
+      ><div id="loopProfileDetails" class="loop-profile-details"></div
+    ></dialog>
+    <dialog
+      id="loopPhotoDialog"
+      class="loop-detail-dialog loop-photo-dialog"
+      aria-labelledby="loopPhotoTitle"
+      ><form method="dialog"
+        ><span id="loopPhotoTitle"></span
+        ><button class="icon-button" aria-label="Close photo">×</button></form
+      ><img id="loopPhotoFull" alt=""
+    /></dialog>
+    <dialog id="clockedInDialog" aria-labelledby="clockedInHeading">
+      <form method="dialog" class="button-row"
+        ><button type="submit" class="text-button">Close</button></form
+      >
+      <h2 id="clockedInHeading">Clocked-in staff</h2>
+      <ul id="clockedInList" class="clocked-in-list"></ul>
+      <p id="clockedInMessage" role="status"></p>
+    </dialog>
+    <dialog id="scheduleDialog" aria-labelledby="scheduleHeading">
+      <form method="dialog" class="button-row"
+        ><button type="submit" class="text-button" aria-label="Close schedule">Close</button></form
+      >
+      <h2 id="scheduleHeading">Shift schedule</h2
+      ><details id="savedScheduleDetails"
+        ><summary>Saved schedules</summary><p id="savedScheduleStatus" role="status"></p
+        ><ul id="savedScheduleList"></ul
+        ><div class="button-row"
+          ><button id="savedSchedulePrevious" type="button" class="secondary" disabled
+            >Previous</button
+          ><button id="savedScheduleNext" type="button" class="secondary" disabled
+            >Next</button
+          ></div
+        ></details
+      >
+      <form id="scheduleForm">
+        <div class="form-grid">
+          <label>Employee<select id="schedulePerson" required></select></label>
+          <label>First date<input id="scheduleDate" type="date" required /></label
+          ><label>Second date (optional)<input id="scheduleDate2" type="date" /></label
+          ><label>Third date (optional)<input id="scheduleDate3" type="date" /></label>
+          <label>Starts<input id="scheduleStart" type="time" required /></label>
+          <label>Ends<input id="scheduleEnd" type="time" required /></label>
+        </div>
+        <label class="schedule-off"><input id="scheduleOff" type="checkbox" /> Day off</label>
+        <p
+          >Choose up to three dates in the same Monday–Sunday week. The same hours or day-off
+          setting apply to all selected dates.</p
+        ><p id="scheduleStatus" role="status"></p>
+        <div class="button-row"
+          ><button id="scheduleSave" class="primary" disabled>Save schedule</button
+          ><button id="scheduleRemove" type="button" class="secondary" disabled
+            >Remove schedule</button
+          ></div
+        >
+      </form>
+    </dialog>
+    <dialog id="subscriptionEditor" aria-labelledby="subscriptionEditorTitle">
+      <div class="subscription-editor-heading"
+        ><h2 id="subscriptionEditorTitle">Update subscription</h2
+        ><button id="subscriptionEditorClose" type="button" class="text-button">Close</button></div
+      >
+      <form id="subscriptionForm"
+        ><fieldset id="subscriptionFields">
+          <label class="subscription-checkbox"
+            ><input id="subscriptionActive" type="checkbox" />Service active</label
+          >
+          <div class="form-grid"
+            ><label
+              >Payment status<select id="subscriptionPayment"
+                ><option value="paid">Paid</option
+                ><option value="pending">Pending</option
+                ><option value="past_due">Past due</option></select
+              ></label
+            ><label>Next bill due<input id="subscriptionDue" type="date" /></label
+          ></div>
+          <div class="subscription-upload"
+            ><h3>Service image</h3
+            ><label
+              >Upload profile image<input
+                id="subscriptionProfileImage"
+                type="file"
+                accept="image/jpeg,image/png,image/webp" /></label
+            ><label class="subscription-checkbox"
+              ><input id="subscriptionImageRemove" type="checkbox" />Remove current image</label
+            ></div
+          ><div class="subscription-upload"
+            ><h3>Bill</h3
+            ><label
+              >Upload bill image<input
+                id="subscriptionBill"
+                type="file"
+                accept="image/jpeg,image/png,image/webp" /></label
+            ><label class="subscription-checkbox"
+              ><input id="subscriptionBillRemove" type="checkbox" />Remove current bill</label
+            ></div
+          >
+          <div class="subscription-upload"
+            ><h3>Receipt</h3
+            ><label
+              >Upload receipt image<input
+                id="subscriptionReceipt"
+                type="file"
+                accept="image/jpeg,image/png,image/webp" /></label
+            ><label class="subscription-checkbox"
+              ><input id="subscriptionReceiptRemove" type="checkbox" />Remove current receipt</label
+            ></div
+          >
+          <label class="subscription-checkbox subscription-notify"
+            ><input id="subscriptionNotifyAdmins" type="checkbox" role="switch" />Notify admins when
+            I save</label
+          ><p id="subscriptionSaveStatus" role="status"></p
+          ><button type="submit" class="primary">Save changes</button>
+        </fieldset></form
+      >
+    </dialog>
+    <dialog id="receiptSubmissionDialog" aria-labelledby="receiptSubmissionTitle">
+      <div class="subscription-editor-heading"
+        ><h2 id="receiptSubmissionTitle">Submit payment receipt</h2
+        ><button id="receiptSubmissionClose" type="button" class="text-button">Close</button></div
+      >
+      <form id="receiptSubmissionForm"
+        ><fieldset id="receiptSubmissionFields"
+          ><label
+            >Receipt image<input
+              id="receiptSubmissionFile"
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              required /></label
+          ><p>Your receipt will be sent to DCU-002 for review.</p
+          ><p id="receiptSubmissionStatus" role="status"></p
+          ><button type="submit" class="primary">Send for approval</button></fieldset
+        ></form
+      >
+    </dialog>
+    <dialog
+      id="subscriptionImageDialog"
+      class="subscription-image-dialog"
+      aria-labelledby="subscriptionImageTitle"
+      ><form method="dialog" class="subscription-editor-heading"
+        ><h2 id="subscriptionImageTitle">Document</h2
+        ><button class="text-button">Close</button></form
+      ><img id="subscriptionImage" alt="" /></dialog
+    ><dialog id="departmentDialog" aria-labelledby="departmentHeading">
+      <div class="department-dialog-heading"
+        ><h2 id="departmentHeading">Departments</h2
+        ><button id="departmentClose" type="button" class="text-button">Close</button></div
+      >
+      <fieldset id="departmentControls">
+        <form id="departmentAddForm" class="department-add-form"
+          ><label
+            >New department<input
+              id="departmentNewName"
+              maxlength="80"
+              required
+              placeholder="Department name" /></label
+          ><button type="submit" class="primary">Add department</button></form
+        >
+        <label class="department-replacement"
+          >When removing, move assigned staff to<select id="departmentReplacement"></select
+        ></label>
+        <ul id="departmentList" class="department-manage-list"></ul>
+      </fieldset>
+      <p id="departmentStatus" role="status"></p>
+    </dialog>
+    <dialog id="loopNewChatDialog" class="loop-new-dialog" aria-labelledby="loopNewChatTitle"
+      ><div class="loop-dialog-heading"
+        ><h2 id="loopNewChatTitle">New conversation</h2
+        ><form method="dialog"
+          ><button class="text-button" aria-label="Close new conversation">Close</button></form
+        ></div
+      ><input
+        id="loopNewChatSearch"
+        type="search"
+        placeholder="Find a colleague"
+        aria-label="Find a colleague" /><div id="loopNewChatPeople"></div></dialog
+    ><script src="config.js"></script
+    ><script src="vendor/supabase.js"></script
+    ><script src="vendor/jsqr.js"></script
+    ><script src="vendor/qrcode.js"></script
+    ><script src="attendance-state.js?v=15"></script
+    ><script src="work-hours.js?v=22"></script
+    ><script src="staff-week.js?v=22"></script
+    ><script src="vendor/exceljs.min.js"></script
+    ><script src="timesheet-export.js?v=27"></script
+    ><script src="session-transport.js?v=2"></script
+    ><script src="app.js?v=45"></script
+    ><script src="vendor/pdf-lib.min.js"></script
+    ><script src="portfolio-contract-document-pdf.js?v=4"></script
+    ><script src="portfolio-contract-pdf.js?v=4"></script
+    ><script src="portfolio-template-editor.js?v=2"></script
+    ><script src="portfolio-contracts.js?v=6"></script
+    ><script src="portfolio.js?v=6"></script
+    ><script src="schedule.js?v=3"></script
+    ><script src="subscriptions.js?v=3"></script
+    ><script src="staff.js?v=26"></script
+    ><script src="workspace.js?v=19"></script
+    ><script src="music.js?v=2"></script
+    ><script src="loop-viewport.js?v=1"></script
+    ><script src="loop-sounds.js?v=1"></script
+    ><script
+      src="https://cdn.jsdelivr.net/npm/livekit-client@2.24.1/dist/livekit-client.umd.min.js"
+      integrity="sha384-bEBX66JcfDtveS4XnY3CM0ELufJ30A+CMwvispkDJIVEfQ0PNbMKMFX6aRlS93we"
+      crossorigin="anonymous"
+    ></script
+    ><script src="loop-call-output.js?v=1"></script
+    ><script src="loop-calls.js?v=4"></script
+    ><script src="loop.js?v=21"></script
+    ><script src="departments.js?v=2"></script
+    ><script src="bobby-facts.js?v=33"></script
+    ><script src="bobby-commands.js?v=31"></script
+    ><script src="bobby.js?v=32"></script></body
+></html>

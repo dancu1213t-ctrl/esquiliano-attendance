@@ -3,10 +3,7 @@
   "name": "Loop · YouTube Listening",
   "version": "1.0.0",
   "description": "Share your YouTube listening status in Esquiliano Loop while clocked in.",
-  "permissions": [
-    "storage",
-    "alarms"
-  ],
+  "permissions": ["storage", "alarms"],
   "host_permissions": [
     "https://hunptuwwaxvpigsnrsbl.supabase.co/*",
     "https://www.youtube.com/*",
@@ -21,22 +18,13 @@
   },
   "content_scripts": [
     {
-      "matches": [
-        "https://www.youtube.com/*",
-        "https://music.youtube.com/*"
-      ],
-      "js": [
-        "youtube.js"
-      ],
+      "matches": ["https://www.youtube.com/*", "https://music.youtube.com/*"],
+      "js": ["youtube.js"],
       "run_at": "document_idle"
     },
     {
-      "matches": [
-        "https://attendance.esquilianoconsulting.com/*"
-      ],
-      "js": [
-        "connect.js"
-      ],
+      "matches": ["https://attendance.esquilianoconsulting.com/*"],
+      "js": ["connect.js"],
       "run_at": "document_idle"
     }
   ]

@@ -1,5 +1,80 @@
-const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
-const lib=require('../vendor/pdf-lib.min.js'),{build}=require('../portfolio-contract-pdf.js');
-const signature='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=';
-const out=path.join(__dirname,'../tmp/pdfs');
-(async()=>{for(const service of ['Marketing','Accounting','Government Documents','HR','Business Intelligence','IT']){const sale={id:'00000000-0000-4000-8000-000000000001',customer_name:'Sample Customer',business:'Sample Company',email:'customer@example.test',phone:'501-555-0100',amount:450,currency:'BZD',sale_date:'2026-11-17',contract_date:'2026-11-18',payment_method:'IFT',service,contract_snapshot:{layout:'document-v1',title:service+' - mock service agreement',version:2,signature,signer_name:'Sample Staff',confirmed_at:'2026-11-17T20:00:00Z',header_text:'ESQUILIANO\nOffice reference {{office_reference}}',footer_text:'Footer note {{footer_note}}',fields:{office_reference:'HEADER-001',footer_note:'Footer detail',custom_1:'Custom value',staff_name:'Edited preparer',client_address:'Belize City, Belize',reference:'Project 001',start_date:'2026-11-19',end_date:'2026-11-30'},body:'1. PARTIES\nThis mock agreement is between Esquiliano Consulting & Bookkeeping and {{customer_name}}, representing {{business}}. Customer address: {{client_address}}.\n\n2. SERVICE PROVIDED\nEsquiliano will provide '+service+' services for the customer, as agreed in the approved service package. Contract / project reference: {{reference}}. Other reference {{custom_1}}.\n\n3. SERVICE PERIOD\nThe anticipated service period begins on {{start_date}} and ends on {{end_date}}. Dates remain subject to the approved final agreement.\n\n4. FEES & PAYMENT\nThe recorded charge is {{amount}}. Payment method: {{payment_method}}. Atlantic Bank, Jose Armando Esquiliano, checking account 211747902, Belize (BZD).\n\n5. CONTACT & RECORD\nCustomer email: {{email}}. Phone: {{phone}}. Prepared by {{staff_name}}. Contract date: {{contract_date}}.\n\nMOCK CONTRACT - FOR REVIEW ONLY. Replace with the approved company contract before use as a final agreement.'}};const bytes=await build(sale,lib,fs.readFileSync(path.join(__dirname,"../assets/favicon.png"))),pdf=await lib.PDFDocument.load(bytes),form=pdf.getForm();assert.equal(form.getTextField('customer_name').getText(),sale.customer_name);assert.equal(form.getTextField('reference').getText(),'Project 001');assert.equal(form.getTextField('start_date').getText(),'2026-11-19');assert.equal(form.getTextField('amount').getText(),'BZD 450.00');assert.equal(form.getTextField('office_reference').getText(),'HEADER-001');assert.equal(form.getTextField('footer_note').getText(),'Footer detail');assert.equal(form.getTextField('custom_1').getText(),'Custom value');assert.equal(form.getTextField('staff_name').getText(),'Edited preparer');assert(!form.getFieldMaybe('scope'));assert(!form.getFieldMaybe('deliverables'));fs.writeFileSync(path.join(out,'Document-'+service.replaceAll(' ','-')+'.pdf'),bytes)}console.log('Six document-style contracts passed: inline AcroForm blanks, populated customer/amount/date fields, and no scope/deliverables fields.');})().catch(e=>{console.error(e);process.exitCode=1});
+const assert = require('node:assert/strict'),
+  fs = require('node:fs'),
+  path = require('node:path');
+const lib = require('../vendor/pdf-lib.min.js'),
+  { build } = require('../portfolio-contract-pdf.js');
+const signature =
+  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=';
+const out = path.join(__dirname, '../tmp/pdfs');
+(async () => {
+  for (const service of [
+    'Marketing',
+    'Accounting',
+    'Government Documents',
+    'HR',
+    'Business Intelligence',
+    'IT',
+  ]) {
+    const sale = {
+      id: '00000000-0000-4000-8000-000000000001',
+      customer_name: 'Sample Customer',
+      business: 'Sample Company',
+      email: 'customer@example.test',
+      phone: '501-555-0100',
+      amount: 450,
+      currency: 'BZD',
+      sale_date: '2026-11-17',
+      contract_date: '2026-11-18',
+      payment_method: 'IFT',
+      service,
+      contract_snapshot: {
+        layout: 'document-v1',
+        title: service + ' - mock service agreement',
+        version: 2,
+        signature,
+        signer_name: 'Sample Staff',
+        confirmed_at: '2026-11-17T20:00:00Z',
+        header_text: 'ESQUILIANO\nOffice reference {{office_reference}}',
+        footer_text: 'Footer note {{footer_note}}',
+        fields: {
+          office_reference: 'HEADER-001',
+          footer_note: 'Footer detail',
+          custom_1: 'Custom value',
+          staff_name: 'Edited preparer',
+          client_address: 'Belize City, Belize',
+          reference: 'Project 001',
+          start_date: '2026-11-19',
+          end_date: '2026-11-30',
+        },
+        body:
+          '1. PARTIES\nThis mock agreement is between Esquiliano Consulting & Bookkeeping and {{customer_name}}, representing {{business}}. Customer address: {{client_address}}.\n\n2. SERVICE PROVIDED\nEsquiliano will provide ' +
+          service +
+          ' services for the customer, as agreed in the approved service package. Contract / project reference: {{reference}}. Other reference {{custom_1}}.\n\n3. SERVICE PERIOD\nThe anticipated service period begins on {{start_date}} and ends on {{end_date}}. Dates remain subject to the approved final agreement.\n\n4. FEES & PAYMENT\nThe recorded charge is {{amount}}. Payment method: {{payment_method}}. Atlantic Bank, Jose Armando Esquiliano, checking account 211747902, Belize (BZD).\n\n5. CONTACT & RECORD\nCustomer email: {{email}}. Phone: {{phone}}. Prepared by {{staff_name}}. Contract date: {{contract_date}}.\n\nMOCK CONTRACT - FOR REVIEW ONLY. Replace with the approved company contract before use as a final agreement.',
+      },
+    };
+    const bytes = await build(
+        sale,
+        lib,
+        fs.readFileSync(path.join(__dirname, '../assets/favicon.png')),
+      ),
+      pdf = await lib.PDFDocument.load(bytes),
+      form = pdf.getForm();
+    assert.equal(form.getTextField('customer_name').getText(), sale.customer_name);
+    assert.equal(form.getTextField('reference').getText(), 'Project 001');
+    assert.equal(form.getTextField('start_date').getText(), '2026-11-19');
+    assert.equal(form.getTextField('amount').getText(), 'BZD 450.00');
+    assert.equal(form.getTextField('office_reference').getText(), 'HEADER-001');
+    assert.equal(form.getTextField('footer_note').getText(), 'Footer detail');
+    assert.equal(form.getTextField('custom_1').getText(), 'Custom value');
+    assert.equal(form.getTextField('staff_name').getText(), 'Edited preparer');
+    assert(!form.getFieldMaybe('scope'));
+    assert(!form.getFieldMaybe('deliverables'));
+    fs.writeFileSync(path.join(out, 'Document-' + service.replaceAll(' ', '-') + '.pdf'), bytes);
+  }
+  console.log(
+    'Six document-style contracts passed: inline AcroForm blanks, populated customer/amount/date fields, and no scope/deliverables fields.',
+  );
+})().catch((e) => {
+  console.error(e);
+  process.exitCode = 1;
+});

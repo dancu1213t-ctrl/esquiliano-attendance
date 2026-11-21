@@ -1,0 +1,14 @@
+{
+  "name": "esquiliano-attendance",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Esquiliano staff attendance and office workspace",
+  "scripts": {
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "node scripts/test.cjs"
+  },
+  "devDependencies": {
+    "prettier": "3.6.2"
+  }
+}

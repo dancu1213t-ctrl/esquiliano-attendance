@@ -1,0 +1,121 @@
+# Implementation notes
+
+Historical implementation and validation notes. Dates, deployment details, defaults, and test results below describe the corresponding update; they are not a current deployment checklist. See the root README for the project overview. Paths mentioned below are relative to the repository root.
+
+Independent HTML/CSS/JavaScript PWA. GitHub Pages hosts the UI; the Esquiliano Supabase project handles Auth, Postgres, Realtime and Edge Functions. No SwiftShop or consulting-site source is used.
+
+## Deployment
+
+Publish main from repository root using GitHub Pages. CNAME: attendance.swiftshopow.com. Squarespace DNS: attendance CNAME dancu1213t-ctrl.github.io. Enable HTTPS when GitHub finishes issuing its certificate.
+
+The browser config contains only the publishable key, project URL and public VAPID key. Never put a service-role key or private VAPID key in GitHub. The push private key lives in Supabase Edge Function Secrets. Serve HTTPS for camera, GPS, installation and push.
+
+## Database
+
+Apply all numbered files in supabase/migrations once to the Esquiliano project only. They create att_* tables and authenticated RPCs, with RLS on every table. The existing office coordinates, 100 m radius, 50 m maximum GPS uncertainty, Belize time, 8 AM–4 PM shift and 10-minute grace are defaults. The clock RPC computes time and location on the server, serializes employee submissions, rejects repeated actions and supports idempotent request IDs. Phone GPS reports can be spoofed; this is a proximity check, not a certified anti-fraud device.
+
+Deploy supabase/functions/attendance-admin. Its handler verifies the user token with Auth and checks the active admin profile before privileged actions. Legacy gateway JWT verification is off because the handler accepts the project's current Auth JWTs. CORS is restricted to the app domain. ATTENDANCE_ORIGINS can contain a comma-separated temporary test origin. VAPID_PUBLIC_KEY and VAPID_PRIVATE_KEY enable push; VAPID_SUBJECT defaults to the company contact. Default Supabase server secrets are supplied by the platform.
+
+## Accounts
+
+The first administrator is ESQ0001. Its code was selected privately by the owner; it is not included in this repository. Auth emails use employee-id@attendance.esquiliano.invalid as an internal identifier, not a mailbox. New users are created from Admin > People with codes of 8–32 characters. No public registration UI is provided. Reset codes from Edit person. Disable a person with Status > Inactive; attendance history remains. At least one active administrator is retained. Admin and employee sessions have different browser storage keys. Profile lets a signed-in administrator switch between their two profiles without logging the employee out.
+
+## Notifications
+
+Supabase Realtime delivers inbox updates while open, with a 30-second refresh fallback. Server-generated attendance confirmations and administrator messages also use Web Push through the Edge Function. Push delivery depends on browser permission and an active subscription; iPhone users must install the app on their Home Screen. Notifications contain employee names and attendance status, so only enable them on a trusted device. No email or SMS is sent. Notification retries and bulk queued delivery are not scheduled; the sender invokes delivery immediately after saving.
+
+## Mobile
+
+Install from the browser menu. The service worker caches only the app shell, never database responses, photos or attendance records. Attendance requires an internet connection. QR scanning uses the camera or an uploaded photo, with a 3-minute local scan window. The admin can print or replace the wall QR. Codes from the old Apps Script site do not work in this app; print a new QR from Admin.
+
+## Validation
+
+JavaScript syntax checks, desktop and 320/390/430 px layout review, and transactional database checks cover profile/event/notification isolation, admin-only QR access, distance, accuracy, device reuse/revocation, current profile names, action sequencing and request deduplication. Database test fixtures are rolled back. Actual iOS/Android camera, GPS and push delivery still need an on-device test after HTTPS is ready.
+
+The former Google Sheet remains the legacy archive. Accounts, photos and historical records have not been imported automatically; the owner can add accounts using the new People screen. The Apps Script deployment remains available during transition.
+
+## Welcome and job roles
+
+The root address opens the original Clock dashboard. The supplied image is used as the favicon; the original layout, colors and app mark are retained. Explicit view links and office QR scans enter the requested app screen directly. All six job roles are stored in att_profiles.job_role and appear in profiles and the People list. They do not affect administrator access; the existing role field continues to control permissions. Apply migration 202610230003_job_roles.sql and deploy the accompanying admin function when updating an independent installation.
+
+Push delivery works when the app is closed on supported, opted-in devices; a powered-off phone cannot display notifications. The current push-service TTL is five minutes. Messages remain in the database inbox even if a push expires. iPhone users need the Home Screen installation and notification permission. No claim of guaranteed delivery is made.
+
+
+## Integrated workspace
+
+The Work tab reuses the existing employee/admin Supabase sessions. There is no Firebase login, Apps Script endpoint, spreadsheet dependency or approval workflow. Active workers see only their own client records; administrators can read and edit all client records. Client fields include contact details, service, BZD quote and BTS IRIS/SSB/ERP/CRM login URLs, usernames and password-manager references. Actual passwords belong in a password manager. Edits keep a revision snapshot and use optimistic version checks.
+
+Team chat includes General, Operations, admin-only Announcements and direct conversations. Direct messages are readable by participants and administrators; the UI discloses administrator access. Directory uses existing profile names/photos. Direct messages and announcements create inbox notifications and use the existing push dispatcher. Chat refreshes through Supabase Realtime with a 20-second foreground fallback.
+
+Apply `supabase/migrations/202610240004_workspace.sql` after migrations 001–003. The migration was applied to the existing Esquiliano project. Run `supabase/tests/workspace.sql` to verify isolation, validation, revisions, idempotency, direct-message access, rate limiting and inactive/anonymous denial; all fixtures are rolled back. SwiftShop is not involved.
+
+
+## Attendance state repair — 27 October 2026
+
+Apply migration `202610270005_attendance_status.sql` after 004. Active administrators and workers can record their own attendance using their selected saved session; office QR, precise GPS and registered-device checks remain mandatory. The RPC returns the authoritative event and the UI immediately applies it before refreshing History and the admin register. The current status comes from the latest event for that selected user, including an open shift from an earlier date. Clock-in is unavailable during an open shift; clock-out is unavailable without an open shift. Successful retries reuse one request ID and do not produce duplicate records. Tests in `supabase/tests/attendance-status.sql` use rolled-back fixtures and do not create real attendance.
+
+
+## Scan completion — 27 October 2026
+
+A clock slider creates a short-lived, account-specific scan intent. A valid camera/photo scan resumes that action and saves it after the normal location/device checks, without requiring another slide. Cancelled, expired, direct-link or different-account scans do not submit an unintended attendance event. Progress and error messages remain visible on the Clock card. Clock-out remains available at any time while a shift is open; an early exit is recorded as Early departure rather than blocked. `tests/scan-completion.cjs` verifies the scan continuation and cancellation cases. `supabase/tests/clockout-anytime.sql` verifies saving before/after closing inside a rollback-only transaction.
+
+## November 3 update
+Notification delivery fixes the URL constructor shadowing bug. Inbox always shows Test delivery; this now sends a server push, rather than creating a local-only notification. Permission, registration and delivery errors remain visible. Failed transport attempts remain pending for retry on a later dispatch; expired subscriptions are removed. Push TTL is 24 hours. Each browser subscription belongs to the account that most recently enabled it on that browser.
+
+Administrators can select Office or Work from home under People → Edit. Work-from-home users retain device registration and attendance sequencing, but do not need the office QR or GPS. Office staff retain QR and GPS checks. Under the same editor, Add clock in / Add clock out opens an office-time correction form. Reasons are required; each added record stores the admin, work location and reason, plus an audit entry. Existing records are preserved. Corrections must fit the existing sequence and cannot be future-dated.
+
+Validation: notification controls and server dispatch regression tests, scan continuation and WFH flow tests, and rollback-only SQL permission/sequence/audit tests. Phone notification permissions and actual OS display must still be checked on the receiving device.
+
+## Staff pages and desktop notifications
+People → Edit opens a dedicated staff page with Attendance, Profile and Devices tabs. The weekly calendar shows confirmed hours, days worked, open shifts, late arrivals, early departures, work location and correction reasons. Admins can edit shift times or hours, add a whole missing shift, and clock out an open shift. Hours edit the shift end time; incomplete shifts are excluded from confirmed-hour totals. Overnight work is allocated across calendar days. Changes preserve before/after audit data and use optimistic row versions and idempotent requests. Overlaps, reversed times, future records and unauthorized worker edits are rejected.
+
+Desktop notifications use the same Web Push service. Each browser has its own opt-in. New registrations save a browser/OS label and link notification subscriptions to the attendance device. Test delivery targets the requesting device. Existing phone subscriptions remain valid. Revoking a linked device also disconnects its push subscription. Older notification registrations appear separately until re-enabled on that device, so the UI does not falsely attribute them to a particular browser.
+
+Validation: rollback-only staff-pages.sql checks permissions, weekly boundary records, edits, stale writes, missing clock-out, auditing, desktop subscription linkage and revocation. Node tests cover weekly totals, overnight allocation, push targeting, notification setup, worker activation and QR completion. Browser QA confirmed full-page profile editing, hours-to-time updates and a 480px viewport without horizontal overflow. Actual desktop OS notification display still requires that desktop's permission and a Test delivery action.
+
+## Weekday lunch, timesheet exports and administrator photos
+From lunch_effective_date (2026-11-03 on this deployment), Monday–Friday 12:00–13:00 America/Belize is unpaid. Net hours subtract only overlap, including partial/overnight shifts. Previous dates and actual punch events are retained. Manual hours edit the end time using the same net-hours policy. A clock-screen lunch indicator appears for clocked-in people.
+
+Migration009 adds an idempotent lunch notification per active profile/date. Supabase Cron runs at18:00–18:59UTC weekdays (noon Belize) to enqueue once and retry unsent push delivery. Personalized reminders work with the app closed when device push is enabled. The schedule token is generated and stored in an inaccessible RLS-protected table, never shipped to the browser or repository. The service handler authenticates the schedule token separately from normal user JWT requests.
+
+Admin → Overview → Timesheet Excel exports current profiles and all paginated attendance into branded Summary, Daily Log, Employees, Weekly View and Attendance Records worksheets. Current-week/month summary formulas include cached results; daily rows split overnight shifts and expose lunch deductions. Missing clock-outs are flagged and excluded from confirmed hours. CSV has labelled daily rows and formula-injection escaping. New employees appear on each fresh export; downloaded files are snapshots, not a live-linked Google Sheet. Sick leave/pay rates are not inferred from attendance.
+
+People → Edit → Profile and Add person support cropped JPG/PNG/WebP photos with preview/removal. Photos save through the admin-only photo RPC; workers retain their own photo upload.
+
+Validation: lunch-export.cjs (boundaries, weekends, policy dates, exact net-hour editing, future profiles, workbook roundtrip), SQL lunch-photos.sql (rollback-only permissions, photo saving, personalized new-user lunch notification, idempotence and time boundaries), existing scan/push/worker/staff suites. Actual pg_net→Edge request returned200; noon job is enabled.
+
+## Recoverable shift deletion
+Migration010 adds att_deleted_shifts and admin-only delete/restore RPCs. People → Edit → Attendance → select any date → Edit hours (or Add clock out) → Delete shift. A correction reason and second confirmation are required. Deletion removes the entire matched IN/OUT pair, or the latest unmatched IN, from current attendance and exports. Multi-day confirmation shows the entire saved interval. Original event rows remain recoverable under Deleted shifts, with actor/time/reason and audit records. Restore rejects overlaps and invalid sequences. Version checks and per-person advisory locks protect concurrent edits; request IDs make deletion retries safe. No real attendance records were deleted during validation. SQL tests use rolled-back synthetic fixtures.
+
+## Manual daily records
+Migration011 stores exact credited daily hours separately from actual IN/OUT punches. Worked, Sick and Not required are supported; non-working statuses must have zero hours. Daily totals are displayed in personal/admin history and the weekly calendar, and exported with blank actual punch times. Credited hours already include any break treatment and are not reduced again. A manual record is authoritative for its person/day, replacing calculated punch totals for that day to prevent double counting; original punches remain visible in the raw records sheet. Administrators can edit, soft-delete and restore manual records with reasons and row-version checks. Worker access is restricted to their own daily data.
+
+Validation: daily-records.cjs checks exact daily totals, non-working statuses, no invented punch times, summary results and raw export coverage. Rollback-only daily-records.sql verifies admin-only writes, invalid sick hours, stale updates and reversible deletion. A separately confirmed one-time data reset was applied through the database console; its private record values are not committed to this repository.
+
+## Bobby attendance desk
+Bobby is a deterministic database helper, with no AI service, external model calls or chat storage. It appears only when the active profile is the signed-in administrator, the Admin view is open, and no individual staff page is open. The lion bubble supports pointer dragging and arrow-key movement. Leaving the allowed view clears the chat and invalidates pending replies. Each question fetches a fresh admin-verified att_bobby_snapshot with server time and office week boundaries; failures/timeouts never substitute stale data.
+
+Supported questions include this-week/daily hours, live clock status, potentially missing punches, recorded lateness, sick/not-required days, staff roles/IDs/work locations and office settings. Manual totals are authoritative for their person/day and are not treated as proof of clock-in or lateness. Open-shift accrued hours are provisional and account for the weekday lunch break. Missing clock-ins exclude manual day records and weekends; overdue open shifts are flagged after closing or on a later date. Bobby reports missing records, not proven forgetfulness. Unsupported questions/periods request clarification rather than inventing facts. Chat text is rendered as text, never HTML or SQL. The database function is read-only and rejects workers.
+
+Validation: bobby-facts.cjs covers daily/weekly totals, manual/status distinction, missing punches, closing-time thresholds, late minutes and unknown questions. Live rollback SQL verified worker denial and admin access to the official current-week records. Browser checks verified the admin-only bubble, hiding on staff pages, keyboard movement, and the attendance search gap.
+
+## Bobby commands and one-time tasks
+Migration013 adds admin-only reviewed messages, clock corrections, one-time 4 p.m. checks, cancellation, request idempotency and server-stored introduction dismissal. Commands produce an editable review showing recipients and message/time before an explicit action button commits anything. Unsupported or ambiguous commands ask for clarification. Bobby can send direct messages/reminders immediately as the authenticated admin, manually clock in/out with a reason and valid sequence, and schedule a one-time chosen-day 4 p.m. checkout check. Ask Tasks to review/cancel pending tasks and inspect completed results. No recurring checks are created.
+
+The cron runner works with the app closed, rechecks the creator is still an active admin, and closes only same-day open shifts that began before 4 p.m. Earlier-day or post-cutoff open shifts are flagged for manual review. Task results and attendance corrections are audited; worker notifications use the existing Web Push queue. The private scheduled dispatch endpoint validates the existing database-held schedule token. Messages are stored with the actual administrator sender ID.
+
+From 2026-11-04 office time, Bobby presents the Mr. Cu introduction on an eligible admin visit. The introduction has its own × and dismissal persists across devices.
+
+Validation: rollback SQL bobby-commands.sql covers worker denial, duplicate retries, correct clock sequence, no invented OUT without IN, introduction persistence, cancellation, and a one-time cron run. No fixture messages or hours were committed. Local isolated UI checks verified editable message review and clock time/reason review with a mock backend. Parser tests cover recipient resolution, reminders, explicit times, chosen dates, and unknown people.
+
+## Bobby design, counts and 5 p.m. checks
+Migration014 moves one-time checkout checks to 17:00 office time and updates the cron window. Pending tasks now use 17:00; completed tasks keep their original 16:00 metadata. This changes the scheduled task cutoff, not the separate office opening/closing settings. The command parser and task review display 5 p.m.; an explicit unsupported bulk-check time asks for clarification rather than silently substituting it.
+
+Bobby uses a detailed flat lion badge with a visible name and a matching messenger-style panel, warm neutral incoming messages, teal outgoing messages and a paper-plane send button. Admin-only visibility and dragging remain. Factual answers now include direct active worker/admin/staff counts, department/work-location counts, recorded attendance counts and highest/lowest confirmed weekly hours. Workers exclude administrator accounts. Unsupported facts still prompt clarification; no AI service is used.
+
+Validation: Bobby parser/fact regression tests; rollback-only bobby-5pm.sql verifies exactly one OUT at17:00 while preserving command permissions, cancellation and idempotency. No real staff records or messages were changed by tests.
+
+## Bobby message voice
+Message recipients are resolved at the beginning of the message command, so mentioning a second person in the body does not accidentally add that person as a recipient. Unquoted indirect reminders are drafted as direct admin-to-recipient messages: recipient his/her/their becomes your where unambiguous, and he/she/they clauses use you with matching basic verb forms. Admin I/my/me is preserved. Named third-party ownership and explicitly quoted exact wording are preserved; unclear third-party pronouns ask for clarification. Future actions mentioned in a message are allowed for immediate sending, while requests to delay the send still clarify the unsupported scheduled reminder. The review remains editable and nothing is sent until Send message is clicked.
+
+Validation: bobby-commands.cjs covers recipient addressing, sender perspective, future content, explicit quotes, named ownership, ambiguous references and recipient scope.

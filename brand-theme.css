@@ -1,24 +1,75 @@
 /* Neutral office surfaces with restrained green accents.
    Seasonal Clock artwork is intentionally left to app.css. */
-:root{
- --ink:#24382f;--muted:#707c75;--teal:#21483c;--green:#36765f;
- --accent:#a69c68;--line:#e2e7e3;--bg:#f4f6f5;--white:#ffffff;
+:root {
+  --ink: #24382f;
+  --muted: #707c75;
+  --teal: #21483c;
+  --green: #36765f;
+  --accent: #a69c68;
+  --line: #e2e7e3;
+  --bg: #f4f6f5;
+  --white: #ffffff;
 }
-body{background:var(--bg);color:var(--ink)}
-aside{background:#183b32;color:#edf2ef}
-aside nav button{color:#bacac2}
-aside nav button:hover{background:#ffffff09}
-aside nav button.active{background:#ffffff12;color:#fff;box-shadow:inset 2px 0 #8fae9b}
-.brand small{color:#aebfb6}
-aside .aside-foot .text-button{color:#bacac2}
-.primary{background:#21483c;color:#fff}
-.primary:hover{background:#2a5748}
-.secondary{background:#fff;color:var(--ink);border-color:var(--line)}
-.secondary:hover{background:#f5f7f5}
-#portfolioView .pf-tabs{background:#eaf0ec}
-#portfolioView .pf-category{background:#fff}
-#portfolioView .pf-category[aria-pressed=true]{background:#21483c;border-color:#73907f;box-shadow:none}
-#portfolioView .pf-categories{border-bottom-color:#dde4dd}
-#portfolioView .pf-services .pf-empty{background:#f9fbfa}
-.bottom-nav{background:#ffffffef}
-.bottom-nav button.active{color:#21483c}
+body {
+  background: var(--bg);
+  color: var(--ink);
+}
+aside {
+  background: #183b32;
+  color: #edf2ef;
+}
+aside nav button {
+  color: #bacac2;
+}
+aside nav button:hover {
+  background: #ffffff09;
+}
+aside nav button.active {
+  background: #ffffff12;
+  color: #fff;
+  box-shadow: inset 2px 0 #8fae9b;
+}
+.brand small {
+  color: #aebfb6;
+}
+aside .aside-foot .text-button {
+  color: #bacac2;
+}
+.primary {
+  background: #21483c;
+  color: #fff;
+}
+.primary:hover {
+  background: #2a5748;
+}
+.secondary {
+  background: #fff;
+  color: var(--ink);
+  border-color: var(--line);
+}
+.secondary:hover {
+  background: #f5f7f5;
+}
+#portfolioView .pf-tabs {
+  background: #eaf0ec;
+}
+#portfolioView .pf-category {
+  background: #fff;
+}
+#portfolioView .pf-category[aria-pressed='true'] {
+  background: #21483c;
+  border-color: #73907f;
+  box-shadow: none;
+}
+#portfolioView .pf-categories {
+  border-bottom-color: #dde4dd;
+}
+#portfolioView .pf-services .pf-empty {
+  background: #f9fbfa;
+}
+.bottom-nav {
+  background: #ffffffef;
+}
+.bottom-nav button.active {
+  color: #21483c;
+}

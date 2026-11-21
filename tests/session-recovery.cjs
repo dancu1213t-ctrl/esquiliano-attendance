@@ -1,20 +1,83 @@
-const assert=require('node:assert/strict'),vm=require('node:vm'),fs=require('node:fs');
-const source=fs.readFileSync(__dirname+'/../app.js','utf8');
-const code=source.slice(source.indexOf('async function profile(client)'),source.indexOf('async function refresh()'));
-const queue=[],ctx={employee:{id:'worker'},admin:null,refreshSequence:0,activeView:'loop',navigator:{onLine:true},setTimeout:f=>queue.push(f),check:r=>{if(r.error)throw r.error;return r.data},syncAttendanceOwner(){},renderIdentity(){},currentProfile(){return ctx.employee||ctx.admin},show:v=>ctx.activeView=v,toast(){},realtime:async()=>{},refresh:async()=>{ctx.refreshed=(ctx.refreshed||0)+1},$:()=>({})};vm.createContext(ctx);vm.runInContext(code,ctx);
-(async()=>{
- let signedOut=0;
- const client={auth:{getSession:async()=>({data:{session:null},error:Error('Network failed')}),signOut:async()=>signedOut++}};
- await assert.rejects(ctx.profile(client),/Network failed/);assert.equal(signedOut,0);
- client.auth.getSession=async()=>({data:{session:{user:{id:'worker'}}},error:null});
- const result={data:null,error:null};
- client.from=()=>({select:()=>({eq:()=>({maybeSingle:async()=>result})})});
- await assert.rejects(ctx.profile(client),/profile could not be loaded/);assert.equal(signedOut,0);
- result.data={active:true,id:'worker'};assert.equal((await ctx.profile(client)).id,'worker');
- client.auth.signOut=async options=>{assert.equal(options.scope,'local');signedOut++};result.data={active:false};assert.equal(await ctx.profile(client),null);assert.equal(signedOut,1);
- let listener;ctx.watchSession({auth:{onAuthStateChange:cb=>listener=cb}},'employee');
- listener('SIGNED_OUT');await queue.shift()();assert.equal(ctx.employee,null);assert.equal(ctx.activeView,'profile');assert.equal(ctx.refreshSequence,1);
- listener('SIGNED_OUT');listener('SIGNED_IN');await queue.shift()();await queue.shift()();assert.equal(ctx.refreshed,1);
- assert(!/signOut\(\)/.test(source));assert(source.includes('[profile(employeeClient),profile(adminClient)]'));
- console.log('Session tests passed: transient errors preserve sessions; inactive account signs out locally; auth loss clears stale UI; newer auth events win; recovery checks both accounts.');
-})().catch(e=>{console.error(e);process.exitCode=1});
+const assert = require('node:assert/strict'),
+  vm = require('node:vm'),
+  fs = require('node:fs');
+const source = fs.readFileSync(__dirname + '/../app.js', 'utf8');
+const code = source.slice(
+  source.indexOf('async function profile(client)'),
+  source.indexOf('async function refresh()'),
+);
+const queue = [],
+  ctx = {
+    employee: { id: 'worker' },
+    admin: null,
+    refreshSequence: 0,
+    activeView: 'loop',
+    navigator: { onLine: true },
+    setTimeout: (f) => queue.push(f),
+    check: (r) => {
+      if (r.error) throw r.error;
+      return r.data;
+    },
+    syncAttendanceOwner() {},
+    renderIdentity() {},
+    currentProfile() {
+      return ctx.employee || ctx.admin;
+    },
+    show: (v) => (ctx.activeView = v),
+    toast() {},
+    realtime: async () => {},
+    refresh: async () => {
+      ctx.refreshed = (ctx.refreshed || 0) + 1;
+    },
+    $: () => ({}),
+  };
+vm.createContext(ctx);
+vm.runInContext(code, ctx);
+(async () => {
+  let signedOut = 0;
+  const client = {
+    auth: {
+      getSession: async () => ({ data: { session: null }, error: Error('Network failed') }),
+      signOut: async () => signedOut++,
+    },
+  };
+  await assert.rejects(ctx.profile(client), /Network failed/);
+  assert.equal(signedOut, 0);
+  client.auth.getSession = async () => ({
+    data: { session: { user: { id: 'worker' } } },
+    error: null,
+  });
+  const result = { data: null, error: null };
+  client.from = () => ({ select: () => ({ eq: () => ({ maybeSingle: async () => result }) }) });
+  await assert.rejects(ctx.profile(client), /profile could not be loaded/);
+  assert.equal(signedOut, 0);
+  result.data = { active: true, id: 'worker' };
+  assert.equal((await ctx.profile(client)).id, 'worker');
+  client.auth.signOut = async (options) => {
+    assert.equal(options.scope, 'local');
+    signedOut++;
+  };
+  result.data = { active: false };
+  assert.equal(await ctx.profile(client), null);
+  assert.equal(signedOut, 1);
+  let listener;
+  ctx.watchSession({ auth: { onAuthStateChange: (cb) => (listener = cb) } }, 'employee');
+  listener('SIGNED_OUT');
+  await queue.shift()();
+  assert.equal(ctx.employee, null);
+  assert.equal(ctx.activeView, 'profile');
+  assert.equal(ctx.refreshSequence, 1);
+  listener('SIGNED_OUT');
+  listener('SIGNED_IN');
+  await queue.shift()();
+  await queue.shift()();
+  assert.equal(ctx.refreshed, 1);
+  assert(!/signOut\(\)/.test(source));
+  assert(/\[\s*profile\(employeeClient\),\s*profile\(adminClient\),?\s*\]/.test(source));
+  console.log(
+    'Session tests passed: transient errors preserve sessions; inactive account signs out locally; auth loss clears stale UI; newer auth events win; recovery checks both accounts.',
+  );
+})().catch((e) => {
+  console.error(e);
+  process.exitCode = 1;
+});

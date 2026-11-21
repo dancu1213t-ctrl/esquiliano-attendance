@@ -1,44 +1,657 @@
-window.PortfolioContracts=(()=>{
- 'use strict';
- const $=id=>document.getElementById(id),el=(tag,text,cls)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n};
- const btn=(text,cls,fn)=>{const b=el('button',text,cls);b.type='button';b.onclick=fn;return b};
- const field=(label,name,type='text',value='',required=false)=>{const l=el('label',label),n=el(type==='textarea'?'textarea':type==='select'?'select':'input');n.name=name;if(n.tagName==='INPUT')n.type=type;if(type==='textarea'){n.rows=3;n.maxLength=3000}n.value=value;n.required=required;l.append(n);return l};
- let owner='',signature=null,signatureLoad=null,profileEpoch=0,session=null,signatureBusy=false;
- const profile=()=>currentProfile(),client=()=>clientForProfile(),same=id=>profile()?.id===id;
- const card=el('article',undefined,'panel pf-signature-card');card.id='pfSignatureCard';$('profileView').querySelector('.profile-grid').append(card);
- function renderSignature(){card.replaceChildren(el('h2','Your signature'),el('p','Save your existing signature or draw one. You can preview it before adding it to a contract.'));if(!owner){card.append(el('p','Sign in to save a signature.'));return}const preview=el('div',undefined,'pf-signature-preview');if(signature){const img=el('img');img.src=signature.image;img.alt='Your saved signature';preview.append(img)}else preview.append(el('span','No signature saved'));card.append(preview);const actions=el('div',undefined,'pf-actions');actions.append(btn(signature?'Change signature':'Add signature','secondary',()=>signatureEditor()));if(signature)actions.append(btn('Remove','text-button',async()=>{if(signatureBusy)return;const id=owner;signatureBusy=true;try{check(await client().rpc('pf_signature_save',{image_data:null}));if(same(id)){signature=null;renderSignature();toast('Profile signature removed. Saved contracts retain their original signature.')}}catch(e){toast(e.message)}finally{signatureBusy=false}}));card.append(actions)}
- async function fetchSignature(){const id=owner,version=profileEpoch;if(!id||preview)return null;const r=await client().from('pf_signatures').select('image,updated_at').eq('user_id',id).maybeSingle();if(!same(id)||version!==profileEpoch)return null;signature=check(r);renderSignature();return signature}
- function sync(){const id=profile()?.id||'';if(id===owner)return;profileEpoch++;owner=id;signature=null;signatureLoad=null;signatureBusy=false;closeSale(true);signatureDialog?.close();document.querySelectorAll('[data-pf-template-dialog]').forEach(d=>d.close());renderSignature();if(id&&!preview)signatureLoad=fetchSignature().catch(e=>{if(same(id))card.append(el('p',e.message,'error'));return null})}
- const signatureDialog=el('dialog',undefined,'pf-dialog pf-signature-dialog');signatureDialog.id='pfSignatureDialog';signatureDialog.setAttribute('aria-label','Save your signature');document.body.append(signatureDialog);
- function signatureEditor(){if(!owner||signatureBusy)return;const id=owner,c=client();let ink=false,drawing=false,last=null;signatureDialog.replaceChildren();const head=el('div',undefined,'section-title');head.append(el('h2','Your signature'),btn('Close','text-button',()=>{if(!signatureBusy)signatureDialog.close()}));const canvas=el('canvas');canvas.width=1000;canvas.height=300;canvas.setAttribute('aria-label','Draw your signature here, or upload your existing signature below');canvas.style.touchAction='none';const ctx=canvas.getContext('2d');ctx.lineWidth=4;ctx.lineCap='round';ctx.lineJoin='round';ctx.strokeStyle='#19382f';
-  const point=e=>{const r=canvas.getBoundingClientRect();return [(e.clientX-r.left)*1000/r.width,(e.clientY-r.top)*300/r.height]};canvas.onpointerdown=e=>{drawing=true;last=point(e);canvas.setPointerCapture(e.pointerId)};canvas.onpointermove=e=>{if(!drawing)return;const p=point(e);ctx.beginPath();ctx.moveTo(...last);ctx.lineTo(...p);ctx.stroke();last=p;ink=true};canvas.onpointerup=canvas.onpointercancel=()=>{drawing=false;last=null};
-  const upload=field('Or upload your existing signature','signature_upload','file');upload.querySelector('input').accept='image/png,image/jpeg,image/webp';const error=el('p',undefined,'error');error.setAttribute('role','alert');upload.querySelector('input').onchange=async e=>{try{const f=e.target.files[0];if(!f)return;if(!/^image\/(png|jpeg|webp)$/.test(f.type)||f.size>5000000)throw Error('Choose a PNG, JPG or WebP under 5 MB.');const image=await createImageBitmap(f);ctx.clearRect(0,0,1000,300);const scale=Math.min(960/image.width,260/image.height);ctx.drawImage(image,(1000-image.width*scale)/2,(300-image.height*scale)/2,image.width*scale,image.height*scale);image.close();ink=true;error.textContent=''}catch(e){error.textContent=e.message}};
-  const actions=el('div',undefined,'pf-actions'),clear=btn('Clear','secondary',()=>{ctx.clearRect(0,0,1000,300);ink=false}),save=btn('Save signature','primary',async()=>{if(signatureBusy||!same(id))return;if(!ink){error.textContent='Draw or upload your signature first.';return}const image=canvas.toDataURL('image/png');if(image.length>250000){error.textContent='The image is too detailed. Use a simpler or smaller signature image.';return}signatureBusy=true;save.disabled=clear.disabled=true;try{check(await c.rpc('pf_signature_save',{image_data:image}));if(same(id)){signature={image,updated_at:new Date().toISOString()};renderSignature();signatureDialog.close();toast('Signature saved')}}catch(e){if(same(id))error.textContent=e.message}finally{signatureBusy=false;save.disabled=clear.disabled=false}});actions.append(clear,save);signatureDialog.append(head,el('p','Draw with your mouse or finger, or upload the signature you already use.'),canvas,upload,error,actions);signatureDialog.showModal();
- }
- signatureDialog.addEventListener('cancel',e=>{if(signatureBusy)e.preventDefault()});
- const salePage=el('section',undefined,'pf-sale-page hidden');salePage.id='pfSalePage';salePage.setAttribute('aria-labelledby','pfSalePageTitle');$('portfolioView').append(salePage);
- function showSalePage(){salePage.classList.remove('hidden');$('portfolioView').classList.add('pf-recording');window.scrollTo({top:0,behavior:'instant'})}
- function closeSale(force=false,historyBack=false){if(!session)return;if(session.saving&&!force)return;const old=session;session=null;salePage.classList.add('hidden');salePage.replaceChildren();$('portfolioView').classList.remove('pf-recording');if(!historyBack&&new URL(location.href).searchParams.has('sale')){const u=new URL(location.href);u.searchParams.delete('sale');history.replaceState(null,'',u)}old.onClose?.();if(!force)$('pfNewSale')?.focus()}
- window.addEventListener('popstate',()=>{if(session&&!new URL(location.href).searchParams.has('sale'))closeSale(false,true)});
- window.addEventListener('beforeunload',e=>{if(session?.dirty){e.preventDefault();e.returnValue=''}});
- async function open(options){if(session)return;sync();const id=owner;if(!id)return;session={...options,id,request:crypto.randomUUID(),saving:false,dirty:false};showSalePage();const u=new URL(location.href);u.searchParams.set('sale','new');history.pushState({portfolioSale:true},'',u);salePage.replaceChildren(el('p','Loading sale form…'));try{const templates=check(await options.client.from('pf_contract_templates').select('*'));await (signatureLoad||fetchSignature());if(!session||session.id!==id||!same(id))return;session.templates=templates;renderSale()}catch(e){if(!session||!same(id))return;salePage.replaceChildren(btn('← Back to portfolio','text-button',()=>closeSale()),el('p',e.message||'The sale form could not load.','error'),btn('Try again','secondary',()=>{const o=session;closeSale(true);open(o)}))}}
- function renderSale(){const s=session;if(!s)return;salePage.replaceChildren();const back=btn('← Back to portfolio','text-button',()=>closeSale()),head=el('div',undefined,'pf-sale-heading'),title=el('h2','Record a sale');title.id='pfSalePageTitle';title.tabIndex=-1;head.append(title,el('p','Customer details, agreed work and a saved contract in one place.'));salePage.append(back,head);const form=el('form',undefined,'pf-sale-form');form.id='pfSaleForm';const customer=el('section',undefined,'panel');customer.append(el('h3','Customer & payment'));const grid=el('div',undefined,'pf-contract-grid');grid.append(field('Customer name','customer_name','text','',true),field('Business / organization','business'),field('Email','email','email'),field('Phone','phone','tel'));for(const [name,max] of [['customer_name',150],['business',150],['email',254],['phone',60]])grid.querySelector('[name="'+name+'"]').maxLength=max;customer.append(grid);const payment=field('Payment method','payment_method','select');const po=el('option','IFT');po.value='IFT';payment.querySelector('select').append(po);customer.append(payment);const bank=el('div',undefined,'pf-bank-details');bank.append(el('strong','Atlantic Bank'),el('span','Jose Armando Esquiliano · Checking'),el('span','Account 211747902 · Belize (BZD)'));customer.append(bank);form.append(customer);
-  const agreement=el('section',undefined,'panel');agreement.append(el('h3','Service & contract'));const service=field('Services provided','category_id','select'),select=service.querySelector('select');for(const item of s.categories.filter(c=>!c.archived)){const o=el('option',item.name+(s.allowed(item.id)?'':' · No sales access'));o.value=item.id;o.disabled=!s.allowed(item.id);select.append(o)}select.value=s.selected;agreement.append(service);const contract=el('div',undefined,'pf-contract-fields');agreement.append(contract);let draft={};
-  const blankFields={client_address:['Customer address','text'],reference:['Contract / project reference','text'],start_date:['Service start date','date'],end_date:['Service end date','date'],customer_name:['Customer name','text'],business:['Business / organization','text'],email:['Customer email','email'],phone:['Customer phone','tel'],amount:['Amount charged','number'],contract_date:['Contract date','date'],sale_date:['Sale date','date'],staff_name:['Prepared by','text'],service:['Service description','text'],payment_method:['Payment method','select']};
-  const linked=new Set(['customer_name','business','email','phone','amount','contract_date','sale_date','payment_method']);
-  function defaults(){const values=Object.fromEntries(new FormData(form));return {...values,staff_name:profile()?.name||'',service:s.categories.find(c=>c.id===select.value)?.name||'',payment_method:values.payment_method||'IFT',contract_date:values.contract_date||dayKey(),sale_date:values.sale_date||dayKey()}}
-  function refreshReadouts(){const values=defaults();for(const input of contract.querySelectorAll('[data-contract-key]')){const key=input.dataset.contractKey;if(linked.has(key))input.value=values[key]||'';else if(draft[key]===undefined)input.value=values[key]||'';}for(const n of contract.querySelectorAll('.pf-contract-currency'))n.textContent=values.currency||'BZD';}
-  function updateContract(){for(const input of contract.querySelectorAll('[data-contract-key]'))draft[input.dataset.contractKey]=input.value;contract.replaceChildren();const tmpl=s.templates.find(t=>t.category_id===select.value);s.template=tmpl;if(!tmpl){contract.append(el('p','No contract template is available. Ask an administrator to add it.','error'));return}
-   const paper=el('article',undefined,'pf-contract-document');
-   function renderText(text,root){if(!String(text||'').trim())return;for(const paragraph of String(text||'').split(/\n\s*\n/)){const p=el('p');let pos=0;for(const match of paragraph.matchAll(/{{([a-z][a-z0-9_]{0,63})}}/g)){p.append(document.createTextNode(paragraph.slice(pos,match.index)));const key=match[1],spec=Object.hasOwn(blankFields,key)?blankFields[key]:[key.replaceAll('_',' '),/date$/.test(key)?'date':'text'],input=el(spec[1]==='select'?'select':'input');input.name='contract_'+key;input.dataset.contractKey=key;if(spec[1]==='select'){const o=el('option','IFT');o.value='IFT';input.append(o)}else input.type=spec[1];input.setAttribute('aria-label',spec[0]+' (contract)');input.className='pf-contract-blank'+(spec[1]==='date'?' pf-contract-blank-date':'');input.maxLength=key==='client_address'?300:150;if(key==='amount'){input.min='0';input.max='9999999999.99';input.step='.01';const currency=el('span',defaults().currency||'BZD','pf-contract-currency');p.append(currency)}input.value=linked.has(key)?defaults()[key]||'':draft[key]??defaults()[key]??'';const changed=()=>{draft[key]=input.value;s.dirty=true;if(linked.has(key)){const target=form.elements.namedItem(key);if(target)target.value=input.value}for(const other of contract.querySelectorAll('[data-contract-key]'))if(other!==input&&other.dataset.contractKey===key)other.value=input.value};input.addEventListener('input',changed);input.addEventListener('change',changed);p.append(input);pos=match.index+match[0].length}p.append(document.createTextNode(paragraph.slice(pos)));root.append(p)}}
-   const letterhead=el('header',undefined,'pf-contract-letterhead'),logo=el('img');logo.src='assets/favicon.png?v=10';logo.alt='Esquiliano Consulting and Bookkeeping';logo.className='pf-contract-logo';logo.width=180;logo.height=180;letterhead.append(logo);const headerText=tmpl.header_text??'';if(headerText.replace(/\s+/g,' ').trim()!=='ESQUILIANO CONSULTING & BOOKKEEPING')renderText(headerText,letterhead);letterhead.append(el('h4',tmpl.title));paper.append(letterhead);const body=el('div',undefined,'pf-contract-document-body');renderText(tmpl.body,body);const footer=el('footer',undefined,'pf-contract-document-footer');renderText(tmpl.footer_text??'',footer);paper.append(body,footer);contract.append(paper);refreshReadouts();
+window.PortfolioContracts = (() => {
+  'use strict';
+  const $ = (id) => document.getElementById(id),
+    el = (tag, text, cls) => {
+      const n = document.createElement(tag);
+      if (text !== undefined) n.textContent = text;
+      if (cls) n.className = cls;
+      return n;
+    };
+  const btn = (text, cls, fn) => {
+    const b = el('button', text, cls);
+    b.type = 'button';
+    b.onclick = fn;
+    return b;
+  };
+  const field = (label, name, type = 'text', value = '', required = false) => {
+    const l = el('label', label),
+      n = el(type === 'textarea' ? 'textarea' : type === 'select' ? 'select' : 'input');
+    n.name = name;
+    if (n.tagName === 'INPUT') n.type = type;
+    if (type === 'textarea') {
+      n.rows = 3;
+      n.maxLength = 3000;
+    }
+    n.value = value;
+    n.required = required;
+    l.append(n);
+    return l;
+  };
+  let owner = '',
+    signature = null,
+    signatureLoad = null,
+    profileEpoch = 0,
+    session = null,
+    signatureBusy = false;
+  const profile = () => currentProfile(),
+    client = () => clientForProfile(),
+    same = (id) => profile()?.id === id;
+  const card = el('article', undefined, 'panel pf-signature-card');
+  card.id = 'pfSignatureCard';
+  $('profileView').querySelector('.profile-grid').append(card);
+  function renderSignature() {
+    card.replaceChildren(
+      el('h2', 'Your signature'),
+      el(
+        'p',
+        'Save your existing signature or draw one. You can preview it before adding it to a contract.',
+      ),
+    );
+    if (!owner) {
+      card.append(el('p', 'Sign in to save a signature.'));
+      return;
+    }
+    const preview = el('div', undefined, 'pf-signature-preview');
+    if (signature) {
+      const img = el('img');
+      img.src = signature.image;
+      img.alt = 'Your saved signature';
+      preview.append(img);
+    } else preview.append(el('span', 'No signature saved'));
+    card.append(preview);
+    const actions = el('div', undefined, 'pf-actions');
+    actions.append(
+      btn(signature ? 'Change signature' : 'Add signature', 'secondary', () => signatureEditor()),
+    );
+    if (signature)
+      actions.append(
+        btn('Remove', 'text-button', async () => {
+          if (signatureBusy) return;
+          const id = owner;
+          signatureBusy = true;
+          try {
+            check(await client().rpc('pf_signature_save', { image_data: null }));
+            if (same(id)) {
+              signature = null;
+              renderSignature();
+              toast('Profile signature removed. Saved contracts retain their original signature.');
+            }
+          } catch (e) {
+            toast(e.message);
+          } finally {
+            signatureBusy = false;
+          }
+        }),
+      );
+    card.append(actions);
   }
-  select.onchange=updateContract;form.append(agreement);updateContract();const sign=el('section',undefined,'panel');sign.append(el('h3','Your signature'));const previewBox=el('div',undefined,'pf-signature-preview');if(signature){const img=el('img');img.src=signature.image;img.alt='Your saved profile signature';previewBox.append(img)}else previewBox.append(el('p','No profile signature saved. Add it below before saving this contract.'));sign.append(previewBox,btn(signature?'Change profile signature':'Add profile signature','secondary',()=>signatureEditor()));const consent=el('label',undefined,'pf-checkbox'),checkBox=el('input');checkBox.type='checkbox';checkBox.name='use_signature';checkBox.required=true;consent.append(checkBox,el('span','Use my saved profile signature on this contract.'));sign.append(consent);form.append(sign);s.signaturePreview=previewBox;
-  const totals=el('section',undefined,'panel');totals.append(el('h3','Amount & dates'));const amounts=el('div',undefined,'pf-contract-grid');amounts.append(field('Amount charged','amount','number','',true),field('Currency','currency','select'),field('Sale date','sale_date','date',dayKey(),true),field('Contract date','contract_date','date',dayKey(),true));const amount=amounts.querySelector('[name=amount]');amount.min='0';amount.max='9999999999.99';amount.step='.01';const currency=amounts.querySelector('[name=currency]');for(const value of ['BZD','USD']){const o=el('option',value);o.value=value;currency.append(o)}totals.append(amounts);form.append(totals);const error=el('p',undefined,'error');error.setAttribute('role','alert');error.id='pfSaleError';const actions=el('div',undefined,'pf-sale-actions');actions.append(btn('Cancel','secondary',()=>closeSale()));const save=el('button','Save sale','primary');save.type='submit';actions.append(save);form.append(error,actions);form.oninput=()=>{s.dirty=true;refreshReadouts()};form.addEventListener('change',refreshReadouts);form.onsubmit=async e=>{e.preventDefault();if(s.saving||!same(s.id))return;error.textContent='';if(!signature){error.textContent='Save your profile signature first.';return}if(!s.template){error.textContent='A contract template is required.';return}const values=Object.fromEntries(new FormData(form)),data={id:s.request,category_id:values.category_id,customer_name:values.customer_name,business:values.business,email:values.email,phone:values.phone,payment_method:values.payment_method,amount:values.amount,currency:values.currency,sale_date:values.sale_date,contract_date:values.contract_date,template_version:s.template.version,use_signature:checkBox.checked,contract_format:'document-v1',contract_fields:Object.fromEntries(Array.from(contract.querySelectorAll('[data-contract-key]')).map(n=>[n.dataset.contractKey,n.value]))};s.saving=true;const controls=Array.from(form.elements);controls.forEach(c=>c.disabled=true);try{check(await s.client.rpc('pf_sale_save',{data}));if(same(s.id)&&session===s){s.dirty=false;closeSale(true);toast('Sale and contract saved. Find the PDF in Sales records.');await s.onSaved?.()}}catch(e){if(same(s.id)&&session===s)error.textContent=e.message||'The sale could not be saved. Try again.'}finally{s.saving=false;controls.forEach(c=>c.disabled=false)}};salePage.append(form);title.focus();
- }
- async function download(sale,button,editable=false){button.disabled=true;try{await PortfolioContractPDF.download(sale,{editable})}catch(e){toast(e.message||'PDF download failed.')}finally{button.disabled=false}}
- function refreshSaleSignature(){if(!session?.signaturePreview)return;const b=session.signaturePreview;b.replaceChildren();if(signature){const img=el('img');img.src=signature.image;img.alt='Your saved profile signature';b.append(img)}const confirm=salePage.querySelector('[name=use_signature]');if(confirm)confirm.checked=false}
- signatureDialog.addEventListener('close',refreshSaleSignature);
- async function editTemplate(category,onSaved){return window.PortfolioTemplateEditor.open(category,onSaved)}
- sync();renderSignature();return {sync,open,close:()=>closeSale(true),download,editTemplate};
+  async function fetchSignature() {
+    const id = owner,
+      version = profileEpoch;
+    if (!id || preview) return null;
+    const r = await client()
+      .from('pf_signatures')
+      .select('image,updated_at')
+      .eq('user_id', id)
+      .maybeSingle();
+    if (!same(id) || version !== profileEpoch) return null;
+    signature = check(r);
+    renderSignature();
+    return signature;
+  }
+  function sync() {
+    const id = profile()?.id || '';
+    if (id === owner) return;
+    profileEpoch++;
+    owner = id;
+    signature = null;
+    signatureLoad = null;
+    signatureBusy = false;
+    closeSale(true);
+    signatureDialog?.close();
+    document.querySelectorAll('[data-pf-template-dialog]').forEach((d) => d.close());
+    renderSignature();
+    if (id && !preview)
+      signatureLoad = fetchSignature().catch((e) => {
+        if (same(id)) card.append(el('p', e.message, 'error'));
+        return null;
+      });
+  }
+  const signatureDialog = el('dialog', undefined, 'pf-dialog pf-signature-dialog');
+  signatureDialog.id = 'pfSignatureDialog';
+  signatureDialog.setAttribute('aria-label', 'Save your signature');
+  document.body.append(signatureDialog);
+  function signatureEditor() {
+    if (!owner || signatureBusy) return;
+    const id = owner,
+      c = client();
+    let ink = false,
+      drawing = false,
+      last = null;
+    signatureDialog.replaceChildren();
+    const head = el('div', undefined, 'section-title');
+    head.append(
+      el('h2', 'Your signature'),
+      btn('Close', 'text-button', () => {
+        if (!signatureBusy) signatureDialog.close();
+      }),
+    );
+    const canvas = el('canvas');
+    canvas.width = 1000;
+    canvas.height = 300;
+    canvas.setAttribute(
+      'aria-label',
+      'Draw your signature here, or upload your existing signature below',
+    );
+    canvas.style.touchAction = 'none';
+    const ctx = canvas.getContext('2d');
+    ctx.lineWidth = 4;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.strokeStyle = '#19382f';
+    const point = (e) => {
+      const r = canvas.getBoundingClientRect();
+      return [((e.clientX - r.left) * 1000) / r.width, ((e.clientY - r.top) * 300) / r.height];
+    };
+    canvas.onpointerdown = (e) => {
+      drawing = true;
+      last = point(e);
+      canvas.setPointerCapture(e.pointerId);
+    };
+    canvas.onpointermove = (e) => {
+      if (!drawing) return;
+      const p = point(e);
+      ctx.beginPath();
+      ctx.moveTo(...last);
+      ctx.lineTo(...p);
+      ctx.stroke();
+      last = p;
+      ink = true;
+    };
+    canvas.onpointerup = canvas.onpointercancel = () => {
+      drawing = false;
+      last = null;
+    };
+    const upload = field('Or upload your existing signature', 'signature_upload', 'file');
+    upload.querySelector('input').accept = 'image/png,image/jpeg,image/webp';
+    const error = el('p', undefined, 'error');
+    error.setAttribute('role', 'alert');
+    upload.querySelector('input').onchange = async (e) => {
+      try {
+        const f = e.target.files[0];
+        if (!f) return;
+        if (!/^image\/(png|jpeg|webp)$/.test(f.type) || f.size > 5000000)
+          throw Error('Choose a PNG, JPG or WebP under 5 MB.');
+        const image = await createImageBitmap(f);
+        ctx.clearRect(0, 0, 1000, 300);
+        const scale = Math.min(960 / image.width, 260 / image.height);
+        ctx.drawImage(
+          image,
+          (1000 - image.width * scale) / 2,
+          (300 - image.height * scale) / 2,
+          image.width * scale,
+          image.height * scale,
+        );
+        image.close();
+        ink = true;
+        error.textContent = '';
+      } catch (e) {
+        error.textContent = e.message;
+      }
+    };
+    const actions = el('div', undefined, 'pf-actions'),
+      clear = btn('Clear', 'secondary', () => {
+        ctx.clearRect(0, 0, 1000, 300);
+        ink = false;
+      }),
+      save = btn('Save signature', 'primary', async () => {
+        if (signatureBusy || !same(id)) return;
+        if (!ink) {
+          error.textContent = 'Draw or upload your signature first.';
+          return;
+        }
+        const image = canvas.toDataURL('image/png');
+        if (image.length > 250000) {
+          error.textContent =
+            'The image is too detailed. Use a simpler or smaller signature image.';
+          return;
+        }
+        signatureBusy = true;
+        save.disabled = clear.disabled = true;
+        try {
+          check(await c.rpc('pf_signature_save', { image_data: image }));
+          if (same(id)) {
+            signature = { image, updated_at: new Date().toISOString() };
+            renderSignature();
+            signatureDialog.close();
+            toast('Signature saved');
+          }
+        } catch (e) {
+          if (same(id)) error.textContent = e.message;
+        } finally {
+          signatureBusy = false;
+          save.disabled = clear.disabled = false;
+        }
+      });
+    actions.append(clear, save);
+    signatureDialog.append(
+      head,
+      el('p', 'Draw with your mouse or finger, or upload the signature you already use.'),
+      canvas,
+      upload,
+      error,
+      actions,
+    );
+    signatureDialog.showModal();
+  }
+  signatureDialog.addEventListener('cancel', (e) => {
+    if (signatureBusy) e.preventDefault();
+  });
+  const salePage = el('section', undefined, 'pf-sale-page hidden');
+  salePage.id = 'pfSalePage';
+  salePage.setAttribute('aria-labelledby', 'pfSalePageTitle');
+  $('portfolioView').append(salePage);
+  function showSalePage() {
+    salePage.classList.remove('hidden');
+    $('portfolioView').classList.add('pf-recording');
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }
+  function closeSale(force = false, historyBack = false) {
+    if (!session) return;
+    if (session.saving && !force) return;
+    const old = session;
+    session = null;
+    salePage.classList.add('hidden');
+    salePage.replaceChildren();
+    $('portfolioView').classList.remove('pf-recording');
+    if (!historyBack && new URL(location.href).searchParams.has('sale')) {
+      const u = new URL(location.href);
+      u.searchParams.delete('sale');
+      history.replaceState(null, '', u);
+    }
+    old.onClose?.();
+    if (!force) $('pfNewSale')?.focus();
+  }
+  window.addEventListener('popstate', () => {
+    if (session && !new URL(location.href).searchParams.has('sale')) closeSale(false, true);
+  });
+  window.addEventListener('beforeunload', (e) => {
+    if (session?.dirty) {
+      e.preventDefault();
+      e.returnValue = '';
+    }
+  });
+  async function open(options) {
+    if (session) return;
+    sync();
+    const id = owner;
+    if (!id) return;
+    session = { ...options, id, request: crypto.randomUUID(), saving: false, dirty: false };
+    showSalePage();
+    const u = new URL(location.href);
+    u.searchParams.set('sale', 'new');
+    history.pushState({ portfolioSale: true }, '', u);
+    salePage.replaceChildren(el('p', 'Loading sale form…'));
+    try {
+      const templates = check(await options.client.from('pf_contract_templates').select('*'));
+      await (signatureLoad || fetchSignature());
+      if (!session || session.id !== id || !same(id)) return;
+      session.templates = templates;
+      renderSale();
+    } catch (e) {
+      if (!session || !same(id)) return;
+      salePage.replaceChildren(
+        btn('← Back to portfolio', 'text-button', () => closeSale()),
+        el('p', e.message || 'The sale form could not load.', 'error'),
+        btn('Try again', 'secondary', () => {
+          const o = session;
+          closeSale(true);
+          open(o);
+        }),
+      );
+    }
+  }
+  function renderSale() {
+    const s = session;
+    if (!s) return;
+    salePage.replaceChildren();
+    const back = btn('← Back to portfolio', 'text-button', () => closeSale()),
+      head = el('div', undefined, 'pf-sale-heading'),
+      title = el('h2', 'Record a sale');
+    title.id = 'pfSalePageTitle';
+    title.tabIndex = -1;
+    head.append(title, el('p', 'Customer details, agreed work and a saved contract in one place.'));
+    salePage.append(back, head);
+    const form = el('form', undefined, 'pf-sale-form');
+    form.id = 'pfSaleForm';
+    const customer = el('section', undefined, 'panel');
+    customer.append(el('h3', 'Customer & payment'));
+    const grid = el('div', undefined, 'pf-contract-grid');
+    grid.append(
+      field('Customer name', 'customer_name', 'text', '', true),
+      field('Business / organization', 'business'),
+      field('Email', 'email', 'email'),
+      field('Phone', 'phone', 'tel'),
+    );
+    for (const [name, max] of [
+      ['customer_name', 150],
+      ['business', 150],
+      ['email', 254],
+      ['phone', 60],
+    ])
+      grid.querySelector('[name="' + name + '"]').maxLength = max;
+    customer.append(grid);
+    const payment = field('Payment method', 'payment_method', 'select');
+    const po = el('option', 'IFT');
+    po.value = 'IFT';
+    payment.querySelector('select').append(po);
+    customer.append(payment);
+    const bank = el('div', undefined, 'pf-bank-details');
+    bank.append(
+      el('strong', 'Atlantic Bank'),
+      el('span', 'Jose Armando Esquiliano · Checking'),
+      el('span', 'Account 211747902 · Belize (BZD)'),
+    );
+    customer.append(bank);
+    form.append(customer);
+    const agreement = el('section', undefined, 'panel');
+    agreement.append(el('h3', 'Service & contract'));
+    const service = field('Services provided', 'category_id', 'select'),
+      select = service.querySelector('select');
+    for (const item of s.categories.filter((c) => !c.archived)) {
+      const o = el('option', item.name + (s.allowed(item.id) ? '' : ' · No sales access'));
+      o.value = item.id;
+      o.disabled = !s.allowed(item.id);
+      select.append(o);
+    }
+    select.value = s.selected;
+    agreement.append(service);
+    const contract = el('div', undefined, 'pf-contract-fields');
+    agreement.append(contract);
+    let draft = {};
+    const blankFields = {
+      client_address: ['Customer address', 'text'],
+      reference: ['Contract / project reference', 'text'],
+      start_date: ['Service start date', 'date'],
+      end_date: ['Service end date', 'date'],
+      customer_name: ['Customer name', 'text'],
+      business: ['Business / organization', 'text'],
+      email: ['Customer email', 'email'],
+      phone: ['Customer phone', 'tel'],
+      amount: ['Amount charged', 'number'],
+      contract_date: ['Contract date', 'date'],
+      sale_date: ['Sale date', 'date'],
+      staff_name: ['Prepared by', 'text'],
+      service: ['Service description', 'text'],
+      payment_method: ['Payment method', 'select'],
+    };
+    const linked = new Set([
+      'customer_name',
+      'business',
+      'email',
+      'phone',
+      'amount',
+      'contract_date',
+      'sale_date',
+      'payment_method',
+    ]);
+    function defaults() {
+      const values = Object.fromEntries(new FormData(form));
+      return {
+        ...values,
+        staff_name: profile()?.name || '',
+        service: s.categories.find((c) => c.id === select.value)?.name || '',
+        payment_method: values.payment_method || 'IFT',
+        contract_date: values.contract_date || dayKey(),
+        sale_date: values.sale_date || dayKey(),
+      };
+    }
+    function refreshReadouts() {
+      const values = defaults();
+      for (const input of contract.querySelectorAll('[data-contract-key]')) {
+        const key = input.dataset.contractKey;
+        if (linked.has(key)) input.value = values[key] || '';
+        else if (draft[key] === undefined) input.value = values[key] || '';
+      }
+      for (const n of contract.querySelectorAll('.pf-contract-currency'))
+        n.textContent = values.currency || 'BZD';
+    }
+    function updateContract() {
+      for (const input of contract.querySelectorAll('[data-contract-key]'))
+        draft[input.dataset.contractKey] = input.value;
+      contract.replaceChildren();
+      const tmpl = s.templates.find((t) => t.category_id === select.value);
+      s.template = tmpl;
+      if (!tmpl) {
+        contract.append(
+          el('p', 'No contract template is available. Ask an administrator to add it.', 'error'),
+        );
+        return;
+      }
+      const paper = el('article', undefined, 'pf-contract-document');
+      function renderText(text, root) {
+        if (!String(text || '').trim()) return;
+        for (const paragraph of String(text || '').split(/\n\s*\n/)) {
+          const p = el('p');
+          let pos = 0;
+          for (const match of paragraph.matchAll(/{{([a-z][a-z0-9_]{0,63})}}/g)) {
+            p.append(document.createTextNode(paragraph.slice(pos, match.index)));
+            const key = match[1],
+              spec = Object.hasOwn(blankFields, key)
+                ? blankFields[key]
+                : [key.replaceAll('_', ' '), /date$/.test(key) ? 'date' : 'text'],
+              input = el(spec[1] === 'select' ? 'select' : 'input');
+            input.name = 'contract_' + key;
+            input.dataset.contractKey = key;
+            if (spec[1] === 'select') {
+              const o = el('option', 'IFT');
+              o.value = 'IFT';
+              input.append(o);
+            } else input.type = spec[1];
+            input.setAttribute('aria-label', spec[0] + ' (contract)');
+            input.className =
+              'pf-contract-blank' + (spec[1] === 'date' ? ' pf-contract-blank-date' : '');
+            input.maxLength = key === 'client_address' ? 300 : 150;
+            if (key === 'amount') {
+              input.min = '0';
+              input.max = '9999999999.99';
+              input.step = '.01';
+              const currency = el('span', defaults().currency || 'BZD', 'pf-contract-currency');
+              p.append(currency);
+            }
+            input.value = linked.has(key)
+              ? defaults()[key] || ''
+              : (draft[key] ?? defaults()[key] ?? '');
+            const changed = () => {
+              draft[key] = input.value;
+              s.dirty = true;
+              if (linked.has(key)) {
+                const target = form.elements.namedItem(key);
+                if (target) target.value = input.value;
+              }
+              for (const other of contract.querySelectorAll('[data-contract-key]'))
+                if (other !== input && other.dataset.contractKey === key) other.value = input.value;
+            };
+            input.addEventListener('input', changed);
+            input.addEventListener('change', changed);
+            p.append(input);
+            pos = match.index + match[0].length;
+          }
+          p.append(document.createTextNode(paragraph.slice(pos)));
+          root.append(p);
+        }
+      }
+      const letterhead = el('header', undefined, 'pf-contract-letterhead'),
+        logo = el('img');
+      logo.src = 'assets/favicon.png?v=10';
+      logo.alt = 'Esquiliano Consulting and Bookkeeping';
+      logo.className = 'pf-contract-logo';
+      logo.width = 180;
+      logo.height = 180;
+      letterhead.append(logo);
+      const headerText = tmpl.header_text ?? '';
+      if (headerText.replace(/\s+/g, ' ').trim() !== 'ESQUILIANO CONSULTING & BOOKKEEPING')
+        renderText(headerText, letterhead);
+      letterhead.append(el('h4', tmpl.title));
+      paper.append(letterhead);
+      const body = el('div', undefined, 'pf-contract-document-body');
+      renderText(tmpl.body, body);
+      const footer = el('footer', undefined, 'pf-contract-document-footer');
+      renderText(tmpl.footer_text ?? '', footer);
+      paper.append(body, footer);
+      contract.append(paper);
+      refreshReadouts();
+    }
+    select.onchange = updateContract;
+    form.append(agreement);
+    updateContract();
+    const sign = el('section', undefined, 'panel');
+    sign.append(el('h3', 'Your signature'));
+    const previewBox = el('div', undefined, 'pf-signature-preview');
+    if (signature) {
+      const img = el('img');
+      img.src = signature.image;
+      img.alt = 'Your saved profile signature';
+      previewBox.append(img);
+    } else
+      previewBox.append(
+        el('p', 'No profile signature saved. Add it below before saving this contract.'),
+      );
+    sign.append(
+      previewBox,
+      btn(signature ? 'Change profile signature' : 'Add profile signature', 'secondary', () =>
+        signatureEditor(),
+      ),
+    );
+    const consent = el('label', undefined, 'pf-checkbox'),
+      checkBox = el('input');
+    checkBox.type = 'checkbox';
+    checkBox.name = 'use_signature';
+    checkBox.required = true;
+    consent.append(checkBox, el('span', 'Use my saved profile signature on this contract.'));
+    sign.append(consent);
+    form.append(sign);
+    s.signaturePreview = previewBox;
+    const totals = el('section', undefined, 'panel');
+    totals.append(el('h3', 'Amount & dates'));
+    const amounts = el('div', undefined, 'pf-contract-grid');
+    amounts.append(
+      field('Amount charged', 'amount', 'number', '', true),
+      field('Currency', 'currency', 'select'),
+      field('Sale date', 'sale_date', 'date', dayKey(), true),
+      field('Contract date', 'contract_date', 'date', dayKey(), true),
+    );
+    const amount = amounts.querySelector('[name=amount]');
+    amount.min = '0';
+    amount.max = '9999999999.99';
+    amount.step = '.01';
+    const currency = amounts.querySelector('[name=currency]');
+    for (const value of ['BZD', 'USD']) {
+      const o = el('option', value);
+      o.value = value;
+      currency.append(o);
+    }
+    totals.append(amounts);
+    form.append(totals);
+    const error = el('p', undefined, 'error');
+    error.setAttribute('role', 'alert');
+    error.id = 'pfSaleError';
+    const actions = el('div', undefined, 'pf-sale-actions');
+    actions.append(btn('Cancel', 'secondary', () => closeSale()));
+    const save = el('button', 'Save sale', 'primary');
+    save.type = 'submit';
+    actions.append(save);
+    form.append(error, actions);
+    form.oninput = () => {
+      s.dirty = true;
+      refreshReadouts();
+    };
+    form.addEventListener('change', refreshReadouts);
+    form.onsubmit = async (e) => {
+      e.preventDefault();
+      if (s.saving || !same(s.id)) return;
+      error.textContent = '';
+      if (!signature) {
+        error.textContent = 'Save your profile signature first.';
+        return;
+      }
+      if (!s.template) {
+        error.textContent = 'A contract template is required.';
+        return;
+      }
+      const values = Object.fromEntries(new FormData(form)),
+        data = {
+          id: s.request,
+          category_id: values.category_id,
+          customer_name: values.customer_name,
+          business: values.business,
+          email: values.email,
+          phone: values.phone,
+          payment_method: values.payment_method,
+          amount: values.amount,
+          currency: values.currency,
+          sale_date: values.sale_date,
+          contract_date: values.contract_date,
+          template_version: s.template.version,
+          use_signature: checkBox.checked,
+          contract_format: 'document-v1',
+          contract_fields: Object.fromEntries(
+            Array.from(contract.querySelectorAll('[data-contract-key]')).map((n) => [
+              n.dataset.contractKey,
+              n.value,
+            ]),
+          ),
+        };
+      s.saving = true;
+      const controls = Array.from(form.elements);
+      controls.forEach((c) => (c.disabled = true));
+      try {
+        check(await s.client.rpc('pf_sale_save', { data }));
+        if (same(s.id) && session === s) {
+          s.dirty = false;
+          closeSale(true);
+          toast('Sale and contract saved. Find the PDF in Sales records.');
+          await s.onSaved?.();
+        }
+      } catch (e) {
+        if (same(s.id) && session === s)
+          error.textContent = e.message || 'The sale could not be saved. Try again.';
+      } finally {
+        s.saving = false;
+        controls.forEach((c) => (c.disabled = false));
+      }
+    };
+    salePage.append(form);
+    title.focus();
+  }
+  async function download(sale, button, editable = false) {
+    button.disabled = true;
+    try {
+      await PortfolioContractPDF.download(sale, { editable });
+    } catch (e) {
+      toast(e.message || 'PDF download failed.');
+    } finally {
+      button.disabled = false;
+    }
+  }
+  function refreshSaleSignature() {
+    if (!session?.signaturePreview) return;
+    const b = session.signaturePreview;
+    b.replaceChildren();
+    if (signature) {
+      const img = el('img');
+      img.src = signature.image;
+      img.alt = 'Your saved profile signature';
+      b.append(img);
+    }
+    const confirm = salePage.querySelector('[name=use_signature]');
+    if (confirm) confirm.checked = false;
+  }
+  signatureDialog.addEventListener('close', refreshSaleSignature);
+  async function editTemplate(category, onSaved) {
+    return window.PortfolioTemplateEditor.open(category, onSaved);
+  }
+  sync();
+  renderSignature();
+  return { sync, open, close: () => closeSale(true), download, editTemplate };
 })();
